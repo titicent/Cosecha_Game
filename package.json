@@ -1,0 +1,29 @@
+{
+  "name": "cosecha",
+  "version": "1.0.0",
+  "description": "Servidor y cliente para jugar Cosecha en línea",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "cartas": "node cartas.js",
+    "test:bots": "node pruebas-bots.js",
+    "test:inactividad": "node pruebas-inactividad.js",
+    "test:clima": "node pruebas-clima.js",
+    "imprimible": "node gen-imprimible.js",
+    "catalogo": "node gen-catalogo.js",
+    "hero": "node gen-hero.js",
+    "test:navegador": "node pruebas-navegador.js",
+    "test:coherencia": "node pruebas-coherencia.js",
+    "test": "node pruebas-coherencia.js && node simular.js && node prueba.js && node pruebas-bots.js && node pruebas-clima.js && node pruebas-inactividad.js",
+    "ritmo": "node ritmo.js",
+    "preparar": "python3 prepara-cartas.py",
+    "guia": "node gen-guia.js",
+    "iconos": "python3 prepara-iconos.py"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}
