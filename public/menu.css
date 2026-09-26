@@ -1,0 +1,293 @@
+/* ═══════════════════════════════════════════════════════════════
+   COSECHA — menú de juego
+   Ingreso, modos, configuración, transición de entrada y sala de espera.
+   Es un menú de juego, no un formulario: paneles oscuros de madera y oro
+   sobre el cafetal, números grandes, pocos textos y botones que se tocan.
+   La letra es Fredoka, la misma de las cartas impresas.
+   ═══════════════════════════════════════════════════════════════ */
+@font-face{font-family:"Fredoka";font-weight:600;font-display:swap;
+  src:url("fuentes/fredoka-latin-600-normal.woff2") format("woff2")}
+
+:root{
+  --m-panel:rgba(20,33,17,.80); --m-panel-2:rgba(32,50,26,.86);
+  --m-oro:#E0B04A; --m-oro-suave:rgba(224,176,74,.45); --m-crema:#F7F1E1; --m-tenue:#C7C3AE;
+  --m-verde:#5E9B3A; --m-verde-2:#3D7224; --m-sombra:0 14px 34px rgba(0,0,0,.38);
+}
+.m{font-family:"Fredoka",ui-rounded,system-ui,sans-serif;color:var(--m-crema);
+  display:flex;flex-direction:column;align-items:center;gap:18px;padding:10px 0 96px;min-height:calc(100vh - 64px)}
+.m *{box-sizing:border-box}
+.m button{font-family:inherit}
+.m-titulo{font-size:clamp(22px,5vw,30px);margin:6px 0 0;text-align:center;letter-spacing:.01em;
+  text-shadow:0 2px 10px rgba(0,0,0,.45)}
+.m-sub{margin:-8px 0 0;text-align:center;color:var(--m-tenue);font-size:15px;max-width:40ch;line-height:1.35}
+
+/* ── marco dorado, el panel de todo el menú ── */
+.m-marco{position:relative;width:min(100%,560px);background:var(--m-panel);border:1.5px solid var(--m-oro);
+  border-radius:18px;padding:20px 18px;box-shadow:var(--m-sombra), inset 0 0 0 4px rgba(224,176,74,.08);
+  backdrop-filter:blur(6px)}
+.m-marco.ancho{width:min(100%,760px)}
+
+/* ── 1 · Ingreso del nombre ── */
+.m-logo{display:flex;flex-direction:column;align-items:center;gap:4px;margin-top:4px}
+.m-logo .palabra{font-size:clamp(48px,13vw,84px);line-height:.95;letter-spacing:.01em;color:#FFF6DC;
+  text-shadow:0 3px 0 #8C3A2B, 0 6px 0 rgba(0,0,0,.25), 0 10px 26px rgba(0,0,0,.45)}
+.m-logo .antes{font-size:15px;color:var(--m-oro);letter-spacing:.2em;text-transform:uppercase}
+.m-abanico{position:relative;height:118px;width:250px;margin:4px 0 -6px}
+.m-abanico img{position:absolute;width:96px;height:96px;object-fit:contain;padding:6px;border-radius:14px;
+  background:#FBF8F1;border:3px solid var(--t);box-shadow:0 8px 18px rgba(0,0,0,.35);
+  animation:m-flota 4s ease-in-out infinite}
+.m-abanico img:nth-child(1){left:8px;top:18px;transform:rotate(-13deg);animation-delay:-1.3s}
+.m-abanico img:nth-child(2){left:77px;top:0;z-index:2}
+.m-abanico img:nth-child(3){left:146px;top:18px;transform:rotate(13deg);animation-delay:-2.6s}
+@keyframes m-flota{0%,100%{translate:0 0}50%{translate:0 -7px}}
+.m-pide{margin:0 0 14px;text-align:center;font-size:clamp(19px,4.6vw,24px)}
+.m-barra{display:flex;align-items:center;gap:6px;background:rgba(6,14,5,.6);border:1.5px solid rgba(224,176,74,.35);
+  border-radius:40px;padding:6px 6px 6px 18px}
+.m-barra input{flex:1;min-width:0;background:transparent;border:0;outline:0;color:var(--m-crema);
+  font:600 20px "Fredoka",system-ui,sans-serif;padding:10px 0}
+.m-barra input::placeholder{color:rgba(247,241,225,.45)}
+.m-barra:focus-within{border-color:var(--m-oro);box-shadow:0 0 0 3px rgba(224,176,74,.25)}
+.m-nota{font-size:13px;color:var(--m-tenue);text-align:center;margin:0}
+
+/* botones de juego */
+.m-boton{border:1.5px solid var(--m-oro);border-radius:40px;background:linear-gradient(#3A4A2C,#1F2B17);
+  color:var(--m-crema);font-size:17px;padding:12px 22px;letter-spacing:.04em;text-transform:uppercase;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18), 0 4px 10px rgba(0,0,0,.3);transition:transform .12s, filter .12s}
+.m-boton:hover{filter:brightness(1.12)}
+.m-boton:active{transform:translateY(1px) scale(.98)}
+.m-boton[disabled]{opacity:.45;filter:none}
+.m-jugar{width:min(100%,520px);border:2px solid #F3D27A;border-radius:50px;padding:16px 20px;
+  background:linear-gradient(#78B84B,var(--m-verde) 45%,var(--m-verde-2));color:#fff;
+  font-size:clamp(22px,5.4vw,28px);letter-spacing:.06em;text-transform:uppercase;
+  text-shadow:0 2px 0 rgba(0,0,0,.3);box-shadow:inset 0 2px 0 rgba(255,255,255,.3), 0 10px 24px rgba(0,0,0,.4);
+  transition:transform .12s, filter .12s}
+.m-jugar:hover{filter:brightness(1.08)}
+.m-jugar:active{transform:translateY(2px)}
+.m-jugar[disabled]{filter:grayscale(.7);opacity:.6}
+.m-volver{position:fixed;left:calc(12px + env(safe-area-inset-left));bottom:calc(14px + env(safe-area-inset-bottom));
+  z-index:20;width:52px;height:52px;border-radius:50%;border:1.5px solid var(--m-oro);background:var(--m-panel-2);
+  color:var(--m-crema);font-size:26px;display:grid;place-items:center;box-shadow:var(--m-sombra)}
+.m-ayuda{position:fixed;right:calc(12px + env(safe-area-inset-right));bottom:calc(14px + env(safe-area-inset-bottom));
+  z-index:20;height:52px;border-radius:30px;border:1.5px solid var(--m-oro);background:var(--m-panel-2);
+  color:var(--m-crema);font-size:15px;padding:0 18px;display:flex;align-items:center;gap:8px;box-shadow:var(--m-sombra)}
+.m-ayuda svg{width:22px;height:22px}
+
+/* ── Jugador (arriba de los modos) ── */
+.m-jugador{display:flex;align-items:center;gap:10px;background:var(--m-panel);border:1.5px solid var(--m-oro-suave);
+  border-radius:40px;padding:5px 16px 5px 5px;color:var(--m-crema);font-size:17px}
+.m-jugador img{width:40px;height:40px;border-radius:50%;object-fit:cover;background:#C9A227;border:2px solid var(--m-oro)}
+.m-jugador .lapiz{font-size:13px;color:var(--m-oro)}
+
+/* ── 3 · Modos ── */
+.m-modos{display:grid;grid-template-columns:repeat(2,minmax(0,250px));gap:clamp(12px,3vw,26px);width:100%;justify-content:center}
+.m-modo{position:relative;border-radius:20px;border:2px solid var(--m-oro-suave);overflow:hidden;
+  background:radial-gradient(120% 90% at 50% 18%, var(--luz) 0%, rgba(14,24,12,.92) 72%);
+  aspect-ratio:5/6;display:flex;flex-direction:column;justify-content:flex-end;padding:0;cursor:pointer;
+  box-shadow:var(--m-sombra);transition:transform .18s, border-color .18s, box-shadow .18s;color:var(--m-crema)}
+.m-modo:hover,.m-modo:focus-visible{transform:translateY(-4px);border-color:var(--m-oro);
+  box-shadow:0 18px 40px rgba(0,0,0,.45), 0 0 0 3px rgba(224,176,74,.25)}
+.m-modo.solo{--luz:rgba(94,155,58,.55)}
+.m-modo.privada{--luz:rgba(212,120,40,.55)}
+.m-escena{position:absolute;inset:0 0 34% 0;display:grid;place-items:center}
+.m-modo .rotulo{position:relative;background:linear-gradient(transparent,rgba(8,14,6,.85) 30%);padding:26px 12px 14px;text-align:center}
+.m-modo .rotulo b{display:block;font-size:clamp(19px,4.4vw,24px);font-weight:600}
+.m-modo .rotulo span{display:block;font-size:13px;color:var(--m-tenue);margin-top:2px;line-height:1.3}
+/* escena del modo solo: tres cartas y dos vecinos de la máquina */
+.esc-solo{position:relative;width:170px;height:150px}
+.esc-solo .cartita{position:absolute;width:70px;height:92px;border-radius:9px;background:#FBF8F1;border:3px solid var(--t);
+  padding:4px;box-shadow:0 8px 16px rgba(0,0,0,.4)}
+.esc-solo .cartita img{width:100%;height:100%;object-fit:contain}
+.esc-solo .c1{left:14px;top:26px;transform:rotate(-14deg)}
+.esc-solo .c2{left:50px;top:10px;z-index:2}
+.esc-solo .c3{left:86px;top:26px;transform:rotate(14deg)}
+.esc-solo .bot{position:absolute;width:46px;height:46px;border-radius:50%;border:2.5px solid var(--m-oro);object-fit:cover;
+  box-shadow:0 4px 10px rgba(0,0,0,.45);z-index:3;background:#A34A2B}
+.esc-solo .b1{left:0;bottom:0}.esc-solo .b2{right:0;bottom:0;background:#3B5BC4}
+.esc-solo .chipbot{position:absolute;z-index:4;font-size:11px;background:var(--m-oro);color:#2A1E00;border-radius:10px;padding:1px 7px;
+  left:50%;bottom:4px;transform:translateX(-50%);letter-spacing:.06em;text-transform:uppercase}
+/* escena de sala privada: dos finqueros frente a frente y el código */
+.esc-priv{position:relative;width:180px;height:150px}
+.esc-priv img{position:absolute;top:14px;width:84px;height:84px;border-radius:50%;object-fit:cover;border:3px solid var(--m-oro);
+  box-shadow:0 8px 18px rgba(0,0,0,.45)}
+.esc-priv .p1{left:4px;background:#C9A227}
+.esc-priv .p2{right:4px;background:#2F8F72;transform:scaleX(-1)}
+.esc-priv .clave{position:absolute;left:50%;bottom:6px;transform:translateX(-50%);display:flex;gap:3px}
+.esc-priv .clave i{font-style:normal;width:24px;height:30px;border-radius:6px;background:#FBF8F1;color:#2A2114;
+  display:grid;place-items:center;font-size:17px;box-shadow:0 3px 6px rgba(0,0,0,.35)}
+.m-seguir{display:flex;align-items:center;gap:12px;width:min(100%,560px);background:rgba(232,166,44,.16);
+  border:1.5px solid var(--m-oro);border-radius:16px;padding:10px 12px 10px 16px;font-size:15px}
+.m-seguir span{flex:1}
+
+/* ── Configuración ── */
+.m-diales{display:grid;grid-template-columns:repeat(var(--n,3),minmax(0,1fr));gap:6px}
+.dial{display:flex;flex-direction:column;align-items:center;text-align:center;min-width:0;height:100%}
+.dial .valor{height:74px;display:flex;align-items:flex-end;justify-content:center;gap:4px;line-height:1}
+.dial .valor b{font-weight:600;font-size:clamp(40px,11vw,62px);color:#fff;text-shadow:0 3px 12px rgba(0,0,0,.4)}
+.dial .valor b.palabra{font-size:clamp(22px,5.6vw,34px);letter-spacing:.02em;padding-bottom:6px}
+.dial .valor small{font-size:16px;color:var(--m-tenue);padding-bottom:8px}
+.dial .regla{width:70%;height:1.5px;background:linear-gradient(90deg,transparent,var(--m-oro),transparent);margin:8px 0 6px}
+.dial .nom{font-size:15px;color:var(--m-oro)}
+.dial .nota{font-size:12.5px;color:var(--m-tenue);min-height:32px;margin-top:2px;line-height:1.25;padding:0 2px}
+.dial .ctl{display:flex;margin-top:auto;border:1.5px solid var(--m-oro);border-radius:14px;overflow:hidden;
+  box-shadow:0 4px 10px rgba(0,0,0,.3)}
+.dial .ctl button{width:clamp(42px,11vw,56px);height:44px;border:0;background:linear-gradient(#34452A,#1B2614);color:#fff;
+  font-size:26px;line-height:1}
+.dial .ctl button+button{border-left:1.5px solid rgba(224,176,74,.5)}
+.dial .ctl button[disabled]{color:rgba(255,255,255,.25)}
+.dial .sillas{display:flex;justify-content:center;gap:2px;margin:6px 0 8px;min-height:22px}
+.dial .sillas img,.dial .sillas .av{width:20px;height:20px;border-radius:50%;object-fit:cover;border:1.5px solid var(--m-oro)}
+
+.m-seccion{width:100%;margin-top:18px}
+.m-seccion > h3{font-size:15px;color:var(--m-oro);font-weight:600;margin:0 0 10px;letter-spacing:.08em;text-transform:uppercase;
+  display:flex;align-items:center;gap:10px}
+.m-seccion > h3::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--m-oro-suave),transparent)}
+.m-barajas{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.baraja{position:relative;border-radius:14px;border:2px solid rgba(255,255,255,.15);background:rgba(0,0,0,.25);
+  color:var(--m-crema);padding:10px 6px 10px;display:flex;flex-direction:column;align-items:center;gap:2px;
+  transition:border-color .15s, background .15s, transform .15s, opacity .15s}
+.baraja .bimg{width:64px;height:64px;border-radius:12px;background:#FBF8F1;padding:4px;border:2.5px solid var(--t);
+  transition:filter .15s}
+.baraja .bimg img,.baraja .bimg svg{width:100%;height:100%;object-fit:contain;display:block}
+.baraja b{font-size:16px;font-weight:600;margin-top:4px}
+.baraja small{font-size:12px;color:var(--m-tenue)}
+.baraja .bsello{position:absolute;top:7px;right:7px;width:20px;height:20px;border-radius:50%;background:var(--s);padding:3px}
+.baraja .marca-ok{position:absolute;top:7px;left:7px;width:20px;height:20px;border-radius:50%;border:2px solid var(--m-oro);
+  display:grid;place-items:center;font-size:13px;color:#2A1E00}
+.baraja[aria-pressed=true]{border-color:var(--m-oro);background:rgba(224,176,74,.14)}
+.baraja[aria-pressed=true] .marca-ok{background:var(--m-oro)}
+.baraja[aria-pressed=true] .marca-ok::after{content:"✓"}
+.baraja[aria-pressed=false] .bimg{filter:grayscale(1) opacity(.55)}
+.baraja[aria-pressed=false] b{opacity:.6}
+.baraja.fija{cursor:default}
+.m-reglas{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.reglaT{display:flex;align-items:center;gap:10px;text-align:left;border-radius:14px;border:1.5px solid rgba(255,255,255,.14);
+  background:rgba(0,0,0,.22);color:var(--m-crema);padding:9px 10px}
+.reglaT .ico{width:34px;height:34px;flex:none;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.08)}
+.reglaT .ico img{width:30px;height:30px;object-fit:contain}
+.reglaT b{display:block;font-size:15px;font-weight:600}
+.reglaT small{display:block;font-size:12px;color:var(--m-tenue);line-height:1.25}
+.reglaT .interruptor{margin-left:auto;flex:none;width:38px;height:22px;border-radius:12px;background:rgba(255,255,255,.18);position:relative;
+  transition:background .15s}
+.reglaT .interruptor::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;
+  transition:transform .15s}
+.reglaT[aria-pressed=true]{border-color:var(--m-oro);background:rgba(224,176,74,.12)}
+.reglaT[aria-pressed=true] .interruptor{background:var(--m-verde)}
+.reglaT[aria-pressed=true] .interruptor::after{transform:translateX(16px)}
+.reglaT[disabled]{opacity:.4}
+
+.m-pestanas{display:flex;background:rgba(0,0,0,.35);border:1.5px solid var(--m-oro-suave);border-radius:40px;padding:4px;gap:4px;
+  width:min(100%,420px)}
+.m-pestanas button{flex:1;border:0;border-radius:30px;background:transparent;color:var(--m-tenue);font-size:16px;padding:10px 8px}
+.m-pestanas button[aria-selected=true]{background:linear-gradient(#F0C766,#D69A2C);color:#2A1E00;box-shadow:0 3px 8px rgba(0,0,0,.3)}
+.m-codigo{display:flex;justify-content:center;margin:6px 0 14px}
+.m-codigo input{width:min(100%,300px);text-align:center;font:600 44px "Fredoka",system-ui,sans-serif;letter-spacing:.42em;
+  padding:10px 0 10px .42em;text-transform:uppercase;border-radius:16px;border:2px solid var(--m-oro);
+  background:rgba(6,14,5,.6);color:#fff;outline:0}
+.m-codigo input::placeholder{color:rgba(247,241,225,.25)}
+.m-codigo input:focus{box-shadow:0 0 0 4px rgba(224,176,74,.25)}
+
+/* ── Sala de espera ── */
+.m-clave{display:flex;justify-content:center;gap:8px;margin:6px 0 4px}
+.m-clave i{font-style:normal;width:56px;height:68px;border-radius:12px;background:#FBF8F1;color:#2A2114;display:grid;place-items:center;
+  font-size:40px;box-shadow:0 6px 14px rgba(0,0,0,.4), inset 0 -4px 0 rgba(0,0,0,.08)}
+.m-sillas{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.m-silla{border-radius:16px;border:1.5px solid rgba(255,255,255,.15);background:rgba(0,0,0,.22);padding:12px 6px;text-align:center;
+  display:flex;flex-direction:column;align-items:center;gap:4px;min-height:132px;justify-content:center}
+.m-silla .av,.m-silla img{width:58px!important;height:58px!important}
+.m-silla b{font-size:16px;font-weight:600;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.m-silla small{font-size:12px;color:var(--m-tenue)}
+.m-silla .etq{font-size:11px;background:var(--m-oro);color:#2A1E00;border-radius:10px;padding:0 7px;letter-spacing:.04em}
+.m-silla.mia{border-color:var(--m-oro);background:rgba(224,176,74,.12)}
+.m-silla.libre{border-style:dashed;color:var(--m-tenue)}
+.m-silla.libre .hueco{width:58px;height:58px;border-radius:50%;border:2px dashed rgba(255,255,255,.25);display:grid;place-items:center;font-size:22px}
+.m-vecinos{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.m-vecinos button{border:1.5px solid var(--m-oro-suave);border-radius:30px;background:rgba(0,0,0,.25);color:var(--m-crema);font-size:14px;padding:9px 14px}
+.m-vecinos button:hover{border-color:var(--m-oro)}
+.m-resumen{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.m-resumen span{font-size:13px;border-radius:20px;padding:4px 11px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15)}
+.m-resumen span.on{background:rgba(224,176,74,.18);border-color:var(--m-oro-suave)}
+.m-hoja{position:fixed;inset:0;z-index:60;background:rgba(4,10,3,.72);display:flex;align-items:flex-start;justify-content:center;
+  overflow:auto;padding:24px 12px 40px}
+
+/* ── 2 · Transición de entrada ── */
+#intro{position:fixed;inset:0;z-index:80;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-family:"Fredoka",ui-rounded,system-ui,sans-serif;color:var(--m-crema);text-align:center;
+  background:radial-gradient(90% 70% at 50% 42%, rgba(38,58,28,.9), rgba(8,14,6,.97));padding:24px 18px;
+  animation:i-entra .5s ease both;cursor:pointer;user-select:none}
+#intro.sale{animation:i-sale .45s ease both}
+@keyframes i-entra{from{opacity:0}to{opacity:1}}
+@keyframes i-sale{to{opacity:0;transform:scale(1.04)}}
+#intro .barras{position:absolute;top:calc(14px + env(safe-area-inset-top));left:16px;right:16px;display:flex;gap:5px;max-width:620px;margin:0 auto}
+#intro .barras i{flex:1;height:4px;border-radius:3px;background:rgba(255,255,255,.2);overflow:hidden}
+#intro .barras i b{display:block;height:100%;width:0;background:var(--m-oro)}
+#intro .barras i.hecha b{width:100%}
+#intro .barras i.ahora b{animation:i-llena var(--dur) linear forwards}
+@keyframes i-llena{to{width:100%}}
+#intro .saltar{position:absolute;top:calc(28px + env(safe-area-inset-top));right:16px;border:1.5px solid var(--m-oro-suave);
+  background:rgba(0,0,0,.35);color:var(--m-crema);border-radius:30px;padding:8px 16px;font:600 15px "Fredoka",sans-serif}
+#intro .paso{display:flex;flex-direction:column;align-items:center;gap:10px;max-width:520px}
+#intro .medalla{width:clamp(180px,46vw,250px);aspect-ratio:1;border-radius:50%;background:#FBF8F1;
+  box-shadow:0 0 0 7px var(--t), 0 0 0 11px rgba(255,255,255,.12), 0 0 60px 10px color-mix(in srgb, var(--t) 50%, transparent);
+  display:grid;place-items:center;padding:14%;animation:i-medalla .7s cubic-bezier(.2,1.4,.4,1) both}
+#intro .medalla img,#intro .medalla svg{width:100%;height:100%;object-fit:contain}
+@keyframes i-medalla{from{transform:scale(.4) rotate(-14deg);opacity:0}to{transform:none;opacity:1}}
+#intro .cinta{margin-top:18px;background:var(--t);color:#fff;border-radius:10px;padding:6px 20px;font-size:clamp(24px,6vw,34px);
+  box-shadow:0 6px 14px rgba(0,0,0,.4);animation:i-sube .6s .15s ease both}
+#intro p{margin:6px 0 0;font:400 clamp(16px,4.2vw,19px)/1.45 ui-rounded,system-ui,sans-serif;color:#EDE7D3;
+  max-width:36ch;animation:i-sube .6s .3s ease both}
+#intro p b{color:#fff}
+@keyframes i-sube{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+#intro .abajo{position:absolute;bottom:calc(18px + env(safe-area-inset-bottom));left:0;right:0;display:flex;flex-direction:column;
+  align-items:center;gap:10px}
+#intro .toca{font-size:13px;color:var(--m-tenue)}
+#intro label{font:400 13px ui-rounded,system-ui,sans-serif;color:var(--m-tenue);display:flex;gap:6px;align-items:center;cursor:pointer}
+
+/* ── Despertando la finca ── */
+#despierta{position:fixed;inset:0;z-index:90;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+  text-align:center;padding:24px;font-family:"Fredoka",ui-rounded,system-ui,sans-serif;color:var(--m-crema);overflow:hidden;
+  background:linear-gradient(#1B2A30 0%, #2E4A3C 45%, #22331B 100%);animation:i-entra .4s ease both}
+#despierta.sale{animation:i-sale .45s ease both}
+#despierta .d-sol{position:absolute;left:50%;top:62%;width:220px;height:220px;margin-left:-110px;border-radius:50%;
+  background:radial-gradient(circle,#FFE8A8 0%,#F2B64B 45%,rgba(242,182,75,0) 70%);opacity:.55;
+  animation:d-amanece 9s ease-in-out infinite alternate}
+#despierta.lista .d-sol{animation:none;top:18%;opacity:.9;transition:top .8s ease,opacity .8s ease}
+@keyframes d-amanece{from{transform:translateY(40px);opacity:.25}to{transform:translateY(-150px);opacity:.75}}
+#despierta .d-mata{position:relative;width:130px;height:130px}
+#despierta .tierra{fill:#5A3A22}
+#despierta .tallo{stroke:#6FA84A;stroke-width:6;stroke-linecap:round;fill:none;stroke-dasharray:50;stroke-dashoffset:50;
+  animation:d-crece 3.2s ease infinite}
+#despierta .hoja{fill:#7DBA52;transform-origin:60px 60px;transform:scale(0);animation:d-hoja 3.2s ease infinite}
+#despierta .h2{animation-delay:.25s;fill:#5E9B3A}
+#despierta .grano{fill:#C0392B;transform-box:fill-box;transform-origin:center;transform:scale(0);animation:d-grano 3.2s ease infinite}
+#despierta .g2{animation-delay:.15s}
+@keyframes d-crece{0%{stroke-dashoffset:50}30%,85%{stroke-dashoffset:0}100%{stroke-dashoffset:0;opacity:0}}
+@keyframes d-hoja{0%,25%{transform:scale(0)}45%,85%{transform:scale(1)}100%{transform:scale(1);opacity:0}}
+@keyframes d-grano{0%,50%{transform:scale(0)}62%,85%{transform:scale(1)}100%{transform:scale(1);opacity:0}}
+#despierta.lista .tallo,#despierta.lista .hoja,#despierta.lista .grano{animation:none;stroke-dashoffset:0;transform:none;opacity:1}
+#despierta .d-palabra{position:relative;font-size:clamp(44px,12vw,72px);line-height:1;color:#FFF6DC;
+  text-shadow:0 3px 0 #8C3A2B, 0 8px 22px rgba(0,0,0,.45)}
+#despierta .d-frase{position:relative;margin:10px 0 4px;font-size:clamp(18px,4.6vw,22px);min-height:1.3em}
+#despierta .d-frase.cambia{animation:i-sube .5s ease both}
+#despierta .d-barra{position:relative;width:min(70vw,260px);height:8px;border-radius:6px;background:rgba(255,255,255,.12);overflow:hidden;
+  border:1px solid rgba(224,176,74,.35)}
+#despierta .d-barra i{position:absolute;top:0;bottom:0;width:36%;border-radius:6px;background:linear-gradient(90deg,transparent,var(--m-oro),transparent);
+  animation:d-va 1.6s ease-in-out infinite}
+#despierta.lista .d-barra i{animation:none;left:0;width:100%;background:var(--m-verde)}
+@keyframes d-va{from{left:-36%}to{left:100%}}
+#despierta .d-nota{position:relative;margin:14px 0 0;font:400 13.5px/1.5 ui-rounded,system-ui,sans-serif;color:var(--m-tenue)}
+#despierta .d-nota b{color:var(--m-crema);font-variant-numeric:tabular-nums}
+@media (prefers-reduced-motion:reduce){#despierta *{animation:none!important}}
+
+@media (max-width:520px){
+  .m-modos{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .m-modo{aspect-ratio:4/5.4}
+  .esc-solo,.esc-priv{transform:scale(.78)}
+  .m-reglas{grid-template-columns:1fr}
+  .m-barajas .baraja .bimg{width:52px;height:52px}
+  .m-clave i{width:48px;height:58px;font-size:34px}
+  .m-marco{padding:16px 12px}
+}
+@media (prefers-reduced-motion:reduce){
+  .m-abanico img,#intro,#intro .medalla,#intro .cinta,#intro p{animation:none}
+  #intro .barras i.ahora b{animation:none;width:100%}
+}
