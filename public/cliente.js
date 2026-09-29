@@ -250,7 +250,8 @@ function mesa() {
       ${V.anfitrion?`<button class="btn oro" id="bRevancha">Otra partida</button>`:""}</div>`;
   else if (V.ganador !== null)
     fin = `<div class="cierre"><div class="trofeo"><b>${V.ganador===V.yo?"¡Ganaste!":esc(V.jugadores[V.ganador].nombre)+" ganó"}</b>
-      <span>${V.terminada?"":V.metaCertificada?"finca certificada":V.jugadores[V.ganador].cosecha+" de cosecha"}</span></div>
+      <span>${V.terminada?"":V.metaCertificada?"finca certificada":V.jugadores[V.ganador].cosecha+" de cosecha"}</span>
+      ${ultimosGranos?`<span>+${ultimosGranos} granos para <a href="vereda/" style="color:inherit">La Vereda</a></span>`:""}</div>
       ${V.anfitrion?`<button class="btn oro" id="bRevancha">Otra partida</button>`:""}</div>`;
 
   const centro = `<div class="pila">
@@ -471,7 +472,7 @@ function sonarSegunVista(){
     listasVistas = null; anunciarListas();   /* línea de base: quién ya estaba lista al entrar */
   } else if(V.evento && V.evento.n > ultimoEvento){
     ultimoEvento = V.evento.n;
-    if(V.evento.tipo === "victoria") S.efecto(V.evento.ji === V.yo ? "victoria" : "derrota");
+    if(V.evento.tipo === "victoria"){ S.efecto(V.evento.ji === V.yo ? "victoria" : "derrota"); granosVereda(V.evento.ji === V.yo); }
     else S.efecto(V.evento.tipo);
     /* Un solo anuncio por suceso, en el centro y con el lenguaje de las
        cartas. Con la mesa llena, es lo que cuenta qué pasó sin leer el diario
@@ -508,6 +509,23 @@ function anunciarListas() {
     });
   listasVistas = ahora;
 }
+
+/* ── La Vereda: cada partida terminada deja granos en el costal ──
+   Los mini juegos (carpeta vereda/) guardan el costal en el teléfono; aquí
+   solo se le suman granos, para que jugar Cosecha también cuente allá. */
+const GRANOS_GANAR = 20, GRANOS_JUGAR = 5;
+function granosVereda(gane){
+  try{
+    const d = JSON.parse(localStorage.getItem("cosecha.vereda") || "{}");
+    const n = gane ? GRANOS_GANAR : GRANOS_JUGAR;
+    d.granos = (d.granos || 0) + n; d.total = (d.total || 0) + n;
+    d.cosecha = d.cosecha || {jugadas:0, ganadas:0};
+    d.cosecha.jugadas++; if(gane) d.cosecha.ganadas++;
+    localStorage.setItem("cosecha.vereda", JSON.stringify(d));
+    ultimosGranos = n;
+  }catch(e){}
+}
+let ultimosGranos = 0;
 
 /* ── Menú: salir o terminar sin ganador ────────────────────── */
 function menuPartida(){

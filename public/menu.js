@@ -133,6 +133,10 @@ const MENU = (() => {
           <span class="rotulo"><b>Sala privada</b><span>Con tus amigos, cada uno en su teléfono</span></span>
         </button>
       </div>
+      <a class="m-vereda" href="vereda/">
+        <span class="vimg">${arte("f_consejo", { k: "faena", tr: "consejo" })}</span>
+        <span class="vtxt"><b>La Vereda</b><span>Mini juegos para aprender, ganar granos y llenar el álbum</span></span>
+        <span class="vflecha">›</span></a>
       ${ayuda}
     </section>`;
     $app.querySelector("[data-cambianombre]").onclick = () => ir("nombre");

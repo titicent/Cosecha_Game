@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2A3A22">
+<base href="../">
+<title>Álbum de la finca · Cosecha</title>
+<link rel="stylesheet" href="vereda/vereda.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='23' fill='%234A6338'/%3E%3Cellipse cx='24' cy='24' rx='11' ry='15' fill='%23F4EFE2'/%3E%3Cpath d='M24 11c-3 4.5-3 21.5 0 26' fill='none' stroke='%234A6338' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+.album-cab{display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:space-between}
+.album-cab h2{margin:0}
+.barra-av{height:12px;border-radius:10px;background:rgba(0,0,0,.35);overflow:hidden;margin:10px 0 4px;border:1px solid rgba(224,176,74,.3)}
+.barra-av i{display:block;height:100%;background:linear-gradient(90deg,#78B84B,#E0B04A)}
+.grupo h3{margin:22px 4px 10px;font-size:18px;font-weight:600;color:var(--oro);letter-spacing:.06em;text-transform:uppercase}
+.rejilla{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:14px;justify-items:center}
+.cartica.falta{background:rgba(0,0,0,.3);box-shadow:inset 0 0 0 2px rgba(224,176,74,.35);color:var(--tenue)}
+.cartica.falta .ilu{font-size:40px;color:rgba(224,176,74,.5)}
+.cartica.falta .ilu img,.cartica.falta .ilu svg{filter:brightness(0) opacity(.35)}
+.cartica.recien{animation:recien 1.2s ease 2}
+@keyframes recien{50%{box-shadow:inset 0 0 0 3px var(--t),inset 0 0 0 5px #fff,0 0 0 4px var(--oro),0 0 24px 6px rgba(224,176,74,.6)}}
+.detalle .dato{color:var(--crema);font-size:17px;line-height:1.45;text-align:left;background:rgba(0,0,0,.25);
+  border-radius:14px;padding:12px 14px;margin:10px 0 0}
+.detalle .clase{color:var(--oro);font-size:14px;letter-spacing:.08em;text-transform:uppercase}
+.detalle .juego{font-size:14.5px;color:var(--tenue);margin-top:10px;text-align:left}
+</style>
+</head>
+<body>
+<main class="v-lienzo" id="app"></main>
+<script src="reglas.js"></script>
+<script src="arte.js"></script>
+<script src="sonido.js"></script>
+<script src="vereda/nucleo.js"></script>
+<script>
+"use strict";
+(function () {
+const V = VEREDA, R = REGLAS, esc = V.esc;
+let recien = null;
+
+function pintar() {
+  const L = V.LAMINAS(), n = V.cuantasLaminas(), completo = n >= L.length;
+  document.getElementById("app").innerHTML = `
+    <section class="marco">
+      <div class="album-cab"><div><h2>Álbum de la finca</h2>
+        <p style="margin:0">Cada lámina trae un dato de verdad del campo colombiano.</p></div>
+        <button class="jugar" id="sobre" style="width:auto;font-size:18px;padding:12px 18px" ${completo || V.granos() < V.PRECIO_SOBRE ? "disabled" : ""}>
+          Abrir sobre · ${V.PRECIO_SOBRE} granos</button></div>
+      <div class="barra-av"><i style="width:${(n / L.length * 100).toFixed(1)}%"></i></div>
+      <p class="nota" style="text-align:left">${completo ? "¡Álbum completo! Eres un finquero de verdad." :
+        `Tienes ${n} de ${L.length}. Juega en la vereda para ganar láminas, o ábrelas con granos.`}</p>
+    </section>
+    ${V.GRUPOS.map(([g, t]) => `<section class="grupo"><h3>${t}</h3><div class="rejilla">
+      ${L.filter(l => l.grupo === g).map(l => V.tiene(l.clave)
+        ? `<button class="cartica ${l.clave === recien ? "recien" : ""}" style="--t:${l.tono}" data-k="${l.clave}">
+            <span class="ilu">${V.ilustra(l.carta)}</span><span class="n">${esc(l.nombre)}</span><span class="cl">${esc(l.clase)}</span></button>`
+        : `<div class="cartica falta" style="--t:${l.tono}" aria-label="Lámina que te falta">
+            <span class="ilu">${g === "espantos" ? V.ilustra(l.carta) : "?"}</span><span class="n">?</span><span class="cl">${esc(t.replace(/s$/, ""))}</span></div>`).join("")}
+    </div></section>`).join("")}`;
+  document.querySelectorAll("[data-k]").forEach(b => b.onclick = () => detalle(b.dataset.k));
+  const s = document.getElementById("sobre");
+  if (s) s.onclick = () => {
+    const l = V.abrirSobre();
+    if (!l) return;
+    recien = l.clave; V.efecto("certificar");
+    V.premio({ titulo: l.nombre, linea: esc(l.dato), arte: V.ilustra(l.carta), tono: l.tono, cinta: "¡Lámina nueva!",
+      botones: [["ok", "¡Pegarla en el álbum!", true]] }).then(pintar);
+  };
+}
+
+function detalle(k) {
+  const l = V.lamina(k);
+  V.ventana(`<div class="detalle"><div class="medalla">${V.ilustra(l.carta)}</div>
+    <span class="cinta">${esc(l.nombre)}</span>
+    <p class="clase" style="margin-top:10px">${esc(l.clase)}</p>
+    <p class="dato">${esc(l.dato)}</p>
+    <p class="juego"><b>En Cosecha:</b> ${esc(R.queHace(l.carta))}</p></div>`, l.tono);
+}
+
+V.montar({ titulo: "Álbum de la finca", volver: "vereda/index.html", escena: "juego" });
+pintar();
+V.cargarArte().then(pintar);
+})();
+</script>
+</body>
+</html>

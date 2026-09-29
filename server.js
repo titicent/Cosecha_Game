@@ -37,7 +37,10 @@ const servidor = http.createServer((req, res) => {
     res.end(JSON.stringify({ ok: true, salas: salas.size, despierto: Math.round((Date.now() - ARRANQUE) / 1000) }));
     return;
   }
-  let f = path.join(PUBLICO, url === "/" ? "index.html" : url);
+  /* La Vereda (los mini juegos) vive en su propia carpeta: /vereda sin barra
+     final se manda a /vereda/, y una carpeta sirve su index.html. */
+  if (url === "/vereda") { res.writeHead(301, { Location: "/vereda/" }).end(); return; }
+  let f = path.join(PUBLICO, url.endsWith("/") ? url + "index.html" : url);
   if (!f.startsWith(PUBLICO)) { res.writeHead(403).end(); return; }
   fs.readFile(f, (e, datos) => {
     if (e) { res.writeHead(404, {"Content-Type":"text/plain"}).end("No existe"); return; }
