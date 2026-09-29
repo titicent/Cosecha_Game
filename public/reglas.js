@@ -126,6 +126,7 @@ const NOMBRE_PROPIO={
 function claseCarta(x){
   if(!x)return "";
   if(x.k==="cultivo")return x.c==="vivero"||x.c==="injerto"?"Cultivo comodín":"Cultivo";
+  if(x.k==="faena")return esEspanto(x)?"Espanto":"Faena";
   const de=x.c==="huerta"?"de toda la huerta":delCult(x.c);
   if(x.k==="plaga")return (x.t==="resistente"?"Plaga resistente ":"Plaga ")+de;
   if(x.k==="remedio")return (x.t==="bioinsumo"?"Bioinsumo ":"Remedio casero ")+de;

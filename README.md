@@ -10,6 +10,23 @@ tus matas y las certificas. Mientras tanto el clima golpea a todos por igual.
     npm install
     npm start          → http://localhost:3000
 
+## La Vereda: los mini juegos
+
+En `public/vereda/` vive La Vereda, un mapa de la finca donde cada lugar es un mini juego.
+Cada uno enseña una parte de Cosecha, da **granos** y reparte **láminas** para el
+*Álbum de la finca* (las 45 cartas distintas, cada una con un dato real del campo).
+Se entra desde el menú principal o en `/vereda/`.
+
+    El cafetal            La Recolecta             coger café maduro y sacar la broca
+    El beneficiadero      El color manda           ¿le entra o no le entra? (reglas de color y estados)
+    Casa del mayordomo    El acertijo del mayordomo  dejar la finca lista con los jornales justos; uno nuevo cada día
+
+Los tres usan el mismo motor (`reglas.js`): El color manda le pregunta a `jugadasLegales`
+si la jugada vale, y el acertijo se arma y se resuelve con `aplicar`. El progreso se guarda
+en el teléfono (`localStorage`, llave `cosecha.vereda`), y cada partida de Cosecha suma granos.
+
+    npm run test:vereda   → respuestas coherentes con el motor, acertijos con solución, álbum completo
+
 ## Cómo se juega
 
 Cada turno tienes **dos jornales**. Sembrar, plagar, curar o botar cartas cuesta un jornal;

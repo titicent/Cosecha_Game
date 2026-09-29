@@ -72,6 +72,20 @@
   color:var(--m-crema);font-size:15px;padding:0 18px;display:flex;align-items:center;gap:8px;box-shadow:var(--m-sombra)}
 .m-ayuda svg{width:22px;height:22px}
 
+/* ── La Vereda: los mini juegos ── */
+.m-vereda{display:flex;align-items:center;gap:12px;width:min(100%,526px);border:1.5px solid var(--m-oro);border-radius:20px;
+  padding:10px 16px 10px 10px;background:var(--m-panel);color:var(--m-crema);text-decoration:none;box-shadow:var(--m-sombra);
+  transition:transform .12s,filter .12s}
+.m-vereda:hover{filter:brightness(1.1)}
+.m-vereda:active{transform:scale(.98)}
+.m-vereda .vimg{width:60px;height:60px;flex:none;border-radius:50%;background:#FBF8F1;display:grid;place-items:center;
+  box-shadow:inset 0 0 0 4px #3F6B4A,inset 0 0 0 6px #fff}
+.m-vereda .vimg img,.m-vereda .vimg svg{width:70%;height:70%;object-fit:contain}
+.m-vereda .vtxt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.m-vereda b{font-size:20px;font-weight:600}
+.m-vereda .vtxt span{font-size:14px;color:var(--m-tenue);line-height:1.3}
+.m-vereda .vflecha{font-size:30px;color:var(--m-oro)}
+
 /* ── Jugador (arriba de los modos) ── */
 .m-jugador{display:flex;align-items:center;gap:10px;background:var(--m-panel);border:1.5px solid var(--m-oro-suave);
   border-radius:40px;padding:5px 16px 5px 5px;color:var(--m-crema);font-size:17px}
