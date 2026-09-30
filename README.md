@@ -36,6 +36,28 @@ El servidor guarda las ofertas y no se las cuenta a nadie hasta destaparlas.
                             parejas bien armadas, noches de espantos que terminan y subastas sin deudas
     node simular-espantos.js · node simular-galeria.js   → cómo les va a distintas maneras de jugar
 
+## Pedidos del pueblo: el modo alterno
+
+Un segundo juego con las mismas cartas de la finca, para 2 a 5 jugadores (20 a 35 minutos).
+Se siembra acostado, la mata madura en tu siguiente turno, se cosecha a la bodega y se
+**entregan los pedidos del pueblo** (tinto campesino, patacones, chocolate santafereño,
+Desayuno paisa…) por puntos. Trae su propio clima (Sequía, Aguacero, Helada, Bonanza,
+Feria del pueblo, Cosecha temprana) y tres faenas (Trueque, El Coyote, La Minga).
+Tiene dos reglas: **Juego completo** y **Primera cosecha** (sin faenas, todo cuesta 1 jornal).
+
+Se entra desde el menú principal, con la tarjeta «Pedidos del pueblo». Usa el mismo nombre,
+el mismo servidor y la misma dirección de Render.
+
+| Archivo | Qué es |
+|---|---|
+| [`PEDIDOS-DEL-PUEBLO.md`](PEDIDOS-DEL-PUEBLO.md) | Reglamento completo, con sus números de equilibrio |
+| `public/pedidos-reglas.js` | Motor de reglas (servidor y navegador) |
+| `pedidos-servidor.js` | Sus salas, aparte de las de Cosecha clásico: le llegan los mensajes con `juego: "pedidos"` |
+| `public/pedidos.html`, `pedidos-cliente.js`, `pedidos.css` | La mesa |
+| `pruebas-pedidos.js` | `npm run test:pedidos`: 12.000 partidas simuladas, reglas puntuales y una partida en línea |
+
+Viene del repositorio `titicent/cosecha-system`, donde se diseñó y se equilibró.
+
 ## Cómo se juega
 
 Cada turno tienes **dos jornales**. Sembrar, plagar, curar o botar cartas cuesta un jornal;
