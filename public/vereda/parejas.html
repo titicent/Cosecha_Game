@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2A3A22">
+<base href="../">
+<title>Parejas · La Vereda</title>
+<link rel="stylesheet" href="vereda/vereda.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='23' fill='%234A6338'/%3E%3Cellipse cx='24' cy='24' rx='11' ry='15' fill='%23F4EFE2'/%3E%3Cpath d='M24 11c-3 4.5-3 21.5 0 26' fill='none' stroke='%234A6338' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+.reglas-par{list-style:none;margin:10px 0 4px;padding:0;display:grid;gap:8px}
+.reglas-par li{display:flex;align-items:center;gap:8px;background:rgba(0,0,0,.22);border-radius:12px;padding:8px 10px;font-size:15px;line-height:1.3}
+.reglas-par .p{width:40px;height:40px;flex:none}
+.reglas-par .p img,.reglas-par .p svg{width:100%;height:100%;object-fit:contain}
+.reglas-par li>b{color:#F3D27A;font-size:18px}
+.reglas-par li span b{color:#F3D27A;font-weight:600}
+.tablero{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;max-width:560px;margin:0 auto}
+.tablero.n20{grid-template-columns:repeat(4,1fr)}
+@media (min-width:640px){.tablero.n20{grid-template-columns:repeat(5,1fr);max-width:640px}}
+.naipe{border:0;padding:0;background:none;aspect-ratio:3/4;perspective:700px;touch-action:manipulation}
+.naipe .gira{position:relative;display:block;width:100%;height:100%;transition:transform .35s ease;transform-style:preserve-3d}
+.naipe.abierta .gira,.naipe.hallada .gira{transform:rotateY(180deg)}
+.naipe .dorso,.naipe .cara{position:absolute;inset:0;border-radius:12px;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  box-shadow:0 6px 14px rgba(0,0,0,.4)}
+.naipe .dorso svg{width:100%;height:100%}
+.naipe .cara{transform:rotateY(180deg);background:var(--papel);color:var(--tinta);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  padding:6px 4px;box-shadow:inset 0 0 0 3px var(--t),inset 0 0 0 5px #fff,0 6px 14px rgba(0,0,0,.4)}
+.naipe .ilu{width:72%;aspect-ratio:1}
+.naipe .ilu img,.naipe .ilu svg{width:100%;height:100%;object-fit:contain}
+.naipe .n{font-size:clamp(10.5px,2.8vw,13.5px);line-height:1.05;text-align:center}
+.naipe.hallada .cara{box-shadow:inset 0 0 0 3px var(--t),inset 0 0 0 5px #fff,0 0 0 3px #78B84B,0 6px 14px rgba(0,0,0,.4)}
+.naipe.hallada{animation:hallada .5s ease}
+@keyframes hallada{40%{transform:scale(1.08)}}
+.cuaderno{margin:14px auto 0;max-width:560px;min-height:92px;border-radius:16px;padding:10px 14px;background:#F4EBD3;color:#3B2A15;
+  box-shadow:0 8px 18px rgba(0,0,0,.35);background-image:repeating-linear-gradient(transparent 0 23px,rgba(59,42,21,.13) 23px 24px);line-height:24px}
+.cuaderno b{display:block;font-weight:600;color:#7B4B2A}
+.cuaderno span{font-size:15px}
+.cuaderno.bien b{color:#3D7224}
+.cuaderno.mal b{color:#8E2A20}
+</style>
+</head>
+<body>
+<main class="v-lienzo" id="app"></main>
+<script src="reglas.js"></script>
+<script src="arte.js"></script>
+<script src="sonido.js"></script>
+<script src="vereda/nucleo.js"></script>
+<script src="vereda/parejas.js"></script>
+</body>
+</html>

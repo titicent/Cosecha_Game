@@ -11,6 +11,7 @@ const path = require("path");
 const crypto = require("crypto");
 const { WebSocketServer } = require("ws");
 const R = require("./public/reglas.js");
+const GALERIA = require("./galeria-servidor.js");   /* La Galería: la subasta de La Vereda */
 
 const PUERTO = process.env.PORT || 3000;
 const PUBLICO = path.join(__dirname, "public");
@@ -463,6 +464,7 @@ wss.on("connection", ws => {
   ws.on("message", datos => {
     let m; try { m = JSON.parse(datos); } catch(e) { return; }
     if (m.t === "latido") return;
+    if (m.juego === "galeria") return GALERIA.atender(ws, m);
     const s = ws.sala ? salas.get(ws.sala) : null;
     const j = s && ws.jugador !== null ? s.jugadores[ws.jugador] : null;
 
@@ -613,6 +615,7 @@ wss.on("connection", ws => {
   });
 
   ws.on("close", () => {
+    GALERIA.cerrar(ws);
     const s = ws.sala ? salas.get(ws.sala) : null;
     if (!s || ws.jugador === null) return;
     const j = s.jugadores[ws.jugador];
