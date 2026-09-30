@@ -12,6 +12,7 @@ const crypto = require("crypto");
 const { WebSocketServer } = require("ws");
 const R = require("./public/reglas.js");
 const GALERIA = require("./galeria-servidor.js");   /* La Galería: la subasta de La Vereda */
+const PEDIDOS = require("./pedidos-servidor.js");   /* Pedidos del pueblo: el modo alterno */
 
 const PUERTO = process.env.PORT || 3000;
 const PUBLICO = path.join(__dirname, "public");
@@ -35,7 +36,7 @@ const servidor = http.createServer((req, res) => {
   if (url === "/salud") {
     res.writeHead(200, { "Content-Type": "application/json", "Cache-Control": "no-store",
       "Access-Control-Allow-Origin": "*" });
-    res.end(JSON.stringify({ ok: true, salas: salas.size, despierto: Math.round((Date.now() - ARRANQUE) / 1000) }));
+    res.end(JSON.stringify({ ok: true, salas: salas.size + PEDIDOS.salas.size, despierto: Math.round((Date.now() - ARRANQUE) / 1000) }));
     return;
   }
   /* La Vereda (los mini juegos) vive en su propia carpeta: /vereda sin barra
@@ -465,6 +466,7 @@ wss.on("connection", ws => {
     let m; try { m = JSON.parse(datos); } catch(e) { return; }
     if (m.t === "latido") return;
     if (m.juego === "galeria") return GALERIA.atender(ws, m);
+    if (m.juego === "pedidos") return PEDIDOS.atender(ws, m);
     const s = ws.sala ? salas.get(ws.sala) : null;
     const j = s && ws.jugador !== null ? s.jugadores[ws.jugador] : null;
 
@@ -616,6 +618,7 @@ wss.on("connection", ws => {
 
   ws.on("close", () => {
     GALERIA.cerrar(ws);
+    PEDIDOS.cerrar(ws);
     const s = ws.sala ? salas.get(ws.sala) : null;
     if (!s || ws.jugador === null) return;
     const j = s.jugadores[ws.jugador];
@@ -648,7 +651,7 @@ const CASA = process.env.HOST || "0.0.0.0";
    cuando alguien pide la página. Y como el proveedor comprueba la salud
    pidiendo «/», un index.html ausente deja el despliegue «en progreso»
    para siempre, sin una sola línea de error. Más vale mirar y avisar. */
-const IMPRESCINDIBLES = ["index.html", "reglas.js", "arte.js", "sonido.js", "cliente.js", "menu.js", "menu.css"];
+const IMPRESCINDIBLES = ["index.html", "reglas.js", "arte.js", "sonido.js", "cliente.js", "menu.js", "menu.css", "pedidos.html", "pedidos-reglas.js", "pedidos-cliente.js", "pedidos.css"];
 const faltantes = IMPRESCINDIBLES.filter(f => !fs.existsSync(path.join(PUBLICO, f)));
 if (faltantes.length) {
   console.error("\n  ✗ Faltan archivos dentro de public/: " + faltantes.join(", "));
