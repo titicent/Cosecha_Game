@@ -20,12 +20,21 @@ Se entra desde el menú principal o en `/vereda/`.
     El cafetal            La Recolecta             coger café maduro y sacar la broca
     El beneficiadero      El color manda           ¿le entra o no le entra? (reglas de color y estados)
     Casa del mayordomo    El acertijo del mayordomo  dejar la finca lista con los jornales justos; uno nuevo cada día
+    La cocina de la abuela  Parejas                  memoria: cada plaga con su remedio (común→casero, resistente→bioinsumo)
+    El río, de noche      Espantos en la oscuridad  tentar la suerte: cinco noches, ¿sigo o me devuelvo? Un espanto repetido espanta a todos
+    La plaza del pueblo   La Galería               subasta a sobre cerrado, cada uno en su teléfono (o contra los vecinos)
 
 Los tres usan el mismo motor (`reglas.js`): El color manda le pregunta a `jugadasLegales`
 si la jugada vale, y el acertijo se arma y se resuelve con `aplicar`. El progreso se guarda
 en el teléfono (`localStorage`, llave `cosecha.vereda`), y cada partida de Cosecha suma granos.
 
-    npm run test:vereda   → respuestas coherentes con el motor, acertijos con solución, álbum completo
+La Galería es el único que necesita el servidor: sus salas viven en `galeria-servidor.js`,
+aparte de las mesas de Cosecha, y sus mensajes llegan por el mismo WebSocket con `juego: "galeria"`.
+El servidor guarda las ofertas y no se las cuenta a nadie hasta destaparlas.
+
+    npm run test:vereda   → respuestas coherentes con el motor, acertijos con solución, álbum completo,
+                            parejas bien armadas, noches de espantos que terminan y subastas sin deudas
+    node simular-espantos.js · node simular-galeria.js   → cómo les va a distintas maneras de jugar
 
 ## Cómo se juega
 

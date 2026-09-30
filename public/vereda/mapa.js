@@ -25,11 +25,15 @@ const LUGARES = [
       return (hecho ? "✓ El de hoy ya está resuelto" : "Hay acertijo nuevo hoy") + (a.racha > 1 ? " · racha de " + a.racha + " días" : ""); },
     etq: () => V.datos().acertijo.dias[V.hoy()] ? "" : "Nuevo hoy" },
   { id: "parejas", sitio: "La cocina de la abuela", nom: "Parejas", ense: "Cada plaga con su remedio, como en el cuaderno de la abuela.",
-    arte: ["r_casero_cafe", { k: "remedio", c: "cafe", t: "casero" }], t: R.CULTIVO.cacao.hex, pronto: true },
+    href: "vereda/parejas.html", arte: ["r_casero_cafe", { k: "remedio", c: "cafe", t: "casero" }], t: R.CULTIVO.cacao.hex,
+    rec: () => { const m = Math.max(V.recordDe("parejas", 1), V.recordDe("parejas", 2), V.recordDe("parejas", 3));
+      return m ? "Récord: " + m + " puntos" : ""; } },
   { id: "galeria", sitio: "La plaza del pueblo", nom: "La Galería", ense: "Subasta de cosecha con tus amigos, cada uno en su teléfono.",
-    arte: ["k_feria", null], t: "#B23A3A", pronto: true },
+    href: "vereda/galeria.html", arte: ["k_feria", null], t: "#B23A3A",
+    rec: () => V.recordDe("galeria", 1) ? "Mejor subasta: " + V.recordDe("galeria", 1) + " puntos" : "" },
   { id: "rio", sitio: "El río, de noche", nom: "Espantos en la oscuridad", ense: "Con el farol en la mano, descubre qué espanto anda por ahí.",
-    arte: ["f_mohan_cafe", { k: "faena", tr: "mohan_cafe" }], t: "#6B4FA8", pronto: true }
+    href: "vereda/espantos.html", arte: ["f_mohan_cafe", { k: "faena", tr: "mohan_cafe" }], t: "#6B4FA8",
+    rec: () => V.recordDe("espantos", 1) ? "Costal más lleno: " + V.recordDe("espantos", 1) + " granos" : "" }
 ];
 
 /* El camino de tierra que une los lugares, detrás de las tarjetas. */
