@@ -77,6 +77,8 @@
   padding:10px 16px 10px 10px;background:var(--m-panel);color:var(--m-crema);text-decoration:none;box-shadow:var(--m-sombra);
   transition:transform .12s,filter .12s}
 .m-vereda:hover{filter:brightness(1.1)}
+.m-pedidos{margin-bottom:10px}
+.m-pedidos .vimg{background:#F6E7D2}
 .m-vereda:active{transform:scale(.98)}
 .m-vereda .vimg{width:60px;height:60px;flex:none;border-radius:50%;background:#FBF8F1;display:grid;place-items:center;
   box-shadow:inset 0 0 0 4px #3F6B4A,inset 0 0 0 6px #fff}
