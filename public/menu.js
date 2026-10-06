@@ -99,9 +99,11 @@ const MENU = (() => {
           <input id="nombre" maxlength="14" placeholder="Escribe tu nombre…" autocomplete="nickname" value="${esc(nombre())}">
           <button class="m-boton" type="submit">Continuar</button>
         </form>
+        <div class="m-cuenta" data-zonacuenta>${zonaCuenta()}</div>
       </div>
       <p class="m-nota">Así te verán los demás en la mesa.</p>
     </section>`;
+    engancharCuenta($app);
     const inp = document.getElementById("nombre");
     $app.querySelector("[data-cambiacara]").onclick = () => catalogoCaras(() => {
       const d = $app.querySelector("[data-cambiacara] .disco");
@@ -149,10 +151,77 @@ const MENU = (() => {
     pinta();
   }
 
+  /* ── Cuenta (opcional): guardar el avance con Google ─────────────
+     Se sugiere, pero nunca se exige: sin cuenta todo queda en el teléfono.
+     La lógica vive en cuenta.js; aquí solo están los botones. */
+  const CU = window.CUENTA;
+  const hayCuenta = () => !!(CU && CU.estado.disponible);
+  const LOGO_G = `<svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.6 5.4 2.7 13.2l7.9 6.2C12.5 13.6 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 2.9-2.2 5.4-4.7 7.1l7.6 5.9c4.4-4.1 6.9-10.1 6.9-17.5z"/><path fill="#FBBC05" d="M10.6 28.6c-.5-1.4-.8-2.9-.8-4.6s.3-3.2.8-4.6l-7.9-6.2C1 16.6 0 20.2 0 24s1 7.4 2.7 10.8l7.9-6.2z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.6-5.9c-2.1 1.4-4.9 2.3-8.3 2.3-6.2 0-11.5-4.1-13.4-9.9l-7.9 6.2C6.6 42.6 14.6 48 24 48z"/></svg>`;
+  function zonaCuenta() {
+    if (!hayCuenta()) return "";
+    const e = CU.estado;
+    if (e.conectado) return `<button type="button" class="m-nube" data-hojacuenta>☁ Tu avance se guarda en tu cuenta${e.correo ? " · " + esc(e.correo) : ""}</button>`;
+    return `<div class="m-o"><span>o guarda tu avance</span></div>
+      <button type="button" class="m-google" data-google>${LOGO_G}<span>Entrar con Google</span></button>
+      <p class="m-nota m-adulto">Recupera tu avance en cualquier teléfono. Si eres menor de edad, pídele ayuda a un adulto.</p>
+      ${e.error ? `<p class="m-nota m-error">${esc(e.error)}</p>` : ""}`;
+  }
+  function engancharCuenta(raiz) {
+    raiz.querySelectorAll("[data-google]").forEach(b => b.onclick = () => { b.disabled = true; CU.entrar("google"); });
+    raiz.querySelectorAll("[data-hojacuenta]").forEach(b => b.onclick = hojaCuenta);
+  }
+  function hojaCuenta() {
+    if (!hayCuenta()) return;
+    document.querySelector(".m-hoja.m-hcuenta")?.remove();
+    const hoja = document.createElement("div"); hoja.className = "m-hoja m-catalogo m-hcuenta";
+    const pinta = () => {
+      const e = CU.estado;
+      hoja.innerHTML = `<div class="m-marco" role="dialog" aria-label="Tu cuenta">
+        <h2 class="m-titulo">${e.conectado ? "Tu cuenta" : "Guarda tu avance"}</h2>
+        ${e.conectado ? `<p class="m-cuentatxt">Entraste como <b>${esc(e.nombre || e.correo)}</b>${e.nombre && e.correo ? `<br><small>${esc(e.correo)}</small>` : ""}</p>
+          <p class="m-cuentatxt">${e.guardando ? "Guardando…" : e.error ? esc(e.error) : "☁ Tus granos, tu álbum, tus récords y tu avatar están guardados. Entra con la misma cuenta en otro teléfono y los encuentras ahí."}</p>
+          <button class="m-boton" data-salir>Cerrar sesión en este teléfono</button>
+          <button class="m-borrar" data-borrar>Borrar mi cuenta y mi avance</button>`
+        : `<p class="m-cuentatxt">Con una cuenta, tus granos, tu álbum, tus récords y tu avatar quedan guardados. Si cambias de teléfono, entras con la misma cuenta y los recuperas.</p>
+          <p class="m-cuentatxt"><small>Si eres menor de edad, pídele ayuda a un adulto. Sin cuenta también puedes jugar: tu avance queda en este teléfono.</small></p>
+          <button type="button" class="m-google" data-google>${LOGO_G}<span>Entrar con Google</span></button>
+          ${e.error ? `<p class="m-nota m-error">${esc(e.error)}</p>` : ""}`}
+        <p class="m-nota"><a href="privacidad.html" target="_blank" rel="noopener">Política de privacidad</a></p>
+        <button class="m-jugar" data-listo>${e.conectado ? "Listo" : "Ahora no"}</button></div>`;
+      engancharCuenta(hoja);
+      hoja.querySelector("[data-listo]").onclick = () => hoja.remove();
+      const sl = hoja.querySelector("[data-salir]");
+      if (sl) sl.onclick = () => { sl.disabled = true; sl.textContent = "Cerrando…"; CU.salir(); };
+      const br = hoja.querySelector("[data-borrar]");
+      if (br) br.onclick = async () => {
+        if (!confirm("¿Borrar tu cuenta y todo tu avance? Esto no se puede deshacer.")) return;
+        br.disabled = true; br.textContent = "Borrando…";
+        const r = await CU.borrar();
+        alerta(r.ok ? "Listo: tu cuenta y tu avance se borraron" : "No se pudo borrar del todo. Escríbenos y lo hacemos por ti.");
+        setTimeout(() => location.reload(), 1600);
+      };
+    };
+    hoja.addEventListener("click", ev => { if (ev.target === hoja) hoja.remove(); });
+    document.body.appendChild(hoja);
+    pinta();
+    hoja._pinta = pinta;
+  }
+  if (CU) CU.alCambiar(() => {
+    const z = document.querySelector("[data-zonacuenta]");
+    if (z) { z.innerHTML = zonaCuenta(); engancharCuenta(z); }
+    const chip = document.querySelector("[data-hojacuenta].m-nubechip");
+    if (chip && !hayCuenta()) chip.remove();
+    if (chip && hayCuenta()) { chip.classList.toggle("on", CU.estado.conectado); chip.textContent = CU.estado.conectado ? "☁ Guardado" : "☁ Guardar mi avance"; }
+    const h = document.querySelector(".m-hcuenta"); if (h && h._pinta) h._pinta();
+    /* Si la cuenta trajo un nombre y la pantalla del nombre está abierta, se llena. */
+    const inp = document.getElementById("nombre"); if (inp && !inp.value && nombre()) inp.value = nombre();
+  });
+
   /* ── 2 · Modos ──────────────────────────────────────────────── */
   function pModos() {
     $app.innerHTML = `<section class="m m-pmodos">
-      <button class="m-jugador" data-cambianombre title="Cambiar el nombre">${foto(A.claveSilla(A.miCara()), "", A.miCara())}<span>${esc(nombre())}</span><span class="lapiz">✎</span></button>
+      <div class="m-quien"><button class="m-jugador" data-cambianombre title="Cambiar el nombre">${foto(A.claveSilla(A.miCara()), "", A.miCara())}<span>${esc(nombre())}</span><span class="lapiz">✎</span></button>
+        ${hayCuenta() ? `<button class="m-nubechip ${CU.estado.conectado ? "on" : ""}" data-hojacuenta>${CU.estado.conectado ? "☁ Guardado" : "☁ Guardar mi avance"}</button>` : ""}</div>
       <h2 class="m-titulo">¿Cómo quieres jugar?</h2>
       ${sesion ? `<div class="m-seguir"><span>Tienes una partida en la sala <b>${esc(sesion.codigo)}</b>.</span>
         <button class="m-boton" data-volvermesa>Volver</button></div>` : ""}
@@ -186,6 +255,7 @@ const MENU = (() => {
       </div>
     </section>`;
     $app.querySelector("[data-cambianombre]").onclick = () => ir("nombre");
+    const hc = $app.querySelector("[data-hojacuenta]"); if (hc) hc.onclick = hojaCuenta;
     $app.querySelectorAll("[data-modo]").forEach(b => b.onclick = () => ir(b.dataset.modo));
     const vm = $app.querySelector("[data-volvermesa]");
     if (vm) vm.onclick = () => mandar({ t: "reconectar", codigo: sesion.codigo, token: sesion.token });

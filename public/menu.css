@@ -337,13 +337,14 @@
   .m-pnombre .m-logo{grid-column:1;grid-row:3;margin:0}
   .m-pnombre .m-logo .palabra{font-size:58px}
   .m-pnombre .m-marco{grid-column:2;grid-row:2 / 4;align-self:center}
-  .m-pnombre .m-nota{grid-column:2;grid-row:4;align-self:start}
+  .m-pnombre > .m-nota{grid-column:2;grid-row:4;align-self:start}
 
   /* 2 · modos: las dos puertas grandes y, al lado, Pedidos y La Vereda */
   .m-pmodos{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(190px,.95fr);
     grid-template-areas:"jug tit tit" "seg seg seg" "mod mod lado";grid-template-rows:auto auto minmax(0,1fr);
     align-items:stretch;column-gap:12px;row-gap:8px}
-  .m-pmodos .m-jugador{grid-area:jug;justify-self:start;font-size:15px;padding:3px 12px 3px 3px}
+  .m-pmodos .m-quien{grid-area:jug;justify-self:start;align-self:center}
+  .m-pmodos .m-jugador{font-size:15px;padding:3px 12px 3px 3px}
   .m-pmodos .m-jugador img{width:32px;height:32px}
   .m-pmodos .m-titulo{grid-area:tit;justify-self:start;align-self:center}
   .m-pmodos .m-seguir{grid-area:seg;width:100%;padding:6px 10px;font-size:14px}
@@ -501,4 +502,39 @@
   .m-catalogo .m-jugar{padding:6px 16px;font-size:17px;width:auto;align-self:flex-end;min-width:180px}
   .m-caras{grid-template-columns:repeat(auto-fill,minmax(62px,1fr));gap:4px}
   .m-cara .disco{width:44px;height:44px}
+}
+
+/* ── Cuenta (guardar el avance en la nube, opcional) ── */
+.m-quien{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:8px}
+.m-nubechip{background:rgba(255,255,255,.06);border:1.5px dashed var(--m-oro-suave);color:var(--m-oro);border-radius:30px;
+  padding:7px 12px;font:inherit;font-size:13.5px;cursor:pointer;white-space:nowrap}
+.m-nubechip.on{border-style:solid;color:var(--m-crema);background:rgba(120,170,90,.18);border-color:rgba(150,200,110,.6)}
+.m-cuenta{display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:12px}
+.m-cuenta:empty{display:none}
+.m-o{display:flex;align-items:center;gap:10px;width:100%;color:var(--m-tenue);font-size:12.5px}
+.m-o::before,.m-o::after{content:"";flex:1;height:1px;background:var(--m-oro-suave)}
+.m-google{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;max-width:320px;background:#fff;color:#1f1f1f;
+  border:1px solid #dadce0;border-radius:30px;padding:9px 18px;font:inherit;font-size:16px;font-weight:500;cursor:pointer;
+  box-shadow:0 2px 6px rgba(0,0,0,.25)}
+.m-google svg{width:20px;height:20px;flex:none}
+.m-google:active{transform:translateY(1px)}
+.m-nube{background:rgba(120,170,90,.15);border:1.5px solid rgba(150,200,110,.55);color:var(--m-crema);border-radius:14px;
+  padding:8px 12px;font:inherit;font-size:13.5px;cursor:pointer;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.m-adulto{font-size:12px;line-height:1.35}
+.m-error{color:#F2A08A}
+.m-hcuenta .m-marco{width:min(100%,440px);align-items:center;text-align:center}
+.m-hcuenta .m-boton{width:100%;max-width:320px;font-size:15px;padding:9px 14px}
+.m-hcuenta .m-jugar{align-self:stretch}
+.m-cuentatxt{margin:0;font-size:15px;line-height:1.4;color:var(--m-crema)}
+.m-cuentatxt small{color:var(--m-tenue);font-size:12.5px}
+.m-borrar{background:none;border:0;color:#F2A08A;text-decoration:underline;text-underline-offset:3px;font:inherit;font-size:13.5px;cursor:pointer;padding:4px}
+.m-hcuenta .m-nota a{color:var(--m-oro)}
+@media (orientation:landscape) and (max-height:500px){
+  .m-cuenta{margin-top:6px;gap:5px}
+  .m-cuenta .m-adulto{display:none}
+  .m-o{font-size:11px}
+  .m-google{padding:6px 14px;font-size:14.5px}
+  .m-pmodos .m-nubechip{padding:4px 10px;font-size:12.5px}
+  .m-hcuenta .m-marco{width:min(100%,520px)}
+  .m-cuentatxt{font-size:13.5px}
 }

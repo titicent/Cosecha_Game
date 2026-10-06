@@ -40,6 +40,17 @@ const servidor = http.createServer((req, res) => {
     res.end(JSON.stringify({ ok: true, salas: salas.size + PEDIDOS.salas.size, despierto: Math.round((Date.now() - ARRANQUE) / 1000) }));
     return;
   }
+  /* /cuenta/borrar: borra la cuenta de un jugador y todo su avance. Lo pide
+     el propio jugador desde el menú, con su sesión de Supabase. Solo este
+     servidor puede borrar cuentas, porque necesita la llave de servicio
+     (SUPABASE_SERVICE_KEY), que nunca va en la página. */
+  if (url === "/cuenta/borrar") return borrarCuenta(req, res);
+  /* Si en Render están SUPABASE_URL y SUPABASE_ANON_KEY, la página las
+     recibe de aquí y no hace falta escribirlas en public/supabase-config.js. */
+  if (url === "/supabase-config.js" && process.env.SUPABASE_URL && process.env.SUPABASE_ANON_KEY) {
+    res.writeHead(200, { "Content-Type": MIME[".js"], "Cache-Control": "no-cache" });
+    res.end(configSupabase()); return;
+  }
   /* La Vereda (los mini juegos) vive en su propia carpeta: /vereda sin barra
      final se manda a /vereda/, y una carpeta sirve su index.html. */
   if (url === "/vereda") { res.writeHead(301, { Location: "/vereda/" }).end(); return; }
@@ -61,6 +72,36 @@ const servidor = http.createServer((req, res) => {
     res.end(datos);
   });
 });
+
+/* ── Cuentas: borrar a pedido del jugador ─────────────────────── */
+function configSupabase() {
+  return "/* Desde las variables de Render */\nwindow.COSECHA_SUPABASE = window.COSECHA_SUPABASE || " +
+    JSON.stringify({ url: process.env.SUPABASE_URL.replace(/\/+$/, ""), llave: process.env.SUPABASE_ANON_KEY }) + ";\n";
+}
+async function borrarCuenta(req, res) {
+  const cors = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "Authorization",
+    "Access-Control-Allow-Methods": "POST, OPTIONS", "Cache-Control": "no-store" };
+  if (req.method === "OPTIONS") { res.writeHead(204, cors).end(); return; }
+  const responde = (n, o) => { res.writeHead(n, Object.assign({ "Content-Type": "application/json" }, cors)); res.end(JSON.stringify(o)); };
+  if (req.method !== "POST") return responde(405, { ok: false });
+  const URL_SB = (process.env.SUPABASE_URL || "").replace(/\/+$/, ""), LLAVE = process.env.SUPABASE_SERVICE_KEY || "";
+  if (!URL_SB || !LLAVE) return responde(501, { ok: false, motivo: "El servidor no tiene configurada la cuenta de Supabase" });
+  const token = (req.headers.authorization || "").replace(/^Bearer\s+/i, "");
+  if (!token) return responde(401, { ok: false });
+  try {
+    /* ¿De quién es esta sesión? Lo responde Supabase, no el teléfono. */
+    const quien = await fetch(URL_SB + "/auth/v1/user", { headers: { apikey: LLAVE, Authorization: "Bearer " + token } });
+    if (!quien.ok) return responde(401, { ok: false });
+    const u = await quien.json();
+    if (!u || !u.id) return responde(401, { ok: false });
+    const borra = await fetch(URL_SB + "/auth/v1/admin/users/" + encodeURIComponent(u.id),
+      { method: "DELETE", headers: { apikey: LLAVE, Authorization: "Bearer " + LLAVE } });
+    /* El avance se borra solo con la cuenta (on delete cascade en la tabla). */
+    return responde(borra.ok ? 200 : 502, { ok: borra.ok });
+  } catch (e) {
+    return responde(502, { ok: false });
+  }
+}
 
 /* ── Salas ──────────────────────────────────────────────────── */
 const salas = new Map();
