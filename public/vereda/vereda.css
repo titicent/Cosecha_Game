@@ -282,8 +282,8 @@ body[data-escena="mediodia"]{
   .v-portada .boton.ancho{margin:0}
   .v-portada .dos .fila{flex-wrap:nowrap;gap:6px}
 
-  /* el mapa: los ocho lugares en dos filas de cuatro */
-  .v-lienzo:has(.mapa){display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-auto-rows:minmax(0,1fr);gap:8px;overflow:hidden}
+  /* el mapa: los nueve lugares y el álbum en dos filas de cinco */
+  .v-lienzo:has(.mapa){display:grid;grid-template-columns:repeat(5,minmax(0,1fr));grid-auto-rows:minmax(0,1fr);gap:8px;overflow:hidden}
   .v-lienzo:has(.mapa) .v-cabeza{display:none}
   .mapa,.acciones{display:contents}
   .mapa .camino,.accion:not(a){display:none}

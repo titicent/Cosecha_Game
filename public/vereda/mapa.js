@@ -15,6 +15,10 @@ const LUGARES = [
   { id: "recolecta", sitio: "El cafetal", nom: "La Recolecta", ense: "Coge el café maduro y saca los granos con broca antes de que se riegue.",
     href: "vereda/recolecta.html", arte: ["c_cafe", { k: "cultivo", c: "cafe" }], t: R.CULTIVO.cafe.hex,
     rec: () => V.recordDe("recolecta", 1) ? "Récord: " + V.recordDe("recolecta", 1) + " cerezas" : "" },
+  { id: "espantapajaros", sitio: "La huerta de la casa", nom: "El espantapájaros", ense: "Espanta a los animales que vienen por las matas, pero no a los que ayudan.",
+    href: "vereda/espantapajaros.html", arte: ["n_espantapajaros", { k: "cultivo", c: "huerta" }], t: "#7A5A2E",
+    rec: () => { const m = Math.max(V.recordDe("espantapajaros", 1), V.recordDe("espantapajaros", 2), V.recordDe("espantapajaros", 3));
+      return m ? "Récord: " + m + " puntos" : ""; } },
   { id: "colores", sitio: "El beneficiadero", nom: "El color manda", ense: "¿Le entra o no le entra? Aprende a qué mata le sirve cada carta.",
     href: "vereda/colores.html", arte: ["p_comun_platano", { k: "plaga", c: "platano", t: "comun" }], t: R.CULTIVO.platano.hex,
     rec: () => { const m = Math.max(V.recordDe("colores", 1), V.recordDe("colores", 2), V.recordDe("colores", 3));

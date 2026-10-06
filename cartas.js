@@ -39,6 +39,10 @@ for (const c of R.crearMazo(true, true)) {
 const ambiente = new Map();    // clave → descripción
 for (const c of R.CLIMAS) ambiente.set("k_" + c.id, "clima: " + c.nombre.toLowerCase());
 A.SILLAS.forEach((s, i) => ambiente.set(A.claveSilla(i), "avatar: " + s.nombre.toLowerCase()));
+/* La Vereda: los animales del espantapájaros y el espantapájaros mismo. */
+const EP = require("./public/vereda/espantapajaros.js");
+for (const [k, x] of Object.entries(EP.ANIMALES)) ambiente.set(x.carta, "el espantapájaros: " + k);
+ambiente.set("n_espantapajaros", "el espantapájaros");
 
 const hay = new Set(
   fs.readdirSync(dir)
