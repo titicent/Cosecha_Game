@@ -60,10 +60,10 @@ Viene del repositorio `titicent/cosecha-system`, donde se diseñó y se equilibr
 
 ## Cómo se juega
 
-Cada turno tienes **dos jornales**. Sembrar, plagar, curar o botar cartas cuesta un jornal;
-una faena cuesta dos (menos el Jornal extra, que cuesta uno). Así que en un turno puedes
-sembrar y curar, jugar una carta y botar otras, o gastar todo en una sola faena grande. Cuando
-se acaban los jornales pasa el turno y robas hasta tener tres cartas.
+Cada turno tienes **un jornal**, y toda carta cuesta uno: con él siembras, plagas, curas,
+haces una faena o botas de una a tres cartas. El **Jornal extra** te da otro jornal, y el
+**Consejo del mayordomo** y el **Duende** te devuelven el que gastaste, así que con ellos
+juegas una carta más. Cuando se acaba el jornal pasa el turno y robas hasta tener tres cartas.
 
 Se gana de dos maneras:
 

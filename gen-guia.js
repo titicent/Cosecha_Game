@@ -45,7 +45,7 @@ function carta({ k, nombre, clase, tono, precio, n, texto, extra = "" }) {
     <div class="ficha">
       <h4>${esc(nombre)}</h4>
       ${clase ? `<p class="clase">${esc(clase)}</p>` : ""}
-      <p class="meta">${precio !== undefined ? jornales(precio) : ""}${n ? `<span class="copias">${n} ${n === 1 ? "carta" : "cartas"}</span>` : ""}</p>
+      <p class="meta">${n ? `<span class="copias">${n} ${n === 1 ? "carta" : "cartas"}</span>` : ""}</p>
       <p>${texto}</p>${extra}
     </div></article>`;
 }
@@ -363,27 +363,22 @@ gana quien tenga más puntos de cosecha. Te lo contamos en el <a href="#tierra">
   izquierda, como las agujas del reloj.</p></div></li>
 </ol>
 
-<h3><span class="n">4</span>Tu turno: dos jornales</h3>
-<p>Un jornal es un día de trabajo en la finca. En cada turno tienes <b>dos jornales</b> para gastar,
-y cada carta cuesta jornales:</p>
+<h3><span class="n">4</span>Tu turno: un jornal</h3>
+<p>Un jornal es un día de trabajo en la finca. En cada turno tienes <b>un jornal</b>, y con él
+haces <b>una</b> de estas cosas:</p>
 <div class="precios">
   <div class="precio"><b>Sembrar un cultivo</b>${jornales(1)}</div>
   <div class="precio"><b>Mandar una plaga</b>${jornales(1)}</div>
   <div class="precio"><b>Poner un remedio</b>${jornales(1)}</div>
-  <div class="precio"><b>Hacer una faena</b>${jornales(2)}</div>
+  <div class="precio"><b>Hacer una faena</b>${jornales(1)}</div>
   <div class="precio"><b>Botar cartas</b>${jornales(1)}<small>De una a tres, las que no te sirvan.</small></div>
 </div>
-<p>Puedes gastar tus jornales en el orden que quieras. Por ejemplo:</p>
-<ul>
-  <li>Sembrar un cultivo <b>y</b> ponerle un remedio (1 + 1).</li>
-  <li>Hacer una sola faena (2).</li>
-  <li>Botar dos cartas malas <b>y</b> sembrar (1 + 1).</li>
-</ul>
-<p>Tu turno termina cuando se te acaban los jornales o cuando ya no tienes nada que jugar.
-Entonces <b>robas del mazo hasta volver a tener tres cartas</b>, y le toca al siguiente.</p>
-${recuadro("Ojo", `<p>No puedes pasar sin hacer nada si tienes alguna jugada. Pero si ya hiciste algo,
-puedes cerrar tu turno aunque te quede un jornal. Y si de verdad no puedes jugar ninguna carta,
-bota las que no te sirvan o pasa.</p>`, "ojo")}
+<p>Hay tres cartas que te dejan seguir jugando: el <b>Jornal extra</b> te da otro jornal, y el
+<b>Consejo del mayordomo</b> y el <b>Duende</b> te devuelven el que gastaste.</p>
+<p>Cuando se te acaba el jornal, <b>robas del mazo hasta volver a tener tres cartas</b>, y le
+toca al siguiente.</p>
+${recuadro("Ojo", `<p>No puedes pasar sin hacer nada si tienes alguna jugada. Si de verdad no puedes
+jugar ninguna carta, bota las que no te sirvan o pasa.</p>`, "ojo")}
 
 <h3><span class="n">5</span>La vida de una mata</h3>
 <p>Cada cultivo que siembras es una <b>mata</b> de tu finca. Según lo que tenga encima, una mata
@@ -428,22 +423,22 @@ ${tablaColores("comun", "casero", "Plaga", "Remedio")}
 </ul>
 
 <h3><span class="n">8</span>Las faenas</h3>
-<p>Las faenas son trucos: no se quedan en la mesa, hacen lo suyo y se van al montón. Cuestan los
-dos jornales del turno.</p>
+<p>Las faenas son trucos: no se quedan en la mesa, hacen lo suyo y se van al montón. Cuestan un
+jornal, como cualquier carta.</p>
 <div class="cartas">
-${carta({ k: "f_trueque", nombre: "Trueque", tono: FAENA_HEX, precio: 2, n: copias("trueque"),
+${carta({ k: "f_trueque", nombre: "Trueque", tono: FAENA_HEX, precio: 1, n: copias("trueque"),
   texto: "Cambias una mata tuya por una mata de un vecino, con todo lo que tengan encima.",
   extra: `<p class="nota">No vale con matas certificadas, ni si alguno quedaría con dos cultivos iguales.</p>` })}
-${carta({ k: "f_saqueo", nombre: "Mano larga", tono: FAENA_HEX, precio: 2, n: copias("saqueo"),
+${carta({ k: "f_saqueo", nombre: "Mano larga", tono: FAENA_HEX, precio: 1, n: copias("saqueo"),
   texto: "Te llevas a tu finca una mata de un vecino, con todo lo que tenga encima.",
   extra: `<p class="nota">No vale con una mata certificada, ni con un cultivo que ya tengas.</p>` })}
-${carta({ k: "f_propagacion", nombre: "Propagación", tono: FAENA_HEX, precio: 2, n: copias("propagacion"),
+${carta({ k: "f_propagacion", nombre: "Propagación", tono: FAENA_HEX, precio: 1, n: copias("propagacion"),
   texto: "Las plagas de tus matas saltan a matas sanas de los vecinos. Tus matas quedan limpias.",
   extra: `<p class="nota">Cada plaga salta a una mata sana a la que le pueda entrar: de su mismo cultivo o una huerta (la langosta, a cualquiera). Las matas protegidas y las certificadas no la reciben.</p>` })}
-${carta({ k: "f_chaparron", nombre: "Chaparrón", tono: FAENA_HEX, precio: 2, n: copias("chaparron"),
+${carta({ k: "f_chaparron", nombre: "Chaparrón", tono: FAENA_HEX, precio: 1, n: copias("chaparron"),
   texto: "Todos los demás botan todas sus cartas. En su siguiente turno solo alcanzan a recoger cartas nuevas: pierden ese turno.",
   extra: "" })}
-${carta({ k: "f_lindero", nombre: "Cambio de lindero", tono: FAENA_HEX, precio: 2, n: copias("lindero"),
+${carta({ k: "f_lindero", nombre: "Cambio de lindero", tono: FAENA_HEX, precio: 1, n: copias("lindero"),
   texto: "Cambias tu finca entera por la de un vecino, con las matas certificadas incluidas.",
   extra: `<p class="nota">Es la carta del juego base que puede mover una mata certificada.</p>` })}
 </div>
@@ -458,7 +453,7 @@ ${ejemplo(`<p>Ana tiene café, plátano, cacao y caña, todos sanos: su finca es
 después y le mete la broca a su café. Ahora el café de Ana está plagado y su finca ya no está lista.</p>
 <p>Cuando vuelve el turno de Ana, no gana: primero tiene que curar el café. Si lo cura, su finca
 queda lista otra vez, y tiene que aguantar otra vuelta.</p>`)}
-<p>Un buen consejo: cuando tu finca esté lista, usa tus jornales para <b>proteger y certificar</b>
+<p>Un buen consejo: cuando tu finca esté lista, usa tus turnos para <b>proteger y certificar</b>
 tus matas. Una finca con matas certificadas es muy difícil de frenar.</p>
 
 <h3 id="tierra"><span class="n">10</span>Cuando se agota la tierra</h3>
@@ -476,11 +471,11 @@ tus matas. Una finca con matas certificadas es muy difícil de frenar.</p>
 ${ejemplo(`<p>En su finca, Ana ya tiene un <b>café</b> sano. En la mano tiene <b>cacao</b>,
 <b>caldo bordelés</b> (el remedio del café) y una <b>Mano larga</b>.</p>
 <ol>
-  <li>Primer jornal: siembra el cacao. Ya tiene dos matas.</li>
-  <li>Segundo jornal: le pone el caldo bordelés al café. Ahora el café está protegido.</li>
-  <li>Se acabaron los jornales. Ana roba dos cartas del mazo para volver a tener tres.</li>
+  <li>Con su jornal siembra el cacao. Ya tiene dos matas.</li>
+  <li>Se acabó el jornal. Ana roba una carta del mazo para volver a tener tres.</li>
 </ol>
-<p>La Mano larga se quedó en su mano porque cuesta dos jornales. La puede usar en otro turno.</p>`)}
+<p>El caldo bordelés y la Mano larga se quedan en su mano para los próximos turnos. Si hubiera
+tenido un <b>Jornal extra</b>, lo juega primero y le alcanza para sembrar <b>y</b> proteger el café.</p>`)}
 
 </div></section>
 
@@ -528,10 +523,10 @@ ${carta({ k: "f_mallasombra", nombre: "Malla de sombra", tono: FAENA_HEX, n: cop
   texto: "Guárdala en la mano. Cuando alguien juegue una carta contra ti, muéstrala: esa carta no te toca. No gasta jornales y se usa en el turno de otro.",
   extra: `<p class="nota">Quien jugó la carta tiene que buscarle otro destino, aunque sea su propia finca. Si no hay ninguno, su carta se pierde. En el Chaparrón, la Propagación o el Sombrerón, solo te salvas tú y los demás reciben la carta.</p>` })}
 ${carta({ k: "f_jornalExtra", nombre: "Jornal extra", tono: FAENA_HEX, precio: costo({ k: "faena", tr: "jornalExtra" }), n: copias("jornalExtra"),
-  texto: "Cuesta un jornal y te da dos. Si la juegas primero, te quedan tres jornales para ese turno: alcanza para una faena y algo más." })}
-${carta({ k: "f_consejo", nombre: "Consejo del mayordomo", tono: FAENA_HEX, precio: 2, n: copias("consejo"),
-  texto: "Cambias todas las cartas de tu mano por las de un vecino. Te devuelve un jornal para que juegues una de tus cartas nuevas." })}
-${carta({ k: "f_erradicacion", nombre: "Erradicación", tono: FAENA_HEX, precio: 2, n: copias("erradicacion"),
+  texto: "Gastas tu jornal y te dan otro: juegas una carta más en el mismo turno, la que quieras." })}
+${carta({ k: "f_consejo", nombre: "Consejo del mayordomo", tono: FAENA_HEX, precio: 1, n: copias("consejo"),
+  texto: "Cambias todas las cartas de tu mano por las de un vecino. Te devuelve el jornal para que juegues una de tus cartas nuevas." })}
+${carta({ k: "f_erradicacion", nombre: "Erradicación", tono: FAENA_HEX, precio: 1, n: copias("erradicacion"),
   texto: "Quita todas las plagas de una mata, comunes o resistentes. Esas plagas salen del juego y no vuelven al mazo." })}
 </div>
 
@@ -548,7 +543,7 @@ ${carta({ k: "f_erradicacion", nombre: "Erradicación", tono: FAENA_HEX, precio:
 <div class="contenido">
 
 <p>Esta expansión trae un cultivo raro, el injerto, y once espantos. Los espantos son faenas:
-cuestan dos jornales y, cuando terminan, se van al montón. La única que se queda en la mesa es la
+cuestan un jornal y, cuando terminan, se van al montón. La única que se queda en la mesa es la
 Madremonte, que acompaña a quien la recibe.</p>
 
 <h3><span class="n">1</span>El injerto</h3>
@@ -560,21 +555,21 @@ ${carta({ k: "c_injerto", nombre: "Injerto", clase: "Cultivo", tono: HEX("injert
 
 <h3><span class="n">2</span>Los espantos</h3>
 <div class="cartas">
-${carta({ k: "f_mohan_cafe", nombre: "El Mohán", clase: `Hay cuatro: uno por cultivo`, tono: ESPANTO_HEX, precio: 2, n: COL.length,
+${carta({ k: "f_mohan_cafe", nombre: "El Mohán", clase: `Hay cuatro: uno por cultivo`, tono: ESPANTO_HEX, precio: 1, n: COL.length,
   texto: "Sale del río y se lleva a tu finca una mata de un vecino: la del cultivo que carga en la carta, o una huerta. Se la lleva aunque esté certificada.",
   extra: `<p class="nota">No sirve si ya tienes ese cultivo en tu finca.</p>` })}
-${carta({ k: "f_patasola", nombre: "La Patasola", tono: ESPANTO_HEX, precio: 2, n: copias("patasola"),
+${carta({ k: "f_patasola", nombre: "La Patasola", tono: ESPANTO_HEX, precio: 1, n: copias("patasola"),
   texto: "Cambia dos matas entre dos fincas, aunque estén certificadas. Pueden ser una tuya y una de un vecino, o las de dos vecinos.",
   extra: `<p class="nota">Nadie puede quedar con dos cultivos iguales.</p>` })}
-${carta({ k: "f_duende", nombre: "El Duende", tono: ESPANTO_HEX, precio: 2, n: copias("duende"),
-  texto: "Cambias el Duende por la carta de encima del montón de descarte y te la quedas en la mano. Además te devuelve un jornal, así que puedes usar la carta que recuperaste." })}
-${carta({ k: "f_llorona", nombre: "La Llorona", tono: ESPANTO_HEX, precio: 2, n: copias("llorona"),
+${carta({ k: "f_duende", nombre: "El Duende", tono: ESPANTO_HEX, precio: 1, n: copias("duende"),
+  texto: "Cambias el Duende por la carta de encima del montón de descarte y te la quedas en la mano. Además te devuelve el jornal, así que puedes usar la carta que recuperaste." })}
+${carta({ k: "f_llorona", nombre: "La Llorona", tono: ESPANTO_HEX, precio: 1, n: copias("llorona"),
   texto: "Se juega sobre cualquier mata, tuya o de otro, que esté plagada o protegida, sin importar el color. Tú decides cómo llora:",
   extra: `<ul style="font-size:15.5px;margin-top:4px"><li><b>De alivio:</b> cura la plagada (hasta de plagas resistentes) o certifica la protegida.</li><li><b>De pena:</b> arrasa la plagada o le lava el remedio a la protegida.</li></ul>` })}
-${carta({ k: "f_madremonte", nombre: "La Madremonte", tono: ESPANTO_HEX, precio: 2, n: copias("madremonte"),
+${carta({ k: "f_madremonte", nombre: "La Madremonte", tono: ESPANTO_HEX, precio: 1, n: copias("madremonte"),
   texto: "Se la pones a un vecino y se queda con él. Mientras la tenga, no puede cantar cosecha, aunque su finca esté completa.",
   extra: `<p class="nota">Para quitársela, tiene que usar un remedio en una mata de <b>otro</b> jugador: curarla, protegerla o certificarla. La Madremonte se va con ese jugador. Mientras la tengas, tus remedios sirven en cualquier finca.</p>` })}
-${carta({ k: "f_sombreron", nombre: "El Sombrerón", tono: ESPANTO_HEX, precio: 2, n: copias("sombreron"),
+${carta({ k: "f_sombreron", nombre: "El Sombrerón", tono: ESPANTO_HEX, precio: 1, n: copias("sombreron"),
   texto: "Todas las fincas cambian de dueño a la vez: cada una pasa al vecino del lado que tú elijas. Tu finca también se va, y te llega la del vecino." })}
 </div>
 
@@ -680,8 +675,8 @@ solo con Cosecha.</p>
 <div class="faq-grupo" style="--tono:var(--base)">
 <h3>El turno<span class="sello">Cosecha</span></h3>
 <dl class="faq">
-  <div><dt>¿Puedo jugar dos cartas en un turno?</dt><dd><span class="corta">Sí,</span> si te alcanzan los jornales. Dos cartas de un jornal, o una faena de dos.</dd></div>
-  <div><dt>¿Puedo botar cartas y también jugar?</dt><dd><span class="corta">Sí.</span> Botar cuesta un jornal, así que te queda otro para jugar una carta, en el orden que quieras.</dd></div>
+  <div><dt>¿Puedo jugar dos cartas en un turno?</dt><dd><span class="corta">Solo con ayuda.</span> Tienes un jornal, o sea una carta. El Jornal extra, el Consejo del mayordomo y el Duende te dejan jugar otra.</dd></div>
+  <div><dt>¿Puedo botar cartas y también jugar?</dt><dd><span class="corta">No.</span> Botar cuesta tu jornal. Si tienes un Jornal extra, juégalo primero y te queda otro jornal para botar o jugar.</dd></div>
   <div><dt>¿Cuándo robo cartas?</dt><dd>Al final de tu turno, hasta volver a tener tres. No robas en la mitad del turno.</dd></div>
   <div><dt>Me quedé sin cartas. ¿Qué hago?</dt><dd>En tu turno robas tres cartas y ese turno lo pierdes. En el siguiente juegas normal.</dd></div>
 </dl></div>
@@ -702,7 +697,7 @@ solo con Cosecha.</p>
   <div><dt>¿La plaga resistente de huerta le entra a cualquier mata?</dt><dd><span class="corta">Sí,</span> igual que la langosta: a cualquier cultivo que no esté certificado. Al vivero no.</dd></div>
   <div><dt>¿Puedo usar mi malla de sombra para proteger a otro jugador?</dt><dd><span class="corta">No.</span> La malla solo te cubre a ti, cuando la carta va contra ti.</dd></div>
   <div><dt>Me cubrí con la malla y la carta no tiene otro destino. ¿Qué pasa?</dt><dd>La carta se pierde: va al montón sin hacer nada, y quien la jugó ya gastó sus jornales.</dd></div>
-  <div><dt>¿Con el Jornal extra puedo jugar dos faenas?</dt><dd><span class="corta">No.</span> Te quedan tres jornales: alcanzan para una faena y una carta de un jornal.</dd></div>
+  <div><dt>¿Con el Jornal extra puedo jugar dos faenas?</dt><dd><span class="corta">Sí.</span> El Jornal extra es una faena y te da otro jornal: con ese puedes hacer otra faena.</dd></div>
 </dl></div>
 
 <div class="faq-grupo" style="--tono:var(--espantos)">
@@ -717,7 +712,7 @@ solo con Cosecha.</p>
   <div><dt>Si cambio de finca con el Lindero, ¿la Madremonte se va con la finca?</dt><dd><span class="corta">No.</span> La Madremonte se queda con la persona, no con la finca.</dd></div>
   <div><dt>Con la Madremonte, ¿puedo ganar cuando se agota la tierra?</dt><dd><span class="corta">Sí.</span> La Madremonte solo te impide cantar cosecha. Tus puntos cuentan igual.</dd></div>
   <div><dt>Si me pasan la Madremonte, ¿puedo devolverla enseguida?</dt><dd><span class="corta">Sí.</span> En tu turno, usa un remedio en una mata de otro jugador, el que sea, y la Madremonte se va con él.</dd></div>
-  <div><dt>¿Cuántos jornales cuestan los espantos?</dt><dd>Dos, como toda faena. El Duende te devuelve uno después de jugarlo.</dd></div>
+  <div><dt>¿Cuántos jornales cuestan los espantos?</dt><dd>Uno, como toda carta. El Duende te lo devuelve después de jugarlo.</dd></div>
   <div><dt>¿La Patasola puede cambiar dos matas de mi propia finca?</dt><dd><span class="corta">No.</span> Siempre cambia matas entre dos fincas distintas.</dd></div>
   <div><dt>¿El Mohán se puede llevar un vivero?</dt><dd><span class="corta">No.</span> Solo se lleva el cultivo que carga en su carta o una huerta.</dd></div>
   <div><dt>¿Me pueden quitar el injerto?</dt><dd><span class="corta">Sí.</span> Es una mata como las otras: se puede cambiar con un Trueque o llevar con la Mano larga, si no está certificada.</dd></div>
@@ -749,10 +744,9 @@ solo con Cosecha.</p>
     <li>Si sigue lista al empezar tu turno, cosechas.</li>
     <li>O, si la tierra se agota, gana quien tenga más puntos.</li></ul></section>
   <section><h4>Tu turno</h4><ul>
-    <li>Tienes dos jornales.</li>
-    <li>Cultivo, plaga o remedio: un jornal.</li>
-    <li>Faena: dos jornales.</li>
-    <li>Botar de una a tres cartas: un jornal.</li>
+    <li>Tienes un jornal: juegas una carta.</li>
+    <li>O botas de una a tres cartas.</li>
+    <li>Jornal extra, Consejo y Duende: juegas otra.</li>
     <li>Al final, roba hasta tener tres.</li></ul></section>
   <section><h4>Una mata</h4><ul>
     <li>Un remedio: protegida. Dos: certificada.</li>

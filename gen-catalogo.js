@@ -67,7 +67,7 @@ const FAMILIAS = [
   {id:"cultivo", titulo:"Cultivos", lead:"Lo que siembras. Con cuatro distintos y sanos cantas cosecha, y si tu finca aguanta una vuelta de la mesa, ganas. Nunca puedes tener dos del mismo."},
   {id:"plaga",   titulo:"Plagas",   lead:"Lo que le mandas al vecino. Cada plaga le entra solo a su cultivo o a la huerta; la de huerta le entra a todo. Una arruina la mata; la segunda la acaba."},
   {id:"remedio", titulo:"Remedios", lead:"Lo que protege tu finca: curan, protegen y certifican. Igual que las plagas, cada remedio sirve solo para su cultivo o para tu huerta."},
-  {id:"faena",   titulo:"Faenas",   lead:"El trabajo grande. Casi todas cuestan dos jornales —el Jornal extra cuesta uno— pero mueven la mesa entera."}
+  {id:"faena",   titulo:"Faenas",   lead:"El trabajo grande. Cuestan un jornal, como cualquier carta, pero mueven la mesa entera."}
 ];
 const MAZOS = {base:"Base", bonanza:"Bonanza", espantos:"Espantos"};
 
@@ -91,8 +91,7 @@ function tarjeta(e){
         <p class="meta">
           ${Object.entries(porMazo[k]).filter(([,c]) => c > 0)
             .map(([m]) => `<span class="sello ${m}">${R.MAZOS[m].nombre}</span>`).join("")}
-          <span class="copias">${n} ${n===1?"copia":"copias"}</span>
-          <span class="jornal">${costo} ${costo===1?"jornal":"jornales"}</span></p>
+          <span class="copias">${n} ${n===1?"copia":"copias"}</span></p>
       </header>
       <p class="hace">${esc(R.queHace(carta))}</p>
       ${compartida ? `<p class="reparto">${esc(desglose(k))}</p>` : ""}
@@ -334,8 +333,8 @@ footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--linea);
     <ol>
       <li><strong>Una carta por imagen.</strong> Nunca pidas «las ${totalDisenos} cartas» ni una
         lámina con varias: los generadores pierden el hilo y ninguna queda usable.</li>
-      <li><strong>Solo el dibujo, sin marco ni letras.</strong> El marco de color, los rótulos, el
-        costo en jornales y el icono de esquina los pone el juego. Si la IA dibuja texto, la
+      <li><strong>Solo el dibujo, sin marco ni letras.</strong> El marco de color, los rótulos y
+        el icono de esquina los pone el juego. Si la IA dibuja texto, la
         imagen no encaja.</li>
       <li><strong>Fija el estilo con la primera y repítelo.</strong> Genera primero el café. Cuando
         te guste, copia el bloque de estilo palabra por palabra en todas las demás y cambia solo

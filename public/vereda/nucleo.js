@@ -160,7 +160,6 @@ const arteClave = (k, carta) => A.arteDe(k) || (carta ? ilustra(carta) : "");
 function cartica(carta, extra) {
   const x = extra || {};
   return `<button class="cartica ${x.clase || ""}" style="--t:${R.colorCarta(carta)}" ${x.attrs || ""}>
-    ${x.costo === false ? "" : `<span class="cost" title="jornales">${R.cuesta(carta)}</span>`}
     <span class="ilu">${ilustra(carta)}</span>
     <span class="n">${esc(R.nombreCarta(carta))}</span>
     <span class="cl">${esc(R.claseCarta(carta))}</span></button>`;

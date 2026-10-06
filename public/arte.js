@@ -430,12 +430,10 @@ function caraCarta(carta, tono, grande){
   const rot = `${r.titulo} / ${r.sub}`;
   const M = motor();
   const mz = M ? M.mazoDe(carta) : "base";
-  const costo = motor() ? motor().cuesta(carta) : 1;
   return `<span class="cara ${grande?"gr":""}" style="--tono:${tono}">
     <span class="papel"></span>
     <span class="cinta"><span class="ins">${dibujo(carta, "#FFFFFF", true)}</span>
-      <span class="tit">${(carta.k==="faena"&&!grande) ? r.sub : `${r.titulo} <b>/ ${r.sub}</b>`}</span>
-      <span class="costo" title="jornales">${costo}</span></span>
+      <span class="tit">${(carta.k==="faena"&&!grande) ? r.sub : `${r.titulo} <b>/ ${r.sub}</b>`}</span></span>
     <span class="lado izq">${rot}</span><span class="lado der">${rot}</span>
     <span class="ilustra"><span class="obra">${ilustracion(carta, tono)}</span></span>
     <span class="alpie">${rot}</span>

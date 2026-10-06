@@ -594,7 +594,7 @@ wss.on("connection", ws => {
       despierta(s, ws.jugador);
       const hay = s.E.jugadores[ws.jugador].mano.some((_,i)=>R.jugadasLegales(s.E, ws.jugador, i).length);
       const yaTrabajo = s.E.jornales < R.JORNALES_TURNO;
-      if (hay && !yaTrabajo) return error(ws, "Todavía tienes jugadas posibles con tus dos jornales");
+      if (hay && !yaTrabajo) return error(ws, "Todavía tienes jugadas posibles con tu jornal");
       s.E.registro.push(j.nombre + (yaTrabajo ? " cerró su turno" : " no tenía jugada y pasó"));
       s.E.jornales = 0;
       consumir(s); cerrarTurno(s); return difundir(s);

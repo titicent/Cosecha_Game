@@ -18,7 +18,7 @@ class J{ constructor(){this.V=null;}
     setTimeout(()=>{const W=this.V;if(!W||W.turno!==W.yo||W.ganador!==null||W.terminada||W.pendiente)return;
       const ops=[];(W.jugadas||[]).forEach((js,i)=>js.forEach(j=>ops.push({i,j})));
       if(ops.length)this.env({t:"jugar",idx:ops[0].i,jugada:ops[0].j});
-      else if(W.mano.length&&W.jornales>=2)this.env({t:"descartar",idxs:[0]});
+      else if(W.mano.length&&W.jornales>=1)this.env({t:"descartar",idxs:[0]});
       else this.env({t:"pasar"});},5);}}
 (async()=>{
   await espera(600);

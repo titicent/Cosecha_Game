@@ -5,8 +5,8 @@
    El servidor es la autoridad: el cliente usa esto solo para pintar.
 
    Diferencias de fondo con los juegos de "colecciona y sabotea":
-     · Jornales: cada turno tienes 2 jornales y cada carta cuesta
-       distinto, así que juegas varias cartas por turno.
+     · Jornales: cada turno tienes 1 jornal y toda carta cuesta uno.
+       El Jornal extra, el Consejo y el Duende te dejan seguir jugando.
      · Clima: cada pocas rondas cae un evento que afecta a todos.
      · Doble victoria: por finca completa, o por puntos de cosecha
        cuando la tierra se agota.
@@ -41,14 +41,14 @@ const ESPANTOS = new Set(["mohan_cafe","mohan_platano","mohan_cacao","mohan_cana
   "patasola","duende","llorona","madremonte","sombreron"]);
 
 /* ── Jornales: lo que cuesta cada carta ─────────────────────── */
-const JORNALES_TURNO = 2;
+/* Un jornal por turno y toda carta cuesta uno (decisión D11). Con dos
+   jornales, más de la mitad de los turnos terminaban botando cartas por no
+   tener en qué gastar el segundo; con uno, la cuarta parte. Las faenas
+   bajaron a 1: a 2 no se podían jugar nunca. Ver ritmo-jornal.js. */
+const JORNALES_TURNO = 1;
 function cuesta(c){
   if(!c) return 0;
-  /* El Jornal extra cuesta uno y da dos. Costaba dos, como toda faena, y
-     entonces no hacía nada: se jugaba con los dos jornales, devolvía dos, y
-     uno quedaba exactamente como si no la hubiera tenido. */
-  if(c.k === "faena") return c.tr === "jornalExtra" ? 1 : 2;
-  return 1;                       /* cultivo, plaga y remedio valen un jornal */
+  return 1;
 }
 
 /* ── Mazo ───────────────────────────────────────────────────── */
@@ -308,7 +308,7 @@ function jugadasLegales(E, ji, idx){
     return out;
   }
   if(tr==="jornalExtra"){
-    out.push({tipo:"jornalExtra",etiqueta:"Sumar dos jornales a este turno"});
+    out.push({tipo:"jornalExtra",etiqueta:"Ganar otro jornal en este turno"});
     return out;
   }
   if(tr==="consejo"){
@@ -518,8 +518,8 @@ function aplicar(E, ji, idx, jugada, protegidos){
       break;}
     case "jornalExtra":{
       E.descarte.push(carta);
-      if(E.jornales !== undefined) E.jornales += 2;
-      reg.push(yo.nombre+" consiguió jornal extra: dos jornales más");
+      if(E.jornales !== undefined) E.jornales += 1;
+      reg.push(yo.nombre+" consiguió jornal extra: juega otra carta");
       break;}
     case "consejo":{
       E.descarte.push(carta);
@@ -747,8 +747,8 @@ function queHace(x){
     propagacion:"Pasas tus plagas a matas sanas de los vecinos, tantas como quepan, en una sola jugada.",
     chaparron:"Todos los demás botan su mano y pierden el turno siguiente buscando semilla.",
     lindero:"Cambias tu finca entera con la de un vecino, certificadas incluidas. La única carta que mueve lo blindado.",
-    jornalExtra:"Cuesta un jornal y te da dos: te alcanza para una faena y algo más en el mismo turno.",
-    consejo:"Cambias tu mano con la de un vecino y te queda un jornal para usarla.",
+    jornalExtra:"Gastas tu jornal y te dan otro: juegas una carta más en el mismo turno.",
+    consejo:"Cambias tu mano con la de un vecino y te devuelven el jornal para usarla.",
     mallasombra:"Guárdala: se juega cuando te atacan, para que la carta no te toque. No robas después de usarla.",
     erradicacion:"Saca del juego una plaga, común o resistente, hasta que termine la partida.",
     mohan_cafe:"El Mohán se lleva un café o una huerta del vecino, aunque esté certificado.",
@@ -756,7 +756,7 @@ function queHace(x){
     mohan_cacao:"El Mohán se lleva un cacao o una huerta del vecino, aunque esté certificado.",
     mohan_cana:"El Mohán se lleva una caña o una huerta del vecino, aunque esté certificada.",
     patasola:"La Patasola cambia dos matas entre cualesquiera fincas, sin importar si están certificadas.",
-    duende:"El Duende te cambia esta carta por la última del montón de descarte, y te deja un jornal.",
+    duende:"El Duende te cambia esta carta por la última del montón de descarte, y te devuelve el jornal para seguir jugando.",
     llorona:"Al jugarla eliges si llora de alivio (cura, certifica) o de pena (arrasa, lava el remedio).",
     madremonte:"Maldice a un vecino: no podrá ganar hasta que cure, proteja o certifique una mata ajena y le pase la maldición.",
     sombreron:"Todas las fincas de la mesa cambian de dueño, corriéndose hacia el lado que elijas."

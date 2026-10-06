@@ -11,8 +11,9 @@
        de curvas de nivel, como las terrazas del cafetal.
      · Zonas fijas, iguales en todas las cartas: cabecera, ilustración,
        nombre, pictogramas y línea corta. Nada se mueve según el contenido.
-     · Cabecera: ícono de tipo, solo el tipo («PLAGA RESISTENTE»), el sello
-       del mazo y el costo en una ficha cuadrada.
+     · Cabecera: ícono de tipo, solo el tipo («PLAGA RESISTENTE») y el sello
+       del mazo. Sin ficha de costo: con 1 jornal por turno toda carta vale
+       uno (D11), y el número no decía nada.
      · Cultivos, plagas y remedios se explican con pictogramas; las faenas y
        los espantos llevan además una línea corta. El detalle está en la guía.
 
@@ -170,12 +171,12 @@ function contenido(c) {
     propagacion: { filas: [[G.mata("neutra", "bicho"), G.flecha(), ajena("neutra"), ajena("neutra")]], linea: "Tus plagas saltan a matas sanas de los vecinos." },
     chaparron: { filas: [[G.todos(), G.flecha(), G.mano(true)]], linea: "Los demás botan su mano y pierden el turno." },
     lindero: { filas: [[G.finca("tu"), G.cambio(), G.finca("vecino")]], linea: "Cambias tu finca entera con la de un vecino." },
-    jornalExtra: { filas: [[G.jornal("−1"), G.flecha(), G.jornal("+2")]], linea: "Cuesta un jornal y te da dos." },
-    consejo: { filas: [[G.mano(false), G.cambio(), G.mano(false), G.jornal("+1")]], linea: "Cambias tu mano con la de un vecino. Te devuelve un jornal." },
+    jornalExtra: { filas: [[G.jornal("+1")]], linea: "Otro jornal: juegas una carta más." },
+    consejo: { filas: [[G.mano(false), G.cambio(), G.mano(false), G.jornal("+1")]], linea: "Cambias tu mano con la de un vecino y vuelves a jugar." },
     mallasombra: { filas: [[G.ataque(), G.escudo()]], linea: "En el turno de otro: la carta que va contra ti no te toca." },
     erradicacion: { filas: [[G.mata("neutra", "bicho"), G.flecha(), G.bichoFuera()]], linea: "Saca del juego las plagas de una mata." },
     patasola: { filas: [[G.mata("neutra"), G.cambio(), G.mata("neutra")], [G.certificada(false)]], linea: "Cambia dos matas de dos fincas, aunque estén certificadas." },
-    duende: { filas: [[G.monton(), G.flecha(), G.mano(false), G.jornal("+1")]], linea: "Cambias el Duende por la carta de arriba del montón." },
+    duende: { filas: [[G.monton(), G.flecha(), G.mano(false), G.jornal("+1")]], linea: "Cambias el Duende por la de arriba del montón y vuelves a jugar." },
     llorona: { filas: [[G.gota(), G.flecha(), G.mata("neutra", "ok"), G.barra(), G.mata("neutra", "no")]], linea: "Cura o certifica una mata; o la arrasa o le lava el remedio. Tú eliges." },
     madremonte: { filas: [[G.vecino(), G.flecha(), G.trofeo(true)]], linea: "El vecino no puede cosechar hasta que cure una mata ajena." },
     sombreron: { filas: [[G.finca("tu"), G.giro(), G.finca("vecino")]], linea: "Todas las fincas pasan al vecino del lado que elijas." }
@@ -191,9 +192,8 @@ function cara(c) {
   const arte = A.clavesCarta(c).find(x => propias.has(x));
   const p = contenido(c);
   const nombre = R.nombreCarta(c).replace(/^El Mohán: .*/, "El Mohán");
-  const costo = c.tr === "mallasombra" ? 0 : R.cuesta(c);
   return `<div class="carta" style="--tono:${tono}">
-  <div class="z cab" ${zona("cab")}><span class="tipo">${iconoTipo(kt)}</span><span class="tit">${TIPO_TEXTO[kt]}</span><span class="sello" style="--sello:${R.MAZOS[mz].hex}" title="Mazo ${R.MAZOS[mz].nombre}">${A.sello(mz, "#FFFFFF")}</span><span class="ficha" title="jornales">${costo}</span></div>
+  <div class="z cab" ${zona("cab")}><span class="tipo">${iconoTipo(kt)}</span><span class="tit">${TIPO_TEXTO[kt]}</span><span class="sello" style="--sello:${R.MAZOS[mz].hex}" title="Mazo ${R.MAZOS[mz].nombre}">${A.sello(mz, "#FFFFFF")}</span></div>
   <div class="z obra" ${zona("obra")}>${arte ? `<img src="public/cartas/${arte}.png" alt="">` : A.dibujo(c, tono)}</div>
   <div class="z nombre${nombre.length > 16 ? " largo" : ""}" ${zona("nombre")}>${esc(nombre)}</div>
   <div class="z pictos${p.filas.length > 1 ? " dos" : ""}" ${zona("pictos")}>${p.filas.map(f => `<div class="fila">${f.join("")}</div>`).join("")}</div>
@@ -273,7 +273,7 @@ const html = `<!doctype html>
     <li>Las hojas verdes son los reversos y van intercaladas: imprime a doble cara, volteando por el borde largo. Si tu impresora no imprime a doble cara, imprímelas aparte y pégalas por detrás.</li>
     <li>Corta siguiendo las marcas de las orillas de la hoja: el borde de cada carta es recto.</li>
     <li>Si vas a jugar mucho, mételas en fundas de 63 × 88 mm.</li>
-    <li>Cada carta lleva en la cabecera el <b>sello de su mazo</b>, junto a la ficha del costo: grano verde para Cosecha,
+    <li>Cada carta lleva en la cabecera el <b>sello de su mazo</b>, arriba a la derecha: grano verde para Cosecha,
       sol dorado para Bonanza, luna morada para Espantos. Sirve para volver a separar las barajas.</li>
   </ol>
   <p style="margin-bottom:0"><b>${conEspantos ? "Incluye Espantos." : "Mazo base y Bonanza."}</b>

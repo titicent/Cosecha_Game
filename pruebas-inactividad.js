@@ -19,7 +19,7 @@ class J{ constructor(){this.V=null;this.quieto=false;this.log=[];}
     setTimeout(()=>{const W=this.V; if(!W||W.turno!==W.yo||W.ganador!==null||W.terminada||this.quieto||W.pendiente)return;
       const ops=[];(W.jugadas||[]).forEach((js,i)=>js.forEach(j=>ops.push({i,j})));
       if(ops.length)this.env({t:"jugar",idx:ops[0].i,jugada:ops[0].j});
-      else if(W.mano.length&&W.jornales>=2)this.env({t:"descartar",idxs:[0]});
+      else if(W.mano.length&&W.jornales>=1)this.env({t:"descartar",idxs:[0]});
       else this.env({t:"pasar"});},8);}}
 (async()=>{
   await espera(600);

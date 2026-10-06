@@ -267,8 +267,8 @@ const MENU = (() => {
         texto: "Junta <b>cuatro cultivos distintos</b>: café, plátano, cacao y caña. La huerta es el comodín." },
       { k: "p_comun_cafe", t: "#8C3A2B", titulo: "Cuida tus matas",
         texto: "Las plagas arruinan las matas y los remedios las curan. <b>El color manda</b>: la broca solo le entra al café." },
-      { k: "f_jornalExtra", t: "#3F6B4A", titulo: "Dos jornales por turno",
-        texto: "Sembrar, plagar o curar cuesta un jornal. Una faena, los dos." },
+      { k: "f_jornalExtra", t: "#3F6B4A", titulo: "Un jornal por turno",
+        texto: "Con tu jornal juegas <b>una carta</b>: siembras, plagas, curas o haces una faena. El <b>Jornal extra</b> te da otro." },
       { k: "c_huerta", t: "#C9A227", titulo: "¡Finca lista!",
         texto: "Cuando la completes, todos lo verán. Si aguanta <b>una vuelta de la mesa</b>, cosechas y ganas." }
     ];

@@ -21,7 +21,7 @@ function portada() {
   const a = V.datos().acertijo, hecho = !!a.dias[V.hoy()];
   app.innerHTML = `<section class="marco">
     <h2>El acertijo del mayordomo</h2>
-    <p>El mayordomo te deja la mesa armada: tu finca, la de los vecinos y unas cartas en la mano. Con los jornales de este turno tienes que dejar la finca <b>lista</b>. No todas las cartas sirven: piénsalo antes de jugar.</p>
+    <p>El mayordomo te deja la mesa armada: tu finca, la de los vecinos y unas cartas en la mano. Hoy te presta <b>dos jornales</b>: con ellos tienes que dejar la finca <b>lista</b>. No todas las cartas sirven: piénsalo antes de jugar.</p>
     <div class="dia"><span class="med">${V.arteClave("f_consejo", { k: "faena", tr: "consejo" })}</span>
       <div class="txt"><h3>El acertijo de hoy</h3>
         <p>${hecho ? "¡Ya lo resolviste! Vuelve mañana por otro." : "Uno nuevo cada día, el mismo para todo el mundo. Vale " + (Q.NIVELES[2].granos + BONO_DIA) + " granos."}

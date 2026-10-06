@@ -395,7 +395,7 @@ function abrirDescarte() {
   const marcadas = new Set();
   const dibujar = () => {
     $modal.innerHTML = `<div class="telon"><div class="dialogo">
-      <h3>Suelta lo que no sirve</h3><p>De una a tres cartas, por un jornal. Si te queda otro, sigues jugando; al final del turno robas hasta volver a tener tres.</p>
+      <h3>Suelta lo que no sirve</h3><p>De una a tres cartas, por tu jornal. Al final del turno robas hasta volver a tener tres.</p>
       <div class="cartas">${V.mano.map((c,i) => `<button class="carta ${marcadas.has(i)?"elegida":""}" data-d="${i}">
         ${A.caraCarta(c, R.colorCarta(c), false)}</button>`).join("")}</div>
       <div style="height:16px"></div>

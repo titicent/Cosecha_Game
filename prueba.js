@@ -44,7 +44,7 @@ class Jugador {
       if (ops.length && Math.random() > 0.15) {
         const el = ops[Math.floor(Math.random()*ops.length)];
         this.env({t:"jugar", idx: el.idx, jugada: el.j});
-      } else if (V2.jornales >= 2 && V2.mano.length) {
+      } else if (V2.jornales >= 1 && V2.mano.length) {
         this.env({t:"descartar", idxs:[0]});
       } else if (!ops.length) {
         this.env({t:"pasar"});
