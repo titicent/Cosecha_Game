@@ -203,6 +203,16 @@ const POS = {
   4: [[10, 190], [31, 10], [69, 10], [90, 190]],
   5: [[9, 230], [23, 40], [50, 0], [77, 40], [91, 230]]
 };
+/* En el teléfono la mano y los botones van fijos abajo: el resto de la mesa
+   deja ese alto libre para que nada quede tapado. */
+let diarioAbierto = false;
+function medirDock() {
+  const j = $app.querySelector(".juego");
+  if (!j) return;
+  const alto = getComputedStyle(j).position === "fixed" ? j.offsetHeight + 10 : 0;
+  document.documentElement.style.setProperty("--dock", alto ? alto + "px" : "");
+}
+addEventListener("resize", () => { if (V && V.iniciada) medirDock(); });
 function mesa() {
   if (esMadura()) return mesaMadura();
   const yo = V.yo, J = V.jugadores, mi = J[yo], mio = V.turno === yo && !V.terminada, B = blancos();
@@ -254,13 +264,16 @@ function mesa() {
     <div class="acciones">${V.terminada ? `<span class="espera">La partida terminó.</span> <button class="boton chico" id="verFin">Ver resultado</button>`
       : mio ? (botando
         ? `<span class="espera">Toca 1 o 2 cartas para botar</span><button class="boton chico" id="okBotar" ${elegidas.length ? "" : "disabled"}>Botar ${elegidas.length || ""}</button><button class="boton chico" id="noBotar">Cancelar</button>`
-        : `<span class="jornales">Jornales ${V.jornales > 0 ? Array.from({ length: V.jornales }, () => "<i></i>").join("") : "<i class='gastado'></i>"}</span>
-           <button class="boton chico" id="bBotar" ${V.jugadas.some(j => j.tipo === "botar") ? "" : "disabled"}>Botar cartas</button>
-           <button class="boton chico" id="bTerminar">Terminar turno</button><span class="reloj" id="reloj"></span>`)
+        : `<span class="jornales"><span class="mas">Jornales </span>${V.jornales > 0 ? Array.from({ length: V.jornales }, () => "<i></i>").join("") : "<i class='gastado'></i>"}</span>
+           <button class="boton chico" id="bBotar" ${V.jugadas.some(j => j.tipo === "botar") ? "" : "disabled"}>Botar<span class="mas"> cartas</span></button>
+           <button class="boton chico" id="bTerminar">Terminar<span class="mas"> turno</span></button><span class="reloj" id="reloj"></span>`)
       : `<span class="espera">Juega ${esc(J[V.turno].nombre)}…</span><span class="reloj" id="reloj"></span>`}</div></div>
     <div class="diario">${V.registro.map(t => `<p>${esc(t)}</p>`).join("")}</div>
     </div>`;
   const d = $app.querySelector(".diario"); d.scrollTop = d.scrollHeight;
+  if (diarioAbierto) d.classList.add("abierto");
+  d.onclick = () => { diarioAbierto = !diarioAbierto; d.classList.toggle("abierto", diarioAbierto); d.scrollTop = d.scrollHeight; };
+  medirDock();
   enlazarMesa();
   if (sel !== null) hojaCarta(sel);
 }
@@ -331,9 +344,8 @@ function hojaCarta(i) {
   if (blancos().size && !verOpciones) {
     cerrarHoja();
     const h = document.createElement("div"); h.className = "hoja mini"; h.id = "hoja";
-    h.innerHTML = `<div class="ops"><div class="fila"><b style="flex:1">${esc(K().nombreCarta(x))}</b>
-      <button class="boton chico" id="hOps">Ver ${ops.length} opciones</button><button class="boton chico" id="hNo">Soltar</button></div>
-      <p style="margin:6px 0 0">Toca una casilla que brille.</p></div>`;
+    h.innerHTML = `<div class="ops"><div class="fila"><span class="que"><b>${esc(K().nombreCarta(x))}</b><small>Toca una casilla que brille</small></span>
+      <button class="boton chico" id="hOps">Ver ${ops.length} opciones</button><button class="boton chico" id="hNo">Soltar</button></div></div>`;
     h.querySelector("#hOps").onclick = () => { verOpciones = true; hojaCarta(i); };
     h.querySelector("#hNo").onclick = () => { sel = null; cerrarHoja(); mesa(); };
     $capa.appendChild(h); return;
