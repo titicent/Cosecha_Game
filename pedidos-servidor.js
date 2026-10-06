@@ -14,7 +14,9 @@ const SEG_TURNO = Number(process.env.SEG_TURNO_PEDIDOS || 90);   /* reloj por tu
 const SEG_DESCONECTADO = 25;                                     /* si se cayó la conexión, se le espera menos */
 const VIDA_SALA = 6 * 60 * 60 * 1000;
 const NIVELES = ["novato", "normal", "baquiano"];
-const limpiaOpciones = o => ({ juego: "pedidos", modo: o && o.modo === "primera" ? "primera" : "completo" });
+const METAS_VALIDAS = ["normal", "8", "11", "15"];
+const limpiaOpciones = o => ({ juego: "pedidos", modo: o && o.modo === "primera" ? "primera" : "completo",
+  meta: o && METAS_VALIDAS.includes(String(o.meta)) ? String(o.meta) : "normal" });
 
 const salas = new Map();
 const LETRAS = "ABCDEFGHJKLMNPQRSTUVWXYZ";
@@ -93,7 +95,7 @@ function tiempoAgotado(sala, turnoDe, marca) {
 function empezar(sala) {
   if (sala.sillas.length < R.MIN_JUG) throw new Error("Hacen falta al menos " + R.MIN_JUG + " jugadores");
   if (sala.sillas.length > R.MAX_JUG) throw new Error("Pedidos del pueblo es hasta de " + R.MAX_JUG + " jugadores");
-  sala.E = R.nuevaPartida(sala.sillas.map(s => s.nombre), { modo: sala.opciones.modo, semilla: crypto.randomInt(2 ** 31) });
+  sala.E = R.nuevaPartida(sala.sillas.map(s => s.nombre), { modo: sala.opciones.modo, meta: sala.opciones.meta, semilla: crypto.randomInt(2 ** 31) });
   sala.sillas.forEach(s => { s.ausencias = 0; });
   difundir(sala); programar(sala);
 }

@@ -60,6 +60,29 @@ const COMPOSICION = {
   nube: 5
 };
 const META = { 2: 8, 3: 7, 4: 6, 5: 5 };
+/* Metas para elegir al armar la mesa: «normal» es la de siempre. Una meta
+   más alta trae más puntos por disputar, y para que se pueda alcanzar el
+   montón se puede barajar más veces antes de que se agote la tierra.
+   Cada número salió de simular 500 partidas por caso con vecinos baquianos:
+   solo se ofrece una meta si casi siempre alguien la alcanza (≥ 95 %) en un
+   tiempo razonable. Con 4 o 5 jugadores las plagas cruzadas frenan tanto que
+   11 o 15 puntos no se alcanzan: por eso allí hay menos opciones. */
+const METAS = {
+  2: { normal: { meta: 8, barajadas: 2, min: 21 }, 11: { meta: 11, barajadas: 2, min: 28 }, 15: { meta: 15, barajadas: 3, min: 39 } },
+  3: { normal: { meta: 7, barajadas: 2, min: 29 }, 8: { meta: 8, barajadas: 3, min: 35 }, 11: { meta: 11, barajadas: 4, min: 55 }, 15: { meta: 15, barajadas: 6, min: 83 } },
+  4: { normal: { meta: 6, barajadas: 2, min: 35 }, 8: { meta: 8, barajadas: 5, min: 62 } },
+  5: { normal: { meta: 5, barajadas: 2, min: 31 } }
+};
+/* Qué meta y cuántas barajadas tocan, según jugadores y lo elegido.
+   Si lo elegido no sirve para esa mesa (por ejemplo, 15 con 4 jugadores),
+   se usa la meta más alta que sí sirve. */
+function metaPara(n, eleccion) {
+  const t = METAS[n] || METAS[2];
+  if (t[eleccion]) return Object.assign({ clave: String(eleccion) }, t[eleccion]);
+  const pedida = Number(eleccion) || 0, claves = Object.keys(t);
+  const mejor = claves.filter(k => t[k].meta <= pedida).sort((a, b) => t[b].meta - t[a].meta)[0] || "normal";
+  return Object.assign({ clave: mejor }, t[mejor]);
+}
 const APERTURA = [3, 2, 1];             /* brotes del 1.º, 2.º y 3.º, con 3 o más jugadores */
 const MANO = 4, JORNALES = 2, PARCELAS = 4, FILA = 3;
 const MIN_JUG = 2, MAX_JUG = 5;
@@ -167,11 +190,12 @@ const puntos = j => j.pedidos.reduce((a, p) => a + p.pts, 0) + 2 * j.bonanzas.le
 
 /* ── Partida ────────────────────────────────────────────────── */
 function nuevaPartida(nombres, opciones) {
-  const op = Object.assign({ modo: "completo", semilla: Date.now() }, opciones || {});
+  const op = Object.assign({ modo: "completo", semilla: Date.now(), meta: "normal" }, opciones || {});
   const n = nombres.length;
   if (n < MIN_JUG || n > MAX_JUG) throw new Error("Cosecha se juega de " + MIN_JUG + " a " + MAX_JUG);
+  const mt = metaPara(n, op.meta);
   const E = {
-    modo: op.modo, meta: META[n], s: op.semilla | 0, n: 0,
+    modo: op.modo, meta: mt.meta, metaClave: mt.clave, barajadas: mt.barajadas, s: op.semilla | 0, n: 0,
     jugadores: nombres.map(nombre => ({ nombre, mano: [], finca: [], bodega: [], pedidos: [], bonanzas: [], fuera: false })),
     mazo: [], descarte: [], pedidos: [], fila: [], climas: [], climasVistos: [], clima: null, bonanza: null,
     turno: 0, primero: 0, jornales: JORNALES, rebarajadas: 0, ultimaVuelta: false, agotada: false,
@@ -216,8 +240,8 @@ function sacar(E) {
     if (!E.descarte.length) return null;
     E.mazo = barajar(E, E.descarte.splice(0));
     E.rebarajadas++;
-    if (E.rebarajadas >= 2) { E.agotada = true; log(E, "Se barajó el montón por segunda vez: la tierra se está agotando."); }
-    else log(E, "Se acabó el mazo: se barajó el montón.");
+    if (E.rebarajadas >= (E.barajadas || 2)) { E.agotada = true; log(E, "Se barajó el montón por " + (E.rebarajadas === 2 ? "segunda" : E.rebarajadas === 3 ? "tercera" : "última") + " vez: la tierra se está agotando."); }
+    else log(E, "Se acabó el mazo: se barajó el montón" + ((E.barajadas || 2) > 2 ? " (" + E.rebarajadas + " de " + E.barajadas + ")." : "."));
   }
   return E.mazo.pop() || null;
 }
@@ -520,7 +544,7 @@ function elegir(E, ji, nivel, azar) {
 /* ── Vista privada de cada jugador ──────────────────────────── */
 function vista(E, ji) {
   return {
-    modo: E.modo, meta: E.meta, turno: E.turno, primero: E.primero, jornales: E.jornales,
+    modo: E.modo, meta: E.meta, metaClave: E.metaClave, barajadas: E.barajadas || 2, turno: E.turno, primero: E.primero, jornales: E.jornales,
     mazo: E.mazo.length, montón: E.descarte.length, descarte: E.descarte[E.descarte.length - 1] || null,
     fila: E.fila, pedidosQuedan: E.pedidos.length, clima: E.clima, bonanza: E.bonanza,
     rebarajadas: E.rebarajadas, ultimaVuelta: E.ultimaVuelta, terminada: E.terminada, ganadores: E.ganadores, finPor: E.finPor,
@@ -534,7 +558,7 @@ function vista(E, ji) {
   };
 }
 
-const API = { COLORES, CULTIVO, PLAGA, REMEDIO, FAENA, PEDIDOS, CLIMAS, COMPOSICION, META, APERTURA,
+const API = { COLORES, CULTIVO, PLAGA, REMEDIO, FAENA, PEDIDOS, CLIMAS, COMPOSICION, META, METAS, metaPara, APERTURA,
   MANO, JORNALES, PARCELAS, FILA, MIN_JUG, MAX_JUG, COLOR_FAENA, COLOR_NUBE, COLOR_PEDIDO, NOMBRES_BOT,
   crearMazo, crearPedidos, crearClimas, nombreCarta, claseCarta, colorCarta, claveArte, queHace, afecta, costo, cubre,
   puntos, nuevaPartida, jugadas, validar, aplicar, retirar, elegir, valor, vista, rnd };

@@ -25,7 +25,7 @@ const cult = c => `<img src="cartas/c_${c}.png" alt="" draggable="false">`;
 /* ── Estado ─────────────────────────────────────────────────── */
 let ws = null, V = null, sesion = guardado("cosecha2.sesion", null);
 let sel = null, botando = false, elegidas = [], ultimoEvento = null, limiteLocal = 0, pendiente = null;
-let pref = Object.assign({ nombre: "", jugadores: 3, nivel: "normal", modo: "completo", juego: "pedidos" }, guardado("cosecha2.pref", {}));
+let pref = Object.assign({ nombre: "", jugadores: 3, nivel: "normal", modo: "completo", juego: "pedidos", meta: "normal" }, guardado("cosecha2.pref", {}));
 pref.juego = "pedidos";
 /* El nombre es el mismo que se escribió en el menú de Cosecha */
 try { const n = localStorage.getItem("cosecha.nombre"); if (n) pref.nombre = n; } catch (e) {}
@@ -79,6 +79,16 @@ function pintar() {
   mesa();
 }
 
+/* Botones de la meta: las que sirven para esa cantidad de jugadores, con
+   los minutos que suele durar la partida. Lo elegido que no sirva para la
+   mesa se muestra con la meta que de verdad se va a usar. */
+function metaBotones(n, elegida, apagado) {
+  n = Math.min(R.MAX_JUG, Math.max(R.MIN_JUG, n));
+  const t = R.METAS[n], usa = R.metaPara(n, elegida).clave;
+  return `<div class="seg metas" data-g="meta">${Object.keys(t).sort((a, b) => t[a].meta - t[b].meta).map(k =>
+    `<button aria-pressed="${k === usa}" data-v="${k}" ${apagado ? "disabled" : ""}><b>${k === "normal" ? "Normal · " : ""}${t[k].meta} puntos</b><small>unos ${t[k].min} min</small></button>`).join("")}</div>
+    ${Object.keys(t).length === 1 ? `<p class="nota">Con ${n} jugadores se juega a la meta normal: más puntos no se alcanzan antes de que se agote la tierra.</p>` : ""}`;
+}
 function portada() {
   const maxJ = JUEGOS[pref.juego].motor.MAX_JUG;
   if (pref.jugadores > maxJ) pref.jugadores = maxJ;
@@ -106,6 +116,8 @@ function portada() {
         <div class="seg" data-g="nivel">${[["novato", "Novato"], ["normal", "Normal"], ["baquiano", "Baquiano"]].map(([k, t]) => `<button aria-pressed="${k === pref.nivel}" data-v="${k}">${t}</button>`).join("")}</div>
         ${pref.juego === "pedidos" ? `<div class="rot">Reglas</div>
         <div class="seg" data-g="modo"><button aria-pressed="${pref.modo === "completo"}" data-v="completo">Juego completo</button><button aria-pressed="${pref.modo === "primera"}" data-v="primera">Primera cosecha</button></div>` : ""}
+        <div class="rot">Meta</div>
+        ${metaBotones(n, pref.meta, false)}
         <button class="jugar" id="solo">¡A sembrar!</button>
       </section>
       <section class="marco">
@@ -122,8 +134,8 @@ function portada() {
     const k = g.dataset.g; pref[k] = k === "jugadores" ? +b.dataset.v : b.dataset.v; guarda("cosecha2.pref", pref);
     pref.nombre = document.getElementById("nombre").value.trim(); portada(); }));
   document.getElementById("solo").onclick = () => { const x = nom(); if (!x) return;
-    mandar({ t: "crear", nombre: x, opciones: { juego: pref.juego, modo: pref.modo }, bots: Array(pref.jugadores - 1).fill(pref.nivel), empezar: true }); };
-  document.getElementById("crear").onclick = () => { const x = nom(); if (!x) return; mandar({ t: "crear", nombre: x, opciones: { juego: pref.juego, modo: pref.modo } }); };
+    mandar({ t: "crear", nombre: x, opciones: { juego: pref.juego, modo: pref.modo, meta: pref.meta }, bots: Array(pref.jugadores - 1).fill(pref.nivel), empezar: true }); };
+  document.getElementById("crear").onclick = () => { const x = nom(); if (!x) return; mandar({ t: "crear", nombre: x, opciones: { juego: pref.juego, modo: pref.modo, meta: pref.meta } }); };
   document.getElementById("unir").onclick = () => { const x = nom(); if (!x) return;
     const c = document.getElementById("codigo").value.trim().toUpperCase(); if (c.length !== 4) return error("El código tiene 4 letras");
     mandar({ t: "unir", codigo: c, nombre: x }); };
@@ -147,6 +159,8 @@ function sala() {
     ${juego === "pedidos" ? `<div class="rot">Reglas</div>
     <div class="seg" data-g="modo">${[["completo", "Juego completo"], ["primera", "Primera cosecha"]].map(([k, t]) =>
       `<button aria-pressed="${V.opciones.modo === k}" data-v="${k}" ${soy ? "" : "disabled"}>${t}</button>`).join("")}</div>` : ""}
+    <div class="rot">Meta</div>
+    ${metaBotones(n, V.opciones.meta || "normal", !soy)}
     ${n > MOT.MAX_JUG ? `<p class="nota" style="text-align:center">${JUEGOS[juego].nombre} se juega hasta con ${MOT.MAX_JUG}: quita un vecino o cambia de juego.</p>` : ""}
     ${soy ? `<div class="fila" style="margin-bottom:14px"><button class="boton chico" id="bot" ${n >= MOT.MAX_JUG ? "disabled" : ""}>+ Vecino de la máquina</button>
       <button class="boton chico" id="quitar" ${V.sillas.some(s => s.bot) ? "" : "disabled"}>− Quitar vecino</button></div>
@@ -158,8 +172,10 @@ function sala() {
   document.getElementById("copiar").onclick = () => { navigator.clipboard && navigator.clipboard.writeText(enlace).then(() => error("Enlace copiado"), () => prompt("Copia el enlace:", enlace)); };
   document.getElementById("salir").onclick = salir;
   if (!soy) return;
-  $app.querySelectorAll('[data-g="modo"] button').forEach(b => b.onclick = () => mandar({ t: "opciones", opciones: { juego, modo: b.dataset.v } }));
-  $app.querySelectorAll('[data-g="juego"] button').forEach(b => b.onclick = () => mandar({ t: "opciones", opciones: { juego: b.dataset.v, modo: V.opciones.modo } }));
+  $app.querySelectorAll('[data-g="modo"] button').forEach(b => b.onclick = () => mandar({ t: "opciones", opciones: { juego, modo: b.dataset.v, meta: V.opciones.meta } }));
+  $app.querySelectorAll('[data-g="juego"] button').forEach(b => b.onclick = () => mandar({ t: "opciones", opciones: { juego: b.dataset.v, modo: V.opciones.modo, meta: V.opciones.meta } }));
+  $app.querySelectorAll('[data-g="meta"] button').forEach(b => b.onclick = () => { pref.meta = b.dataset.v; guarda("cosecha2.pref", pref);
+    mandar({ t: "opciones", opciones: { juego, modo: V.opciones.modo, meta: b.dataset.v } }); });
   document.getElementById("bot").onclick = () => mandar({ t: "bot", nivel: pref.nivel });
   document.getElementById("quitar").onclick = () => mandar({ t: "quitarbot" });
   document.getElementById("empezar").onclick = () => mandar({ t: "empezar" });
@@ -529,8 +545,9 @@ function verReglas(juego) {
     <h3>Los pedidos</h3>
     <p>Si tu bodega tiene lo que pide un pedido, lo entregas y te quedas con sus puntos. La huerta reemplaza un ingrediente.</p>
     <h3>El final</h3>
-    <p>Cuando alguien llega a la meta (8, 7, 6 o 5 puntos según cuántos juegan) se termina la vuelta y gana quien más tenga.
-      Si el mazo se acaba por segunda vez, también se termina.</p>
+    <p>Cuando alguien llega a la meta se termina la vuelta y gana quien más tenga. La meta se elige al armar la mesa:
+      la normal es de 8, 7, 6 o 5 puntos según cuántos juegan, y con pocos jugadores se puede jugar a 11 o a 15.
+      Si el mazo se acaba más veces de las permitidas, también se termina.</p>
     <h3>En la mesa</h3>
     <p>Toca una carta de tu mano: se iluminan las casillas donde se puede jugar. Toca una mata madura tuya para cosecharla, o un pedido para entregarlo.</p>
     <div class="fila" style="justify-content:center"><button class="boton" data-cerrar>Entendido</button></div></div>`);

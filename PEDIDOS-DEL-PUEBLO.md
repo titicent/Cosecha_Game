@@ -109,6 +109,22 @@ Lo mismo vale para los productos de la bodega: la Broca solo daña un café guar
    |---|---|---|---|---|
    | Puntos para terminar | 8 | 7 | 6 | 5 |
 
+### Meta más alta (opcional)
+
+Para partidas con más puntos por disputar, al armar la mesa se puede elegir una meta mayor. Con una meta
+mayor, el montón se puede barajar más veces antes de que se agote la tierra, para que haya cartas
+suficientes para alcanzarla.
+
+| Jugadores | Normal | Otras metas |
+|---|---|---|
+| 2 | 8 puntos · ~21 min | 11 puntos · ~28 min · 15 puntos (3 barajadas) · ~39 min |
+| 3 | 7 puntos · ~29 min | 8 puntos (3 barajadas) · ~35 min · 11 puntos (4) · ~55 min · 15 puntos (6) · ~83 min |
+| 4 | 6 puntos · ~35 min | 8 puntos (5 barajadas) · ~62 min |
+| 5 | 5 puntos · ~31 min | — |
+
+Con 4 y 5 jugadores las plagas cruzadas frenan tanto que 11 o 15 puntos casi nunca se alcanzan: en 500
+partidas simuladas por caso, la tierra se agotaba antes. Por eso allí no se ofrecen.
+
 ---
 
 ## 5. El turno

@@ -90,6 +90,25 @@ console.log("\nReglas puntuales");
 
 /* ── Madura y cosecha ─────────────────────────────────────── */
 
+console.log("\nMeta elegible");
+{
+  const m = (n, k) => R.metaPara(n, k);
+  ok(m(2, "normal").meta === 8 && m(3, "normal").meta === 7 && m(4, "normal").meta === 6 && m(5, "normal").meta === 5 && m(3, "normal").barajadas === 2,
+    "la meta normal es la de siempre (8/7/6/5, 2 barajadas)");
+  ok(m(2, "15").meta === 15 && m(2, "15").barajadas === 3 && m(3, "11").barajadas === 4, "metas altas traen más barajadas");
+  ok(m(4, "15").meta === 8 && m(5, "11").meta === 5, "una meta que no sirve para la mesa baja a la más alta que sí sirve");
+  const E = R.nuevaPartida(["A", "B"], { semilla: 4, meta: "15" });
+  ok(E.meta === 15 && E.barajadas === 3 && R.vista(E, 0).meta === 15, "la partida y la vista llevan la meta elegida");
+  let llegan = 0;
+  for (let k = 0; k < 200; k++) {
+    const F = R.nuevaPartida(R.NOMBRES_BOT.slice(0, 2), { semilla: 300 + k, meta: "11" });
+    let pasos = 0; let s = k * 7 + 1; const az = () => ((s = (s * 1103515245 + 12345) % 2147483648) / 2147483648);
+    while (!F.terminada && pasos++ < 8000) R.aplicar(F, F.turno, R.validar(F, F.turno, R.elegir(F, F.turno, "baquiano", az)));
+    if (F.terminada && F.finPor === "meta" && Math.max(...F.jugadores.map(R.puntos)) >= 11) llegan++;
+  }
+  ok(llegan >= 190, `2 jugadores a 11 puntos: ${llegan} de 200 partidas terminan por meta`);
+}
+
 /* ── En línea: el servidor de Cosecha atiende las salas de Pedidos ── */
 console.log("\nEn línea");
 const { spawn } = require("child_process");
@@ -131,6 +150,14 @@ const manda = (ws, m) => ws.send(JSON.stringify(Object.assign({ juego: "pedidos"
     }
     ok(c.ultima.terminada && Array.isArray(c.ultima.ganadores), "la partida en línea termina con ganador(es)");
     ok(!c.errores.length, "sin errores del servidor" + (c.errores.length ? ": " + c.errores[0] : ""));
+    /* 1b · la meta elegida llega a la mesa, y se ajusta a los jugadores */
+    const d = await cliente(), e = await cliente();
+    manda(d, { t: "crear", nombre: "Duo", opciones: { meta: "15" }, bots: ["normal"], empezar: true });
+    manda(e, { t: "crear", nombre: "Cuarteto", opciones: { meta: "15" }, bots: ["normal", "normal", "normal"], empezar: true });
+    await espera(300);
+    ok(d.ultima.meta === 15 && d.ultima.opciones.meta === "15", "mesa de 2 a 15 puntos");
+    ok(e.ultima.meta === 8, "mesa de 4 que pidió 15 juega a 8, la más alta que sirve");
+    manda(d, { t: "salir" }); manda(e, { t: "salir" });
     /* 2 · sala privada con código */
     const a = await cliente(), b = await cliente();
     manda(a, { t: "crear", nombre: "Ana" }); await espera(150);
