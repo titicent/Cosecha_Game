@@ -3,8 +3,11 @@
 Esta guía es para generar con IA los PNG que faltan. Usa el mismo estilo, formato e
 instrucciones de siempre, así las imágenes nuevas salen iguales a las que ya tienes.
 
-**Lo que falta hoy:** 7 ilustraciones para el mini juego **El espantapájaros** de La Vereda
-(6 animales y la medalla del lugar en el mapa).
+**Lo que falta hoy:**
+- **7 ilustraciones** para el mini juego **El espantapájaros** de La Vereda (6 animales y la
+  medalla del lugar en el mapa).
+- **12 avatares nuevos**, que se suman a los 6 de siempre: 3 más de la región cafetera y 3 de
+  cada región que se abre al subir de nivel (Caribe, Pacífico y Orinoquía).
 
 ---
 
@@ -57,10 +60,22 @@ Si ya montaste el proyecto «Cartas de Cosecha» (ChatGPT) o el Gem «Ilustrador
   vuelo, con cara amable y ojos grandes y brillantes. Colores limpios y alegres.
 ```
 
-Y agrega esta regla al final:
+Para los avatares, agrega esta otra familia:
+
+```
+- Avatares: retrato de busto (cabeza, cuello y hombros) de una persona del campo
+  colombiano, de frente y sonriendo, con una sola prenda u objeto que la identifique
+  (sombrero, pañoleta, instrumento, herramienta). Rasgos reales, diversos y dignos, como
+  los de un vecino querido: nunca caricatura ni disfraz. La cara queda en el centro del
+  cuadro y el sombrero o el peinado caben enteros, porque el juego la recorta en círculo.
+```
+
+Y agrega estas reglas al final:
 
 ```
 - Los animales se dibujan solos: sin cultivos, sin comida en la boca y sin escenario.
+- En los avatares, la ropa y los objetos de cada región se dibujan con respeto y con
+  detalle real; nada de estereotipos ni de exageraciones.
 ```
 
 Con eso, a partir de ahí escribes solo el nombre de la imagen y la línea del sujeto.
@@ -101,6 +116,64 @@ Es el círculo que identifica el juego en el mapa de La Vereda.
 
 > Mientras no estén, el juego arranca con dibujos provisionales en vector, así que no bloquean.
 
+### Avatares (12)
+
+Son la cara de cada jugador en la mesa. Deben verse como los 6 que ya tienes
+(`a_aguadeno.png`, `a_carriel.png`, `a_poncho.png`, `a_ruana.png`, `a_mochila.png`,
+`a_machete.png`): **busto de frente, sonriendo**, con una prenda u objeto que le da el nombre.
+
+Antes de pedir el primero, súbele a la IA uno de los avatares que ya tienes como **referencia de
+estilo** (no de persona) y dile que use el mismo trazo, la misma luz y el mismo encuadre.
+
+**Ojo con el encuadre:** el juego los muestra recortados en círculo y pequeños (de 30 a 60 px).
+La cara tiene que quedar en el centro y el sombrero entero, sin cortarse arriba.
+
+El nombre que sale en la sala es el de la prenda u objeto (como «Aguadeño» o «Ruana»), por eso
+la clave lleva ese nombre.
+
+#### Región cafetera (3) · disponibles desde el principio
+
+Equilibran el grupo: hoy hay 4 hombres y 2 mujeres, y nadie de la niñez ni de la abuela.
+
+| Clave | Nombre en el juego | Sujeto para el prompt |
+|---|---|---|
+| `a_tapapinche.png` | Tapapinche | Una niña recolectora de unos 10 años, con trenzas y un delantal de lona tapapinche amarrado a la cintura, sonriendo con orgullo. |
+| `a_panolon.png` | Pañolón | Una abuela campesina de pelo blanco recogido, con un pañolón tejido de flecos sobre los hombros y mirada tierna. |
+| `a_tinto.png` | Tinto | Una mujer campesina de unos 40 años, con delantal y un pocillo de peltre humeante en la mano a la altura del pecho. |
+
+#### Caribe (3)
+
+| Clave | Nombre en el juego | Sujeto para el prompt |
+|---|---|---|
+| `a_vueltiao.png` | Vueltiao | Un hombre costeño de piel morena, con sombrero vueltiao de franjas negras y crema y guayabera blanca. |
+| `a_palenquera.png` | Palenquera | Una mujer afrocolombiana de San Basilio de Palenque, con pañoleta de colores vivos en la cabeza y vestido de vuelos amarillo, rojo y azul. |
+| `a_acordeon.png` | Acordeón | Un joven costeño con camisa de colores y un acordeón pequeño colgado al hombro, asomando a un lado. |
+
+#### Pacífico (3)
+
+| Clave | Nombre en el juego | Sujeto para el prompt |
+|---|---|---|
+| `a_turbante.png` | Turbante | Una mujer afrocolombiana del Pacífico, con turbante alto de telas estampadas en naranja, verde y morado, y aretes grandes de semillas. |
+| `a_marimba.png` | Marimba | Un hombre afrocolombiano mayor, de barba canosa, con camisa blanca y dos baquetas de marimba de chonta cruzadas a la altura del pecho. |
+| `a_atarraya.png` | Atarraya | Un joven pescador afrocolombiano, con camiseta sin mangas y una atarraya de pesca recogida sobre el hombro. |
+
+#### Orinoquía (3)
+
+| Clave | Nombre en el juego | Sujeto para el prompt |
+|---|---|---|
+| `a_llanero.png` | Llanero | Un llanero de piel curtida por el sol, con sombrero pelo e' guama de ala ancha y bigote, con un pañuelo rojo al cuello. |
+| `a_cuatro.png` | Cuatro | Una mujer llanera joven, con una flor roja en el pelo suelto y un cuatro (guitarra pequeña llanera) apoyado en el hombro. |
+| `a_soga.png` | Soga | Un joven llanero sonriente, con sombrero de paja, camisa a cuadros y una soga de cabestro enrollada sobre el hombro. |
+
+#### Cuáles se ven de entrada
+
+Propuesta para que haya más caras desde el principio sin quitarle gracia a abrir una región:
+
+- **Disponibles desde el principio: 12.** Los 6 de siempre, los 3 cafeteros nuevos y uno de cada
+  región como adelanto (`a_vueltiao.png`, `a_turbante.png` y `a_llanero.png`).
+- **Se abren con su región: 6.** Los otros dos de cada región, cuando se suba de nivel y se abra
+  esa región (fase 3 de la hoja de ruta). Mientras tanto salen en el selector con candado.
+
 ---
 
 ## 6. Orden sugerido
@@ -109,3 +182,15 @@ Es el círculo que identifica el juego en el mapa de La Vereda.
 2. **`n_abeja.png`**, para fijar el de los amigos y comprobar que se distinguen.
 3. **El resto de los animales.**
 4. **`n_espantapajaros.png`.**
+5. **`a_tapapinche.png`**, con un avatar viejo de referencia, para fijar el estilo de los avatares.
+6. **Los que se ven de entrada:** `a_panolon.png`, `a_tinto.png`, `a_vueltiao.png`,
+   `a_turbante.png` y `a_llanero.png`.
+7. **Los 6 que se abren con las regiones.** Estos no tienen afán.
+
+## 7. Lo que hago yo cuando lleguen los avatares
+
+El código hoy tiene 6 caras fijas. Cuando me pases los nuevos:
+- el selector del nombre muestra todas, con candado las que aún no se abren;
+- el servidor reparte las caras entre los jugadores igual que ahora, sin repetir;
+- a cada cara le pongo su color de silla y su nombre;
+- Pedidos, La Galería y los mini juegos las usan sin cambiar nada más.
