@@ -61,7 +61,7 @@ function pintar() {
 }
 
 function portada() {
-  app.innerHTML = `<section class="marco">
+  app.innerHTML = `<section class="marco v-portada"><div class="v-cuento">
     <h2>La Galería</h2>
     <p>Es día de mercado en la plaza del pueblo. Salen lotes de cosecha y cada uno ofrece en secreto, desde su teléfono, cuántas monedas da.</p>
     <ol class="pasos">
@@ -70,6 +70,7 @@ function portada() {
       <li>Si empatan, se lo lleva quien tenga menos cosecha. Si siguen empatados, nadie lo compra y se junta con el lote siguiente.</li>
       <li>Al final, cada cultivo da más puntos entre más juntes: <b>1, 3, 6, 10…</b> Y cada ${G.POR_MONEDA} monedas que te sobren valen 1 punto.</li>
     </ol>
+    </div><div class="v-elige">
     <div class="dos">
       <div><div class="rot">Contra los vecinos</div>
         <div class="seg" data-g="vecinos">${[1, 2, 3, 4, 5].map(n => `<button aria-pressed="${n === pref.vecinos}" data-v="${n}">${n}</button>`).join("")}</div>
@@ -81,6 +82,7 @@ function portada() {
         <div class="fila"><input class="campo codigo" id="codigo" maxlength="4" placeholder="ABCD" value="${esc(codigoURL)}"><button class="boton" id="entrar">Entrar</button></div></div>
     </div>
     <p class="nota">${V.recordDe("galeria", 1) ? "Tu mejor subasta: " + V.recordDe("galeria", 1) + " puntos" : ""}</p>
+    </div>
   </section>`;
   app.querySelectorAll(".seg").forEach(g => g.querySelectorAll("button").forEach(b => b.onclick = () => {
     pref[g.dataset.g] = g.dataset.g === "vecinos" ? +b.dataset.v : b.dataset.v; portada(); }));
@@ -95,15 +97,15 @@ function portada() {
 function plaza() {
   const soy = vista.yo === vista.anfitrion, n = vista.jugadores.length;
   const enlace = location.origin + location.pathname + "?sala=" + vista.codigo;
-  app.innerHTML = `<section class="marco" style="text-align:center">
+  app.innerHTML = `<section class="marco plaza-sala" style="text-align:center"><div class="plaza-cod">
     <h2>La plaza está abierta</h2><p>Comparte este código con los que van a ofrecer:</p>
     <div class="clave">${[...vista.codigo].map(l => `<i>${l}</i>`).join("")}</div>
-    <button class="boton" id="copiar">Copiar enlace</button>
+    <button class="boton" id="copiar">Copiar enlace</button></div><div class="plaza-gente">
     <div class="gente-g">${vista.jugadores.map((j, i) => `<div>${A.avatar(i, 36)}<span>${esc(j.nombre)}${i === vista.yo ? " (tú)" : ""}<small>${j.bot ? "vecino · " + j.bot : i === vista.anfitrion ? "abrió la plaza" : "listo"}</small></span></div>`).join("")}</div>
     ${soy ? `<div class="fila centro"><button class="boton" id="mas" ${n >= G.MAX_JUG ? "disabled" : ""}>+ Vecino</button><button class="boton" id="menos" ${vista.jugadores.some(j => j.bot) ? "" : "disabled"}>− Vecino</button></div>
       <button class="jugar" id="empezar" ${n < G.MIN_JUG ? "disabled" : ""}>Empezar la subasta</button>`
       : `<p>Esperando a que ${esc(vista.jugadores[vista.anfitrion].nombre)} empiece…</p>`}
-    <p class="nota"><button class="boton" id="salir">Salir</button></p></section>`;
+    <p class="nota"><button class="boton" id="salir">Salir</button></p></div></section>`;
   const on = (id, f) => { const e = document.getElementById(id); if (e) e.onclick = f; };
   on("copiar", () => navigator.clipboard ? navigator.clipboard.writeText(enlace).then(() => V.aviso("Enlace copiado")) : prompt("Copia el enlace:", enlace));
   on("mas", () => mandar({ t: "bot", nivel: pref.nivel }));
@@ -162,7 +164,7 @@ function final() {
   const v = vista, yo = v.yo;
   const orden = v.jugadores.map((j, i) => ({ j, i })).sort((a, b) => b.j.puntos.total - a.j.puntos.total || b.j.monedas - a.j.monedas);
   const gano = v.ganadores.includes(yo), mi = v.jugadores[yo];
-  app.innerHTML = `<section class="marco" style="text-align:center"><h2>Se cerró la plaza</h2>
+  app.innerHTML = `<section class="marco plaza-fin" style="text-align:center"><h2>Se cerró la plaza</h2>
     <div class="gente-g tabla-g final">${orden.map(({ j, i }) => `<div class="${v.ganadores.includes(i) ? "gana" : ""} ${i === yo ? "yo" : ""}">
       ${A.avatar(i, 34)}<span class="nm">${esc(j.nombre)}${i === yo ? " (tú)" : ""}<small>${j.puntos.cosecha} de cosecha + ${j.puntos.monedas} de monedas</small></span>
       <span class="bod">${bodegaHTML(j.bodega)}</span><span class="of abierta">${j.puntos.total}</span></div>`).join("")}</div>

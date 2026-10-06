@@ -145,7 +145,7 @@ function portada() {
 function sala() {
   const soy = V.yo === V.anfitrion, n = V.sillas.length, juego = V.opciones.juego || "pedidos", MOT = JUEGOS[juego].motor;
   const enlace = location.origin + location.pathname + "?sala=" + V.codigo;
-  $app.innerHTML = `<section class="marco" style="max-width:640px;margin:0 auto">
+  $app.innerHTML = `<section class="marco sala-p" style="max-width:640px;margin:0 auto"><div class="sala-izq">
     <h2 style="text-align:center">Sala de espera</h2>
     <p style="text-align:center">Comparte este código con tus amigos:</p>
     <div class="clave">${[...V.codigo].map(l => `<i>${l}</i>`).join("")}</div>
@@ -153,6 +153,7 @@ function sala() {
     <div class="sillas">${V.sillas.map((s, i) => `<div class="silla">${avatar(i)}<div>${esc(s.nombre)}${i === V.yo ? " (tú)" : ""}
       <small>${s.bot ? "máquina · " + s.bot : i === V.anfitrion ? "arma la mesa" : s.conectado ? "listo" : "desconectado"}</small></div></div>`).join("")}
       ${Array.from({ length: Math.max(0, MOT.MAX_JUG - n) }, () => `<div class="silla libre"><span class="av" style="background:transparent;border-style:dashed"></span><div>Silla libre</div></div>`).join("")}</div>
+    </div><div class="sala-der">
     ${Object.keys(JUEGOS).length > 1 ? `<div class="rot">Juego</div>` : ""}
     <div class="seg" data-g="juego" ${Object.keys(JUEGOS).length > 1 ? "" : "hidden"}>${Object.entries(JUEGOS).map(([k, j]) =>
       `<button aria-pressed="${juego === k}" data-v="${k}" ${soy ? "" : "disabled"}>${j.nombre}</button>`).join("")}</div>
@@ -168,7 +169,7 @@ function sala() {
       ${n < R.MIN_JUG ? `<p class="nota" style="text-align:center">Hacen falta al menos ${R.MIN_JUG} jugadores.</p>` : ""}`
       : `<p class="espera">Esperando a que ${esc(V.sillas[V.anfitrion] ? V.sillas[V.anfitrion].nombre : "el anfitrión")} empiece la partida…</p>`}
     <div class="fila" style="justify-content:center;margin-top:14px"><button class="boton chico" id="salir">Salir</button></div>
-  </section>`;
+  </div></section>`;
   document.getElementById("copiar").onclick = () => { navigator.clipboard && navigator.clipboard.writeText(enlace).then(() => error("Enlace copiado"), () => prompt("Copia el enlace:", enlace)); };
   document.getElementById("salir").onclick = salir;
   if (!soy) return;

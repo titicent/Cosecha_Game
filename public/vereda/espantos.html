@@ -65,6 +65,31 @@ body[data-escena="noche"]{
 .tabla span{flex:1;text-align:left}
 .tabla svg,.tabla img{width:30px;height:30px}
 @media (min-width:760px){.carta-rio{width:100px}.carta-rio .ilu{width:72px;height:72px}}
+/* Acostado: el río a la izquierda; la gente y las decisiones a la derecha */
+@media (orientation:landscape) and (max-height:500px){
+  .v-lienzo:has(#camino){display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,.42fr);
+    grid-template-rows:auto minmax(0,1fr) auto;grid-template-areas:"hud gente" "rio gente" "alerta decide";gap:8px 12px;overflow:hidden}
+  .v-lienzo:has(#camino) .hud{grid-area:hud;margin:0}
+  .rio{grid-area:rio;margin:0;min-height:0;display:flex;flex-direction:column;justify-content:center;padding:6px 8px}
+  .camino-rio{min-height:0;padding:8px 2px 6px}
+  .suelo{font-size:12px}
+  .alerta{grid-area:alerta;margin:0;padding:5px 10px;gap:2px 8px}
+  .alerta b{font-size:14px}
+  .alerta small{font-size:12px}
+  .alerta .vistos span{width:30px;height:30px}
+  .gente{grid-area:gente;margin:0;min-height:0;overflow:auto;padding:4px 8px}
+  .persona{grid-template-columns:30px 1fr 34px 34px;gap:6px;padding:2px 0}
+  .persona .av,.persona svg,.persona img{width:30px;height:30px}
+  .persona .nom{font-size:13.5px}
+  .persona .nom small{font-size:10.5px}
+  .gente:has(.persona:nth-child(4)) .persona .nom small{display:none}
+  .persona .lleva,.persona .costal-p{font-size:14px}
+  .leyenda-p{grid-template-columns:1fr 34px 34px;gap:6px;padding-top:1px;font-size:9.5px}
+  .decide{grid-area:decide;gap:6px}
+  .decide .boton{padding:6px 10px;font-size:13px}
+  .decide .jugar{font-size:15px;padding:8px 4px;white-space:nowrap;letter-spacing:.02em}
+  .decide .espera{grid-column:1 / 3;font-size:13px;color:var(--tenue);text-align:center}
+}
 </style>
 <script src="girar.js"></script>
 </head>

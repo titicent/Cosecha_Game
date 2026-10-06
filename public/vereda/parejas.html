@@ -38,6 +38,23 @@
 .cuaderno span{font-size:15px}
 .cuaderno.bien b{color:#3D7224}
 .cuaderno.mal b{color:#8E2A20}
+/* Acostado: contadores y cuaderno a la izquierda, las cartas llenan el resto */
+@media (orientation:landscape) and (max-height:500px){
+  .v-lienzo:has(#tab){display:grid;grid-template-columns:200px minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);
+    grid-template-areas:"hud tab" "cua tab";gap:10px 14px;overflow:hidden}
+  .v-lienzo:has(#tab) .hud{grid-area:hud;margin:0;gap:5px}
+  .v-lienzo:has(#tab) .hud .dato{min-width:0;flex:1;padding:3px 4px}
+  .v-lienzo:has(#tab) .hud .dato b{font-size:17px}
+  .tablero{grid-area:tab;max-width:none!important;width:100%;height:100%;margin:0;container-type:size;
+    display:flex;flex-wrap:wrap;align-content:center;justify-content:center;gap:8px;--c:4;--f:2}
+  .tablero.n12{--c:6;--f:2}
+  .tablero.n20{--c:7;--f:3}
+  .naipe{flex:none;width:min(calc(100cqw / var(--c) - 8px), calc((100cqh / var(--f) - 8px) * .75));aspect-ratio:3/4}
+  .naipe .n{font-size:11px}
+  .cuaderno{grid-area:cua;margin:0;min-height:0;max-width:none;overflow:hidden;padding:8px 10px;line-height:20px;
+    background-image:repeating-linear-gradient(transparent 0 19px,rgba(59,42,21,.13) 19px 20px)}
+  .cuaderno span{font-size:13px}
+}
 </style>
 <script src="girar.js"></script>
 </head>

@@ -308,3 +308,158 @@
   .m-abanico img,#intro,#intro .medalla,#intro .cinta,#intro p{animation:none}
   #intro .barras i.ahora b{animation:none;width:100%}
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   Teléfono acostado: todo el menú cabe en una pantalla, sin desplazarse.
+   Alto útil: 360 a 390 px. La barra de arriba se vuelve transparente y
+   solo deja sus botones en la esquina derecha, como en la mesa.
+   ═══════════════════════════════════════════════════════════════ */
+@media (orientation:landscape) and (max-height:500px){
+  body:has(.m) .barra{position:fixed;top:0;left:0;right:0;background:transparent;backdrop-filter:none;
+    padding:calc(6px + env(safe-area-inset-top)) calc(10px + env(safe-area-inset-right)) 6px 10px;pointer-events:none;z-index:30}
+  body:has(.m) .barra .marca,body:has(.m) .barra .chip{display:none}
+  body:has(.m) .barra{justify-content:flex-end}
+  body:has(.m) .barra .son{pointer-events:auto}
+  .lienzo:has(.m){max-width:none;padding:0}
+  .m{min-height:0;height:100dvh;padding:8px calc(12px + env(safe-area-inset-right)) 8px calc(12px + env(safe-area-inset-left));
+    gap:8px;overflow:hidden}
+  .m-titulo{font-size:22px;margin:0;line-height:1.2}
+  .m-sub{display:none}
+  .m-marco{padding:10px 12px;border-radius:14px}
+  .m-volver{width:42px;height:42px;font-size:22px;left:calc(8px + env(safe-area-inset-left));bottom:calc(8px + env(safe-area-inset-bottom))}
+  .m-ayuda{height:40px;font-size:14px;padding:0 14px;right:calc(8px + env(safe-area-inset-right));bottom:calc(8px + env(safe-area-inset-bottom))}
+  .m-jugar{padding:9px 18px;font-size:20px;border-radius:30px}
+
+  /* 1 · nombre: el abanico y el logo a la izquierda, la barra a la derecha */
+  .m-pnombre{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);grid-template-rows:1fr auto auto 1fr;
+    column-gap:24px;row-gap:6px;align-items:center;justify-items:center}
+  .m-pnombre .m-abanico{grid-column:1;grid-row:2;transform:scale(.8);margin:0}
+  .m-pnombre .m-logo{grid-column:1;grid-row:3;margin:0}
+  .m-pnombre .m-logo .palabra{font-size:58px}
+  .m-pnombre .m-marco{grid-column:2;grid-row:2 / 4;align-self:center}
+  .m-pnombre .m-nota{grid-column:2;grid-row:4;align-self:start}
+
+  /* 2 · modos: las dos puertas grandes y, al lado, Pedidos y La Vereda */
+  .m-pmodos{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(190px,.95fr);
+    grid-template-areas:"jug tit tit" "seg seg seg" "mod mod lado";grid-template-rows:auto auto minmax(0,1fr);
+    align-items:stretch;column-gap:12px;row-gap:8px}
+  .m-pmodos .m-jugador{grid-area:jug;justify-self:start;font-size:15px;padding:3px 12px 3px 3px}
+  .m-pmodos .m-jugador img{width:32px;height:32px}
+  .m-pmodos .m-titulo{grid-area:tit;justify-self:start;align-self:center}
+  .m-pmodos .m-seguir{grid-area:seg;width:100%;padding:6px 10px;font-size:14px}
+  .m-pmodos .m-modos{grid-area:mod;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;min-height:0}
+  .m-pmodos .m-modo{aspect-ratio:auto;min-height:0}
+  .m-pmodos .m-escena{inset:0 0 30% 0}
+  .m-pmodos .esc-solo,.m-pmodos .esc-priv{transform:scale(.82)}
+  .m-pmodos .m-modo .rotulo{padding:16px 8px 10px}
+  .m-pmodos .m-modo .rotulo b{font-size:20px}
+  .m-pmodos .m-modo .rotulo span{font-size:12px}
+  .m-pmodos .m-lado{grid-area:lado;display:flex;flex-direction:column;gap:8px;min-height:0}
+  .m-pmodos .m-vereda{width:100%;flex:1;min-height:0;margin:0;padding:6px 8px 6px 6px;gap:8px;border-radius:16px}
+  .m-pmodos .m-vereda .vimg{width:44px;height:44px}
+  .m-pmodos .m-vereda b{font-size:17px;line-height:1.15}
+  .m-pmodos .m-vereda .vtxt span{font-size:12px;line-height:1.25}
+  .m-pmodos .m-vereda .vflecha{font-size:24px}
+  .m-pmodos .m-ayuda{position:static;width:100%;justify-content:center;flex:none}
+
+  /* 3 · armar la mesa: diales y barajas a la izquierda, reglas a la derecha */
+  .m-pconfig{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto minmax(0,1fr) auto;
+    grid-template-areas:"tit pes" "mar mar" ". jug";align-items:center;column-gap:12px;row-gap:6px;
+    padding-left:calc(60px + env(safe-area-inset-left))}
+  .m-pconfig .m-titulo{grid-area:tit;justify-self:start}
+  .m-pconfig .m-pestanas{grid-area:pes;width:auto;margin-right:150px;padding:3px}
+  .m-pconfig .m-pestanas button{font-size:14px;padding:6px 12px;white-space:nowrap}
+  .m-pconfig .m-marco{grid-area:mar;width:100%;height:100%;min-height:0}
+  .m-pconfig .m-jugar{grid-area:jug;width:auto;min-width:240px}
+  .m-pcodigo .m-marco{align-self:center;height:auto;max-width:520px;justify-self:center}
+  .m-pcodigo .m-codigo{margin:2px 0 8px}
+  .m-pcodigo .m-codigo input{font-size:36px;padding:6px 0 6px .42em}
+
+  .m-marco.ancho:has(.m-diales){display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    grid-template-rows:auto minmax(0,1fr);grid-template-areas:"dia reg" "bar reg";column-gap:14px;row-gap:8px;align-content:stretch}
+  .m-marco.ancho .m-diales{grid-area:dia;grid-template-columns:1fr;gap:6px}
+  .m-marco.ancho .m-seccion{margin:0}
+  .m-marco.ancho .m-seccion:has(.m-barajas){grid-area:bar;align-self:end}
+  .m-marco.ancho .m-seccion:has(.m-reglas){grid-area:reg;min-height:0}
+  .m-marco.ancho .m-seccion > h3{font-size:12px;margin:0 0 5px}
+  .m-marco.ancho .dial{display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"val nom ctl" "val nota ctl";
+    align-items:center;column-gap:10px;text-align:left;height:auto;background:rgba(0,0,0,.18);border-radius:12px;padding:4px 6px 4px 10px}
+  .m-marco.ancho .dial .valor{grid-area:val;height:auto;min-width:64px;justify-content:flex-start}
+  .m-marco.ancho .dial .valor b{font-size:30px}
+  .m-marco.ancho .dial .valor b.palabra{font-size:19px;padding-bottom:2px}
+  .m-marco.ancho .dial .valor small{font-size:12px;padding-bottom:3px}
+  .m-marco.ancho .dial .regla,.m-marco.ancho .dial .sillas{display:none}
+  .m-marco.ancho .dial .nom{grid-area:nom;font-size:13px;align-self:end}
+  .m-marco.ancho .dial .nota{grid-area:nota;font-size:11px;min-height:0;margin:0;padding:0;align-self:start;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .m-marco.ancho .dial .ctl{grid-area:ctl;margin:0;border-radius:10px}
+  .m-marco.ancho .dial .ctl button{width:38px;height:34px;font-size:22px}
+  .m-marco.ancho .m-barajas{gap:6px}
+  .m-marco.ancho .baraja{padding:5px 4px;border-radius:11px;gap:0}
+  .m-marco.ancho .baraja .bimg{width:36px!important;height:36px!important;border-radius:8px;padding:2px;border-width:2px}
+  .m-marco.ancho .baraja b{font-size:13px;margin-top:2px}
+  .m-marco.ancho .baraja small{font-size:10.5px}
+  .m-marco.ancho .baraja .bsello,.m-marco.ancho .baraja .marca-ok{width:16px;height:16px;top:5px;font-size:10px}
+  .m-marco.ancho .baraja .marca-ok{left:5px}.m-marco.ancho .baraja .bsello{right:5px;padding:2px}
+  .m-marco.ancho .m-reglas{grid-template-columns:1fr;gap:5px}
+  .m-marco.ancho .reglaT{padding:4px 8px;border-radius:11px;gap:8px;min-height:0}
+  .m-marco.ancho .reglaT .ico{width:28px;height:28px}
+  .m-marco.ancho .reglaT .ico img{width:24px;height:24px}
+  .m-marco.ancho .reglaT b{font-size:13.5px;line-height:1.2}
+  .m-marco.ancho .reglaT small{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .m-marco.ancho .reglaT > span:nth-child(2){min-width:0}
+
+  /* hoja de reglas que abre el anfitrión desde la sala */
+  .m-hoja{align-items:center;padding:8px 12px}
+  .m-phoja{height:auto!important;display:grid!important;grid-template-columns:minmax(0,1fr) auto;
+    grid-template-areas:"tit jug" "mar mar";gap:6px 12px!important;width:min(100%,820px)!important}
+  .m-phoja .m-titulo{grid-area:tit;justify-self:start}
+  .m-phoja .m-marco{grid-area:mar;width:100%;height:calc(100dvh - 80px)}
+  .m-phoja .m-jugar{grid-area:jug;width:auto;min-width:160px}
+
+  /* 4 · sala de espera: el código y las reglas a la izquierda, las sillas a la derecha */
+  .m-psala{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.3fr);
+    grid-template-rows:auto auto minmax(0,1fr) auto;
+    grid-template-areas:"tit ." "cod sil" "reg sil" "jug sil";column-gap:12px;row-gap:6px;
+    padding-left:calc(60px + env(safe-area-inset-left));padding-bottom:calc(56px + env(safe-area-inset-bottom))}
+  .m-psala .m-titulo{grid-area:tit;justify-self:start}
+  .m-psala .m-salacod{grid-area:cod;width:100%;padding:6px 10px}
+  .m-psala .m-salacod .m-nota{font-size:11px}
+  .m-psala .m-clave{margin:2px 0}
+  .m-psala .m-clave i{width:38px;height:46px;font-size:28px;border-radius:9px}
+  .m-psala .m-salamesa{display:contents}
+  .m-psala .m-sillas{grid-area:sil;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));
+    gap:6px;background:var(--m-panel);border:1.5px solid var(--m-oro);border-radius:14px;padding:8px;align-self:stretch;min-height:0}
+  .m-psala .m-silla{min-height:0;padding:4px;gap:1px;border-radius:12px}
+  .m-psala .m-silla .av,.m-psala .m-silla img,.m-psala .m-silla .hueco{width:40px!important;height:40px!important}
+  .m-psala .m-silla b{font-size:14px}
+  .m-psala .m-silla small{font-size:10.5px}
+  .m-psala .m-secvecinos{position:fixed;right:calc(8px + env(safe-area-inset-right));bottom:calc(8px + env(safe-area-inset-bottom));
+    width:auto;margin:0;z-index:15}
+  .m-psala .m-secvecinos h3{display:none}
+  .m-psala .m-vecinos{flex-wrap:nowrap;gap:5px}
+  .m-psala .m-vecinos button{font-size:12px;padding:7px 10px;background:var(--m-panel-2)}
+  .m-psala .m-secreglas{grid-area:reg;margin:0;align-self:start;background:var(--m-panel);border:1.5px solid var(--m-oro-suave);
+    border-radius:14px;padding:6px 8px;min-height:0;overflow:hidden}
+  .m-psala .m-secreglas h3{font-size:11px;margin:0 0 4px}
+  .m-psala .m-resumen{gap:4px;justify-content:flex-start}
+  .m-psala .m-resumen span{font-size:11px;padding:2px 8px}
+  .m-psala .m-secreglas .m-boton{font-size:12px;padding:5px 12px}
+  .m-psala .m-secreglas > div[style]{margin-top:6px!important}
+  .m-psala .m-jugar{grid-area:jug;width:100%;font-size:17px}
+  .m-psala > .m-sub{display:block;grid-area:jug;font-size:13px;margin:0;text-align:left}
+  .m-psala .m-ayuda{display:none}
+}
+
+/* La presentación antes de la partida, con el teléfono acostado: medalla a un lado, texto al otro */
+@media (orientation:landscape) and (max-height:500px){
+  #intro{padding:30px 24px 56px}
+  #intro .paso{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:auto auto;column-gap:30px;row-gap:8px;
+    align-items:center;max-width:720px;text-align:left}
+  #intro .medalla{grid-row:1 / 3;width:min(52vh,200px);box-shadow:0 0 0 5px var(--t), 0 0 0 8px rgba(255,255,255,.12), 0 0 40px 6px color-mix(in srgb, var(--t) 50%, transparent)}
+  #intro .cinta{margin:0;justify-self:start;align-self:end;font-size:26px}
+  #intro p{margin:0;align-self:start;font-size:17px}
+  #intro .saltar{top:calc(24px + env(safe-area-inset-top));padding:6px 14px;font-size:14px}
+  #intro .abajo{bottom:calc(10px + env(safe-area-inset-bottom));flex-direction:row;justify-content:center;gap:18px}
+  #intro .abajo .m-jugar{width:auto!important;padding:8px 26px;font-size:18px}
+}

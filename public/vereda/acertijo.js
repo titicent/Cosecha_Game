@@ -19,7 +19,7 @@ let nivelPractica = Math.max(1, Math.min(3, (V.datos().acertijoNivel || 1)));
 /* ── Portada ───────────────────────────────────────────────── */
 function portada() {
   const a = V.datos().acertijo, hecho = !!a.dias[V.hoy()];
-  app.innerHTML = `<section class="marco">
+  app.innerHTML = `<section class="marco v-portada"><div class="v-cuento">
     <h2>El acertijo del mayordomo</h2>
     <p>El mayordomo te deja la mesa armada: tu finca, la de los vecinos y unas cartas en la mano. Hoy te presta <b>dos jornales</b>: con ellos tienes que dejar la finca <b>lista</b>. No todas las cartas sirven: piénsalo antes de jugar.</p>
     <div class="dia"><span class="med">${V.arteClave("f_consejo", { k: "faena", tr: "consejo" })}</span>
@@ -27,11 +27,13 @@ function portada() {
         <p>${hecho ? "¡Ya lo resolviste! Vuelve mañana por otro." : "Uno nuevo cada día, el mismo para todo el mundo. Vale " + (Q.NIVELES[2].granos + BONO_DIA) + " granos."}
           ${a.racha > 0 ? `<br>Racha: <b>${a.racha} ${a.racha === 1 ? "día" : "días"}</b>` : ""}</p>
         <button class="boton" id="dia">${hecho ? "Jugarlo otra vez" : "Resolver el de hoy"}</button></div></div>
+    </div><div class="v-elige">
     <h2 style="font-size:18px">Para practicar</h2>
     <div class="niveles">${[1, 2, 3].map(n => `<button class="nivel" data-n="${n}" aria-pressed="${n === nivelPractica}">
       <b>${Q.NIVELES[n].nom}</b><small>${Q.NIVELES[n].nota}</small><small>${Q.NIVELES[n].granos} granos</small></button>`).join("")}</div>
     <button class="jugar" id="practica">Otro acertijo</button>
     <p class="nota">Pista del mayordomo: ${PRECIO_PISTA} granos. Resolverlo sin pistas da ${BONO_LIMPIO} de más.</p>
+    </div>
   </section>`;
   app.querySelectorAll("[data-n]").forEach(b => b.onclick = () => {
     nivelPractica = +b.dataset.n; V.datos().acertijoNivel = nivelPractica; V.guardar(); portada(); });
@@ -85,10 +87,11 @@ function pintar() {
         ${v.maldicion ? `<span class="badge" style="background:#6B4FA8">Madremonte</span>` : ""}</div>
         <div class="finca">${matas(k + 1) || `<span class="nota">Sin matas</span>`}</div></div>`).join("")}
     </section>
-    <section class="marco tuya">
+    <section class="marco tuya"><div class="tuya-finca">
       <div class="cab"><h3>Tu finca</h3><span class="cuenta ${logr >= E.objetivo ? "ok" : ""}">${logr} de ${E.objetivo} sanas</span></div>
       ${yo().maldicion ? `<div class="maldito">La <b>Madremonte</b> anda contigo: no puedes cosechar. Para pasársela a otro, usa un remedio en una mata de un vecino.</div>` : ""}
       <div class="finca">${matas(0) || `<span class="nota">Todavía no has sembrado nada.</span>`}</div>
+      </div><div class="tuya-juego">
       <div class="jornales">Jornales: ${E.jornales > 0 ? Array.from({ length: E.jornales }, () => "<i></i>").join("") : "<i class='gastado'></i>"}
         <b>${E.jornales}</b></div>
       <div class="mano">${yo().mano.map(c => {
@@ -103,7 +106,7 @@ function pintar() {
       <div class="herr"><button class="boton" id="deshacer" ${pila.length ? "" : "disabled"}>↶ Deshacer</button>
         <button class="boton" id="reiniciar" ${pila.length ? "" : "disabled"}>Empezar de nuevo</button>
         <button class="boton" id="pista" ${gano ? "disabled" : ""}>Pista · ${PRECIO_PISTA}</button></div>
-    </section>`;
+    </div></section>`;
 
   app.querySelectorAll("[data-carta]").forEach(b => b.onclick = () => {
     sel = sel === b.dataset.carta ? null : b.dataset.carta; pistaId = null; pintar();

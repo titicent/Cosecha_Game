@@ -24,6 +24,31 @@
   border-radius:14px;padding:12px 14px;margin:10px 0 0}
 .detalle .clase{color:var(--oro);font-size:14px;letter-spacing:.08em;text-transform:uppercase}
 .detalle .juego{font-size:14.5px;color:var(--tenue);margin-top:10px;text-align:left}
+.hojas{display:none}
+/* Acostado: el álbum se hojea. A la izquierda la portada y las páginas; a la derecha, una página */
+@media (orientation:landscape) and (max-height:500px){
+  .v-lienzo:has(.grupo){display:grid;grid-template-columns:minmax(200px,.36fr) minmax(0,1fr);gap:12px;overflow:hidden}
+  .v-lienzo:has(.grupo) > .marco{grid-column:1;grid-row:1;margin:0;display:flex;flex-direction:column;gap:4px;min-height:0;overflow:auto}
+  .album-cab{flex-direction:column;align-items:stretch;gap:6px}
+  .album-cab h2{font-size:18px}
+  .album-cab p{display:none}
+  .album-cab .jugar{font-size:14px!important;padding:7px 10px!important;width:100%!important}
+  .barra-av{margin:2px 0}
+  .v-lienzo:has(.grupo) > .marco .nota{display:none}
+  .hojas{display:flex;flex-direction:column;gap:4px;margin-top:4px}
+  .hojas button{display:flex;justify-content:space-between;align-items:center;border:1.5px solid var(--oro-suave);border-radius:10px;
+    background:rgba(0,0,0,.25);padding:5px 10px;font-size:13.5px;color:var(--crema)}
+  .hojas button small{color:var(--tenue);font-size:11.5px}
+  .hojas button[aria-pressed=true]{border-color:var(--oro);background:rgba(224,176,74,.2)}
+  .grupo{display:none;grid-column:2;grid-row:1;min-height:0}
+  .grupo.activa{display:flex;flex-direction:column}
+  .grupo h3{margin:0 0 6px;font-size:14px}
+  .rejilla{flex:1;min-height:0;container-type:size;display:flex;flex-wrap:wrap;align-content:flex-start;justify-content:center;gap:8px}
+  .rejilla .cartica{width:min(calc((100cqw - (var(--cols) - 1) * 8px) / var(--cols)), calc((100cqh - 8px) / 2 * .72));padding:4px 3px 5px;gap:1px}
+  .rejilla .cartica .ilu{width:78%;height:auto;aspect-ratio:1;font-size:26px}
+  .rejilla .cartica .n{font-size:11.5px;min-height:2.2em}
+  .rejilla .cartica .cl{font-size:8.5px}
+}
 </style>
 <script src="girar.js"></script>
 </head>
@@ -37,10 +62,11 @@
 "use strict";
 (function () {
 const V = VEREDA, R = REGLAS, esc = V.esc;
-let recien = null;
+let recien = null, hoja = null;   /* hoja: el grupo que se ve con el teléfono acostado */
 
 function pintar() {
   const L = V.LAMINAS(), n = V.cuantasLaminas(), completo = n >= L.length;
+  if (!hoja) hoja = (L.find(l => l.clave === recien) || {}).grupo || V.GRUPOS[0][0];
   document.getElementById("app").innerHTML = `
     <section class="marco">
       <div class="album-cab"><div><h2>Álbum de la finca</h2>
@@ -50,8 +76,11 @@ function pintar() {
       <div class="barra-av"><i style="width:${(n / L.length * 100).toFixed(1)}%"></i></div>
       <p class="nota" style="text-align:left">${completo ? "¡Álbum completo! Eres un finquero de verdad." :
         `Tienes ${n} de ${L.length}. Juega en la vereda para ganar láminas, o ábrelas con granos.`}</p>
+      <nav class="hojas" aria-label="Páginas del álbum">${V.GRUPOS.map(([g, t]) => {
+        const del = L.filter(l => l.grupo === g), ya = del.filter(l => V.tiene(l.clave)).length;
+        return `<button data-hoja="${g}" aria-pressed="${g === hoja}">${t}<small>${ya}/${del.length}</small></button>`; }).join("")}</nav>
     </section>
-    ${V.GRUPOS.map(([g, t]) => `<section class="grupo"><h3>${t}</h3><div class="rejilla">
+    ${V.GRUPOS.map(([g, t]) => `<section class="grupo ${g === hoja ? "activa" : ""}" style="--cols:${L.filter(l => l.grupo === g).length > 10 ? 7 : 5}"><h3>${t}</h3><div class="rejilla">
       ${L.filter(l => l.grupo === g).map(l => V.tiene(l.clave)
         ? `<button class="cartica ${l.clave === recien ? "recien" : ""}" style="--t:${l.tono}" data-k="${l.clave}">
             <span class="ilu">${V.ilustra(l.carta)}</span><span class="n">${esc(l.nombre)}</span><span class="cl">${esc(l.clase)}</span></button>`
@@ -59,6 +88,7 @@ function pintar() {
             <span class="ilu">${g === "espantos" ? V.ilustra(l.carta) : "?"}</span><span class="n">?</span><span class="cl">${esc(t.replace(/s$/, ""))}</span></div>`).join("")}
     </div></section>`).join("")}`;
   document.querySelectorAll("[data-k]").forEach(b => b.onclick = () => detalle(b.dataset.k));
+  document.querySelectorAll("[data-hoja]").forEach(b => b.onclick = () => { hoja = b.dataset.hoja; pintar(); });
   const s = document.getElementById("sobre");
   if (s) s.onclick = () => {
     const l = V.abrirSobre();

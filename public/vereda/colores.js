@@ -112,7 +112,7 @@ const abierto = n => n === 1 || V.recordDe("colores", n - 1) >= NIVELES[n].abre;
 function portada() {
   if (!abierto(nivel)) nivel = 1;
   const ej = (k, carta) => `<span class="p">${V.arteClave(k, carta)}</span>`;
-  app.innerHTML = `<section class="marco">
+  app.innerHTML = `<section class="marco v-portada"><div class="v-cuento">
     <h2>El color manda</h2>
     <p>En el beneficiadero sale una carta y una mata de tu finca. ¿Se puede jugar esa carta ahí? Responde <b>sí</b> o <b>no</b> antes de que se acabe el tiempo.</p>
     <ul class="reglas-mini">
@@ -120,6 +120,7 @@ function portada() {
       <li>${ej("c_huerta", { k: "cultivo", c: "huerta" })}<span>A la <b>huerta</b> le entra todo, y las cartas de huerta le sirven a cualquier mata.</span></li>
       ${nivel >= 2 ? `<li>${ej("r_bioinsumo_huerta", { k: "remedio", c: "huerta", t: "bioinsumo" })}<span>Una mata <b>certificada</b> ya no la toca nadie.</span></li>` : ""}
     </ul>
+    </div><div class="v-elige">
     <div class="niveles">${[1, 2, 3].map(n => {
       const ok = abierto(n), rec = V.recordDe("colores", n);
       return `<button class="nivel" data-n="${n}" aria-pressed="${n === nivel}" ${ok ? "" : "disabled"}>
@@ -127,6 +128,7 @@ function portada() {
         ${ok ? `<small>${rec ? "Récord " + rec : "Sin jugar"}</small>` : `<span class="candado">🔒 ${NIVELES[n].abre} aciertos en ${NIVELES[n - 1].nom}</span>`}</button>`; }).join("")}</div>
     <button class="jugar" id="ya">¡A jugar!</button>
     <p class="nota">Cada error te quita 3 segundos. Cada 5 seguidos te dan 3 de vuelta.</p>
+    </div>
   </section>`;
   app.querySelectorAll("[data-n]").forEach(b => b.onclick = () => {
     nivel = +b.dataset.n; const d = V.datos(); d.colores = { nivel }; V.guardar(); portada(); });

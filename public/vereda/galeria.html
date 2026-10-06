@@ -68,6 +68,52 @@
 .monto{display:flex;align-items:center;justify-content:center;gap:18px;margin-bottom:8px}
 .monto b{font-size:48px;min-width:70px;line-height:1}
 .rapidas{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-bottom:10px}
+/* Acostado: el lote y la oferta lado a lado; la tabla de la plaza a la derecha */
+@media (orientation:landscape) and (max-height:500px){
+  .v-lienzo:has(.mostrador){display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.05fr);
+    grid-template-rows:auto minmax(0,1fr) auto;grid-template-areas:"hud hud tab" "mos ofe tab" "nota nota tab";gap:8px 10px;overflow:hidden}
+  .v-lienzo:has(.mostrador) .hud{grid-area:hud;margin:0}
+  .mostrador{grid-area:mos;margin:0;min-height:0;display:flex;flex-direction:column;justify-content:center;padding:8px 6px 6px}
+  .mostrador:not(:has(+ .oferta)){grid-column:mos-start / ofe-end}
+  .lote{width:118px;padding:6px 6px}
+  .lote .ilu{width:70px;height:70px}
+  .lote b{font-size:13px}
+  .vale,.junto,.resultado{font-size:13px;margin:6px 0 0}
+  .oferta{grid-area:ofe;margin:0;min-height:0;display:flex;flex-direction:column;justify-content:center;gap:6px}
+  .oferta .monto{margin:0}
+  .oferta .boton.redondo{width:44px;height:44px;font-size:24px}
+  .oferta .rapidas{margin:0;gap:4px}
+  .oferta .rapidas .boton{padding:5px 10px;font-size:13px}
+  .oferta .jugar{font-size:15px;padding:8px 6px;white-space:nowrap;letter-spacing:.02em}
+  .tabla-g{grid-area:tab;margin:0;min-height:0;overflow:auto;padding:6px;gap:4px}
+  .tabla-g>div{grid-template-columns:28px minmax(0,1fr) 34px;grid-template-areas:"av nm of" "av bod of";gap:2px 6px;padding:4px 6px}
+  .tabla-g>div>:first-child{grid-area:av}
+  .tabla-g .nm{grid-area:nm}
+  .tabla-g .bod{grid-area:bod}
+  .tabla-g .of{grid-area:of}
+  .tabla-g .nm small{display:inline;margin-left:4px}
+  .tabla-g .nm{font-size:13px}
+  .tabla-g .nm small{font-size:10.5px}
+  .gente-g svg,.gente-g img{width:28px;height:28px}
+  .cul{width:20px;height:20px}
+  .cul b{min-width:13px;height:13px;font-size:9.5px;right:-4px;bottom:-4px}
+  .of{width:32px;height:32px;font-size:15px}
+  .v-lienzo:has(.mostrador) > .nota{grid-area:nota;margin:0;font-size:11px}
+  /* la plaza abierta: el código a la izquierda, la gente a la derecha */
+  .plaza-sala{height:100%;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:16px;align-items:center}
+  .plaza-sala > div{min-height:0;max-height:100%;overflow:auto;display:flex;flex-direction:column;gap:6px;align-items:center}
+  .plaza-sala .clave{margin:4px 0}
+  .plaza-sala .clave i{width:44px;height:52px;font-size:30px}
+  .plaza-sala .gente-g{margin:0;width:100%;gap:4px}
+  .plaza-sala .gente-g>div{padding:3px 8px}
+  .plaza-sala .gente-g svg,.plaza-sala .gente-g img{width:28px;height:28px}
+  .plaza-sala .fila.centro{margin:0}
+  .plaza-sala .nota{margin:0}
+  .plaza-fin{height:100%;display:flex;flex-direction:column;gap:6px;overflow:auto}
+  .plaza-fin h2{margin:0}
+  .plaza-fin .tabla-g{flex:1;min-height:0;overflow:auto}
+  .plaza-fin .fila.centro{margin:0}
+}
 </style>
 <script src="girar.js"></script>
 </head>

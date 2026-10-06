@@ -168,7 +168,7 @@ const ESPERA = ms => new Promise(res => setTimeout(res, ms));
 
 function portada() {
   const rec = V.recordDe("espantos", 1);
-  app.innerHTML = `<section class="marco">
+  app.innerHTML = `<section class="marco v-portada"><div class="v-cuento">
     <h2>Espantos en la oscuridad</h2>
     <p>La creciente del río dejó cosecha regada por la orilla. Cinco noches vas a bajar con el farol a recogerla… pero de noche en el río salen espantos.</p>
     <ol class="pasos">
@@ -178,11 +178,13 @@ function portada() {
       <li>Si un espanto sale <b>por segunda vez</b> en la misma noche, los que siguen en el camino salen corriendo y <b>pierden lo de esa noche</b>.</li>
       <li>Tu <b>farol</b> alumbra la próxima carta antes de decidir. Tiene aceite para tres alumbradas en todo el juego.</li>
     </ol>
+    </div><div class="v-elige">
     <div class="galeria-esp">${TIPOS.map(t => `<span title="${esc(ESPANTOS[t].nom)}">${arteE(t)}</span>`).join("")}</div>
     <div class="rot">¿Cuántos bajan al río?</div>
     <div class="niveles">${[3, 4, 5].map(n => `<button class="nivel" data-n="${n}" aria-pressed="${n === cuantos}"><b>${n}</b><small>tú y ${n - 1} vecinos</small></button>`).join("")}</div>
     <button class="jugar" id="ya">Prender el farol</button>
     <p class="nota">${rec ? "Tu costal más lleno: " + rec + " granos" : "Todavía no tienes récord."}</p>
+    </div>
   </section>`;
   app.querySelectorAll(".nivel").forEach(b => b.onclick = () => { cuantos = +b.dataset.n; V.datos().espantosJug = cuantos; V.guardar(); portada(); });
   document.getElementById("ya").onclick = jugar;

@@ -26,6 +26,16 @@
 .leyenda svg{width:54px;height:54px;margin:0 auto 4px}
 .leyenda b{display:block;font-size:16px;font-weight:600;color:#F3D27A}
 .dato-real{font-size:14.5px;color:var(--tenue);background:rgba(0,0,0,.22);border-radius:12px;padding:10px 12px;line-height:1.4;margin:0 0 14px}
+/* Acostado: los contadores a un lado y la rama, entera, en el centro */
+@media (orientation:landscape) and (max-height:500px){
+  .v-lienzo:has(#rama){display:grid;grid-template-columns:minmax(84px,.9fr) auto minmax(84px,.9fr);
+    grid-template-rows:minmax(0,1fr);gap:12px;overflow:hidden;align-items:center}
+  .v-lienzo:has(#rama) .hud{grid-column:1;grid-row:1;flex-direction:column;align-items:stretch;justify-content:center;margin:0;gap:8px}
+  .v-lienzo:has(#rama) .reloj{grid-column:3;grid-row:1;width:14px;height:80%;justify-self:center;margin:0;
+    display:flex;align-items:flex-end}
+  .v-lienzo:has(#rama) .reloj i{transform-origin:bottom;height:100%;width:100%;transform:scaleY(var(--resta,1))!important}
+  .rama{grid-column:2;grid-row:1;height:100%;width:auto;max-width:100%;justify-self:center}
+}
 </style>
 <script src="girar.js"></script>
 </head>

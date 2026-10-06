@@ -78,17 +78,19 @@ const DORSO = `<svg viewBox="0 0 60 80" aria-hidden="true"><rect x="3" y="3" wid
   ${[[14, 16], [46, 16], [14, 64], [46, 64]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="2.4" fill="#E0B04A"/>`).join("")}</svg>`;
 
 function portada() {
-  app.innerHTML = `<section class="marco">
+  app.innerHTML = `<section class="marco v-portada"><div class="v-cuento">
     <h2>Parejas</h2>
     <p>En la cocina de la abuela está el cuaderno de remedios, pero se regaron las hojas. Voltea de a dos cartas y junta cada plaga con el remedio que la quita.</p>
     <ul class="reglas-par">
       <li><span class="p">${V.ilustra({ k: "plaga", c: "cafe", t: "comun" })}</span><b>+</b><span class="p">${V.ilustra({ k: "remedio", c: "cafe", t: "casero" })}</span><span>La plaga común se quita con el <b>remedio casero</b> de su color.</span></li>
       <li><span class="p">${V.ilustra({ k: "plaga", c: "cafe", t: "resistente" })}</span><b>+</b><span class="p">${V.ilustra({ k: "remedio", c: "cafe", t: "bioinsumo" })}</span><span>La plaga resistente, solo con el <b>bioinsumo</b> de su color.</span></li>
     </ul>
+    </div><div class="v-elige">
     <div class="niveles">${NIVELES.slice(1).map(N => { const ok = abierto(N.n), rec = V.recordDe("parejas", N.n);
       return `<button class="nivel" data-n="${N.n}" aria-pressed="${N.n === nivel}" ${ok ? "" : "disabled"}>
         <b>${N.nom}</b><small>${N.nota}</small>${ok ? (rec ? `<small class="candado">Récord: ${rec}</small>` : "") : `<small class="candado">Termina el anterior</small>`}</button>`; }).join("")}</div>
     <button class="jugar" id="ya">¡A la cocina!</button>
+    </div>
   </section>`;
   app.querySelectorAll(".nivel").forEach(b => b.onclick = () => { nivel = +b.dataset.n; V.datos().parejasNivel = nivel; V.guardar(); portada(); });
   document.getElementById("ya").onclick = jugar;

@@ -82,7 +82,7 @@ const MENU = (() => {
 
   /* ── 1 · Ingreso ────────────────────────────────────────────── */
   function pNombre() {
-    $app.innerHTML = `<section class="m">
+    $app.innerHTML = `<section class="m m-pnombre">
       <div class="m-abanico" aria-hidden="true">
         <img src="cartas/c_cafe.png" alt="" style="--t:${HEX("cafe")}" onerror="this.remove()">
         <img src="cartas/c_huerta.png" alt="" style="--t:${HEX("huerta")}" onerror="this.remove()">
@@ -112,7 +112,7 @@ const MENU = (() => {
 
   /* ── 2 · Modos ──────────────────────────────────────────────── */
   function pModos() {
-    $app.innerHTML = `<section class="m">
+    $app.innerHTML = `<section class="m m-pmodos">
       <button class="m-jugador" data-cambianombre title="Cambiar el nombre">${foto("a_aguadeno", "", 0)}<span>${esc(nombre())}</span><span class="lapiz">✎</span></button>
       <h2 class="m-titulo">¿Cómo quieres jugar?</h2>
       ${sesion ? `<div class="m-seguir"><span>Tienes una partida en la sala <b>${esc(sesion.codigo)}</b>.</span>
@@ -134,6 +134,7 @@ const MENU = (() => {
           <span class="rotulo"><b>Sala privada</b><span>Con tus amigos, cada uno en su teléfono</span></span>
         </button>
       </div>
+      <div class="m-lado">
       <a class="m-vereda m-pedidos" href="pedidos.html">
         <span class="vimg"><img src="cartas/e_tinto_campesino.png" alt=""></span>
         <span class="vtxt"><b>Pedidos del pueblo</b><span>Modo alterno: cosecha y entrega pedidos por puntos · 2 a 5 jugadores</span></span>
@@ -143,6 +144,7 @@ const MENU = (() => {
         <span class="vtxt"><b>La Vereda</b><span>Mini juegos para aprender, ganar granos y llenar el álbum</span></span>
         <span class="vflecha">›</span></a>
       ${ayuda}
+      </div>
     </section>`;
     $app.querySelector("[data-cambianombre]").onclick = () => ir("nombre");
     $app.querySelectorAll("[data-modo]").forEach(b => b.onclick = () => ir(b.dataset.modo));
@@ -156,7 +158,7 @@ const MENU = (() => {
     const [tv, tu] = tiempo(c.segundosTurno);
     const sillas = Array.from({ length: n }, (_, i) =>
       A.arteDe(A.claveSilla(i)) ? `<img src="cartas/${A.claveSilla(i)}.png" alt="">` : A.avatar(i, 20)).join("");
-    $app.innerHTML = `<section class="m">
+    $app.innerHTML = `<section class="m m-pconfig">
       <h2 class="m-titulo">Contra la máquina</h2>
       <p class="m-sub">Arma tu mesa: cuántos juegan, cuánto tiempo hay y qué tan duros son los vecinos.</p>
       <div class="m-marco ancho">
@@ -185,7 +187,7 @@ const MENU = (() => {
   function pPrivada() {
     const c = priv, ti = TIEMPOS.indexOf(c.segundosTurno), bi = BANCOS.indexOf(c.minutosJugador);
     const [tv, tu] = tiempo(c.segundosTurno);
-    $app.innerHTML = `<section class="m">
+    $app.innerHTML = `<section class="m m-pconfig ${pestana === "armar" ? "" : "m-pcodigo"}">
       <h2 class="m-titulo">Sala privada</h2>
       <div class="m-pestanas" role="tablist">
         <button role="tab" data-pest="armar" aria-selected="${pestana === "armar"}">Armar la mesa</button>
@@ -342,14 +344,14 @@ const MENU = (() => {
       .filter(([, v]) => v).map(([t]) => `<span class="on">${t}</span>`).join("") +
       `<span>Turno: ${o.segundosTurno ? tv + " " + tu : "sin límite"}</span>` +
       (o.minutosJugador ? `<span>Banco: ${o.minutosJugador} min</span>` : "");
-    $app.innerHTML = `<section class="m">
+    $app.innerHTML = `<section class="m m-psala">
       <h2 class="m-titulo">Sala privada</h2>
-      <div class="m-marco" style="text-align:center">
+      <div class="m-marco m-salacod" style="text-align:center">
         <p class="m-nota" style="margin-bottom:4px">Código de la sala</p>
         <div class="m-clave" aria-label="Código ${esc(V.codigo)}">${[...V.codigo].map(l => `<i>${esc(l)}</i>`).join("")}</div>
         <p class="m-nota">Compártelo: cada quien entra desde su teléfono en <b>Sala privada › Tengo un código</b>.</p>
       </div>
-      <div class="m-marco ancho">
+      <div class="m-marco ancho m-salamesa">
         <div class="m-sillas">${Array.from({ length: 6 }, (_, i) => {
           const j = V.jugadores[i];
           if (!j) return `<div class="m-silla libre"><span class="hueco">+</span><small>Silla libre</small></div>`;
@@ -357,12 +359,12 @@ const MENU = (() => {
             <small>${j.bot ? "vecino " + (j.bot === "experto" ? "baquiano" : j.bot) : !j.conectado ? "sin señal" : A.SILLAS[i % 6].nombre}</small>
             ${i === 0 ? `<span class="etq">anfitrión</span>` : i === V.yo ? `<span class="etq">tú</span>` : ""}</div>`; }).join("")}
         </div>
-        ${anf ? `<div class="m-seccion"><h3>Vecinos de la máquina</h3><div class="m-vecinos">
+        ${anf ? `<div class="m-seccion m-secvecinos"><h3>Vecinos de la máquina</h3><div class="m-vecinos">
           <button data-bot="novato" ${n >= 6 ? "disabled" : ""}>+ Vecino novato</button>
           <button data-bot="normal" ${n >= 6 ? "disabled" : ""}>+ Vecino normal</button>
           <button data-bot="experto" ${n >= 6 ? "disabled" : ""}>+ Vecino baquiano</button>
           ${V.jugadores.some(j => j.bot) ? `<button data-quitabot>− Quitar vecino</button>` : ""}</div></div>` : ""}
-        <div class="m-seccion"><h3>Reglas de esta mesa</h3><div class="m-resumen">${res}</div>
+        <div class="m-seccion m-secreglas"><h3>Reglas de esta mesa</h3><div class="m-resumen">${res}</div>
           ${anf ? `<div style="display:flex;justify-content:center;margin-top:12px"><button class="m-boton" data-cambiarreglas>Cambiar reglas</button></div>` : ""}</div>
       </div>
       ${anf ? `<button class="m-jugar" id="bEmpezar" ${n < 2 ? "disabled" : ""}>${n < 2 ? "Falta al menos un jugador" : "Empezar la partida"}</button>`
@@ -405,7 +407,7 @@ const MENU = (() => {
     };
     const dibuja = () => {
       const ti = TIEMPOS.indexOf(c.segundosTurno), bi = BANCOS.indexOf(c.minutosJugador), [tv, tu] = tiempo(c.segundosTurno);
-      hoja.innerHTML = `<div class="m" style="min-height:0;padding:0;width:100%"><h2 class="m-titulo">Reglas de esta mesa</h2>
+      hoja.innerHTML = `<div class="m m-phoja" style="min-height:0;padding:0;width:100%"><h2 class="m-titulo">Reglas de esta mesa</h2>
         <div class="m-marco ancho"><div class="m-diales" style="--n:2">
           ${dial("tiempo", "Tiempo por turno", tv, tu, tiempoNota(c.segundosTurno), ti > 0, ti < TIEMPOS.length - 1)}
           ${dial("banco", "Banco de tiempo", c.minutosJugador || "—", c.minutosJugador ? "min" : "",

@@ -41,6 +41,7 @@ body.mesa #paisaje .velo{background:rgba(18,28,14,.84)}
 .campo:focus{outline:0;border-color:var(--oro)}
 .campo.codigo{text-transform:uppercase;letter-spacing:.4em;text-align:center;font-size:24px;max-width:190px}
 .seg{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 12px}
+.seg[hidden]{display:none}
 .seg button{border:1.5px solid var(--oro2);background:rgba(0,0,0,.25);border-radius:12px;padding:8px 12px;font-size:15px;color:var(--crema)}
 .seg button[aria-pressed=true]{background:rgba(224,176,74,.22);border-color:var(--oro)}
 .rot{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--oro);margin:6px 0 4px}
@@ -461,4 +462,51 @@ body.mesa #paisaje .velo{background:rgba(18,28,14,.84)}
   .hoja{max-height:86vh}
   .suceso .med{width:min(40vh,170px)}
   .error{bottom:12px}
+}
+
+/* ── Teléfono acostado: la portada y la sala de espera caben enteras ── */
+@media (orientation:landscape) and (max-height:520px) and (max-width:979px){
+  body:not(.mesa) #app{max-width:none;height:100dvh;overflow:hidden;
+    padding:8px max(12px,env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))}
+  body:not(.mesa) .marco{padding:10px 12px;border-radius:14px}
+  body:not(.mesa) .marco h2{font-size:17px;margin:0 0 2px}
+  body:not(.mesa) .marco > p{font-size:12.5px;margin:0 0 4px}
+  body:not(.mesa) .rot{font-size:11px;margin:4px 0 3px}
+  body:not(.mesa) .seg{margin:0 0 4px;gap:4px;flex-wrap:nowrap}
+  body:not(.mesa) .seg button{padding:5px 6px;font-size:12.5px;flex:1;min-width:0;line-height:1.15}
+  body:not(.mesa) .seg.metas button{padding:4px 4px}
+  body:not(.mesa) .seg.metas b{font-size:11.5px;line-height:1.15}
+  body:not(.mesa) .seg.metas small{display:none}
+  body:not(.mesa) .jugar{padding:8px 12px;font-size:17px;margin-top:4px}
+  body:not(.mesa) .campo{padding:7px 12px;font-size:15px}
+
+  /* portada: el nombre a la izquierda; contra la máquina y con amigos al lado */
+  #app:has(> .dos-col){display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr) minmax(0,.9fr);
+    grid-template-rows:auto auto auto minmax(0,1fr) auto;grid-template-areas:"vol mq am" "logo mq am" "nom mq am" "txt mq am" "reg mq am";
+    gap:6px 12px;align-items:start}
+  #app:has(> .dos-col) > .volver{grid-area:vol;margin:0}
+  #app:has(> .dos-col) > .logo{grid-area:logo;margin:0}
+  #app:has(> .dos-col) .abanico{height:58px;margin:0}
+  #app:has(> .dos-col) .abanico img{width:48px;height:48px;border-radius:9px;padding:3px;border-width:2px}
+  #app:has(> .dos-col) .logo .antes{font-size:10px}
+  #app:has(> .dos-col) .logo .palabra{font-size:30px}
+  #app:has(> .dos-col) > .marco{grid-area:nom;margin:0!important}
+  #app:has(> .dos-col) > p.nota:not(:last-child){display:none}
+  #app:has(> .dos-col) > p.nota:last-child{grid-area:reg;margin:0!important;text-align:left!important}
+  #app:has(> .dos-col) > section.marco:has(.seg.juegos){grid-area:txt}
+  .dos-col{display:contents}
+  .dos-col > .marco:first-child{grid-area:mq;height:100%;overflow:auto}
+  .dos-col > .marco:first-child > p{display:none}
+  .dos-col > .marco:last-child{grid-area:am;align-self:center}
+
+  /* sala de espera: código y sillas a la izquierda, reglas y botones a la derecha */
+  .sala-p{max-width:none!important;height:100%;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}
+  .sala-p > div{min-height:0;overflow:auto}
+  .sala-p .clave{margin:2px 0 6px}
+  .sala-p .clave i{width:40px;height:48px;font-size:28px}
+  .sala-p .sillas{grid-template-columns:1fr 1fr;gap:5px;margin:6px 0 0}
+  .sala-p .silla{padding:4px 8px;gap:8px;font-size:13px}
+  .sala-p .silla small{font-size:10.5px}
+  .sala-p .sala-der .fila{margin:4px 0!important;flex-wrap:nowrap}
+  .sala-p .sala-der .boton.chico{font-size:12px;padding:5px 10px}
 }

@@ -209,3 +209,94 @@ body[data-escena="mediodia"]{
   .lugar .ense{font-size:13.5px}
   .acciones{grid-template-columns:1fr}
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   Teléfono acostado: la página ocupa justo la pantalla. La barra se
+   achica y el lienzo toma el resto; cada juego acomoda lo suyo.
+   ═══════════════════════════════════════════════════════════════ */
+@media (orientation:landscape) and (max-height:500px){
+  body{height:100dvh;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+  .vbarra{flex:none;padding:calc(4px + env(safe-area-inset-top)) calc(10px + env(safe-area-inset-right)) 4px calc(10px + env(safe-area-inset-left))}
+  .vbarra .atras,.son{width:34px;height:34px}
+  .vbarra .atras{font-size:21px}
+  .vbarra .titulo{font-size:16px}
+  .costal{font-size:15px;padding:2px 10px 2px 4px}
+  .costal .grano{width:22px;height:22px}
+  .v-lienzo{flex:1;min-height:0;width:100%;max-width:none;overflow:auto;
+    padding:8px calc(12px + env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) calc(12px + env(safe-area-inset-left))}
+  .marco{padding:10px 12px;border-radius:14px}
+  .marco h2{font-size:18px;margin-bottom:4px}
+  .marco p{font-size:13.5px;margin-bottom:6px}
+  .jugar{padding:9px 16px;font-size:19px}
+  .boton{padding:8px 16px;font-size:15px}
+  .nota{font-size:12.5px;margin-top:6px}
+  .modal{max-height:calc(100dvh - 16px);padding:12px 16px;width:min(100%,560px)}
+  .velo-modal{padding:8px}
+  .modal h2{font-size:21px;margin:0 0 4px}
+  .modal p{font-size:14px;margin-bottom:6px}
+  .medalla{width:96px;height:96px;margin-bottom:2px}
+  .cinta{font-size:15px;margin-top:-14px}
+  .premios{margin:8px 0 10px}
+  .premio{padding:5px 10px;font-size:15px}
+  .hud{margin-bottom:6px}
+  .hud .dato{padding:3px 10px;min-width:64px;border-radius:12px}
+  .hud .dato b{font-size:19px}
+  .hud .dato small{font-size:10px}
+  .reloj{margin-bottom:6px;height:8px}
+  .niveles{margin:6px 0 10px;gap:8px}
+  .nivel{padding:7px 6px;border-radius:13px}
+  .nivel b{font-size:16px}
+  .nivel small{font-size:11.5px}
+
+  /* portada de cada juego: el cuento a la izquierda, elegir y jugar a la derecha */
+  .v-portada{height:100%;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);column-gap:18px}
+  .v-portada > div{min-height:0;overflow:auto;display:flex;flex-direction:column;gap:6px}
+  .v-portada .v-cuento{padding-right:14px;border-right:1px solid rgba(224,176,74,.18)}
+  .v-portada .v-elige{justify-content:safe center}
+  .v-portada .v-elige > *{margin-top:0;margin-bottom:0}
+  .v-portada li{font-size:13px!important;line-height:1.3!important}
+  .v-portada :is(ol,ul){margin:2px 0!important}
+  .v-portada{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)}
+  .v-portada .v-cuento > p{font-size:12.5px;line-height:1.35}
+  .v-portada li{font-size:12px!important;line-height:1.26!important;margin-bottom:2px!important}
+  .v-portada .nivel small{font-size:10.5px}
+  /* Espantos: los seis espantos en una sola fila */
+  .v-portada .galeria-esp{flex-wrap:nowrap;gap:4px;margin:0}
+  .v-portada .galeria-esp span{width:38px;height:38px}
+  /* El acertijo del día, más bajito */
+  .v-portada .dia{padding:8px 10px;gap:10px;border-radius:16px;margin-top:2px}
+  .v-portada .dia .med{width:52px;height:52px}
+  .v-portada .dia h3{font-size:15px}
+  .v-portada .dia p{font-size:12px;margin-bottom:5px;line-height:1.3}
+  .v-portada .dia .boton{padding:5px 12px;font-size:13px}
+  .v-portada .v-elige > h2{margin:0}
+  /* La Galería: contra los vecinos y con amigos, uno debajo del otro */
+  .v-portada .dos{display:flex;flex-direction:column;gap:8px}
+  .v-portada .dos > div{display:flex;flex-direction:column;gap:5px}
+  .v-portada .dos .rot{margin:0;font-size:11px;letter-spacing:.08em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .v-portada .dos .jugar{padding:7px 14px;font-size:17px}
+  .v-portada .seg{flex-wrap:nowrap;margin:0;gap:4px}
+  .v-portada .seg button{padding:5px 0;font-size:13px;flex:1;border-radius:10px}
+  .v-portada .campo{padding:6px 12px;font-size:14px;margin:0}
+  .v-portada .campo.codigo{max-width:120px}
+  .v-portada .boton.ancho{margin:0}
+  .v-portada .dos .fila{flex-wrap:nowrap;gap:6px}
+
+  /* el mapa: los ocho lugares en dos filas de cuatro */
+  .v-lienzo:has(.mapa){display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-auto-rows:minmax(0,1fr);gap:8px;overflow:hidden}
+  .v-lienzo:has(.mapa) .v-cabeza{display:none}
+  .mapa,.acciones{display:contents}
+  .mapa .camino,.accion:not(a){display:none}
+  .lugar,.lugar:nth-child(odd of .lugar),.lugar:nth-child(even of .lugar),.lugar.finca{flex-direction:column!important;text-align:center!important;
+    align-self:stretch!important;justify-content:center;width:auto;padding:8px 8px!important;gap:4px;border-radius:16px;border-width:1.5px}
+  .lugar .med,.lugar.finca .med{width:50px;height:50px;box-shadow:inset 0 0 0 4px var(--t),inset 0 0 0 6px #fff,0 5px 10px rgba(0,0,0,.35)}
+  .lugar .txt{flex:none;gap:1px;align-items:center}
+  .lugar .sitio{font-size:9.5px;letter-spacing:.1em}
+  .lugar .nom{font-size:15px}
+  .lugar .ense{font-size:11px;line-height:1.25;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  .lugar .rec{font-size:10.5px}
+  .lugar .etq,.lugar:nth-child(even of .lugar) .etq{top:-7px;right:8px;left:auto;font-size:10.5px;padding:2px 8px}
+  a.accion{flex-direction:column;justify-content:center;text-align:center;gap:4px;font-size:15px;border-color:var(--oro);border-radius:16px;padding:8px}
+  a.accion small{font-size:11px}
+  a.accion .ico{width:50px;height:50px}
+}

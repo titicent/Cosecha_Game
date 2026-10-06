@@ -44,7 +44,7 @@ const PUNTOS = [[22, 26], [42, 25], [62, 27], [82, 23], [16, 55], [36, 55], [56,
 /* ── Portada ───────────────────────────────────────────────── */
 function portada() {
   const rec = V.recordDe("recolecta", 1);
-  app.innerHTML = `<section class="marco">
+  app.innerHTML = `<section class="marco v-portada"><div class="v-cuento">
     <h2>La Recolecta</h2>
     <p>Es época de cosecha y la rama está cargada. Tienes un minuto para llenar el canasto.</p>
     <div class="leyenda">
@@ -52,9 +52,11 @@ function portada() {
       <div>${cereza(TIPOS.verde.color)}<b>−1</b>Verde: todavía no. Déjala crecer.</div>
       <div>${cereza(TIPOS.brocada.color, true)}<b>+2</b>Con broca: al costal aparte.</div>
     </div>
+    </div><div class="v-elige">
     <p class="dato-real">En las fincas de verdad los granos brocados también se recogen, y los que se caen al suelo se repasan. Si se quedan en la mata, la broca sale de ahí y se riega por todo el cafetal. Un grano con broca que se te caiga te quita un punto.</p>
     <button class="jugar" id="ya">¡A coger café!</button>
     <p class="nota">${rec ? "Tu récord: " + rec + " puntos" : "Todavía no tienes récord."}</p>
+    </div>
   </section>`;
   document.getElementById("ya").onclick = jugar;
 }
@@ -124,7 +126,9 @@ function jugar() {
     if (proxima <= 0) { brotar(); if (resta < DURACION * .6) brotar(); proxima = 760 - (1 - resta / DURACION) * 360; }
     if (resta <= 5 && Math.abs(resta - Math.round(resta)) < .05 && resta > 0) V.efecto("tic");
     $("hT").textContent = Math.ceil(resta);
-    $("reloj").querySelector("i").style.transform = `scaleX(${resta / DURACION})`;
+    const barra = $("reloj").querySelector("i");
+    barra.style.transform = `scaleX(${resta / DURACION})`;
+    barra.style.setProperty("--resta", resta / DURACION);
     $("reloj").classList.toggle("poco", resta <= 10);
     if (resta <= 0) fin();
   }, paso);
