@@ -79,11 +79,12 @@ function ponerOpciones(s, o) {
     bonanza: !!o.bonanza, duelo: !!o.duelo,
     aprendiz: !!o.aprendiz, espantos: !!o.espantos,
     metaCertificada: !!o.metaCertificada, clima: !!o.clima,
+    dosJornales: !!o.dosJornales,
     segundosTurno: seg.includes(+o.segundosTurno) ? +o.segundosTurno : 60,
     minutosJugador: min.includes(+o.minutosJugador) ? +o.minutosJugador : 0 });
 }
 function crearSala(nombre, ws) {
-  const s = { codigo: codigo(), jugadores: [], opciones: {bonanza:true, duelo:false, aprendiz:false, espantos:false, metaCertificada:false, clima:true, segundosTurno:60, minutosJugador:0},
+  const s = { codigo: codigo(), jugadores: [], opciones: {bonanza:true, duelo:false, aprendiz:false, espantos:false, metaCertificada:false, clima:true, dosJornales:false, segundosTurno:60, minutosJugador:0},
     iniciada:false, E:null, pendiente:null, reloj:null, relojAusente:null, creada:Date.now() };
   salas.set(s.codigo, s);
   sentar(s, nombre, ws);
@@ -126,7 +127,7 @@ function vista(s, yo) {
   if (!E) return base;
   const miTurno = E.turno === yo && E.ganador === null && !s.pendiente;
   const vv = Object.assign(base, {
-    turno: E.turno, objetivo: E.objetivo, jornales: E.jornales, sentido: E.sentido,
+    turno: E.turno, objetivo: E.objetivo, jornales: E.jornales, jornalesTurno: E.jornalesTurno, sentido: E.sentido,
     clima: E.clima, climaOn: E.climaOn,
     mano: E.jugadores[yo].mano, mazo: E.mazo.length, retiradas: E.retiradas.length,
     descarte: E.descarte.length ? E.descarte[E.descarte.length-1] : null,
@@ -168,7 +169,8 @@ function empezar(s) {
       banco: s.opciones.minutosJugador * 60000 })),
     mazo: R.barajar(R.crearMazo(s.opciones.bonanza, s.opciones.espantos)), descarte: [], retiradas: [],
     turno: crypto.randomInt(s.jugadores.length),
-    jornales: R.JORNALES_TURNO, sentido: 1, rondaPaso: 0, rebarajadas: 0,
+    jornalesTurno: s.opciones.dosJornales ? 2 : 1,
+    jornales: s.opciones.dosJornales ? 2 : 1, sentido: 1, rondaPaso: 0, rebarajadas: 0,
     climaOn: !!s.opciones.clima, clima: null, climaN: 0,
     objetivo: (s.opciones.duelo && s.jugadores.length === 2) ? 5 : 4,
     metaCertificada: !!s.opciones.metaCertificada,
@@ -593,8 +595,9 @@ wss.on("connection", ws => {
     if (m.t === "pasar") {
       despierta(s, ws.jugador);
       const hay = s.E.jugadores[ws.jugador].mano.some((_,i)=>R.jugadasLegales(s.E, ws.jugador, i).length);
-      const yaTrabajo = s.E.jornales < R.JORNALES_TURNO;
-      if (hay && !yaTrabajo) return error(ws, "Todavía tienes jugadas posibles con tu jornal");
+      const yaTrabajo = s.E.jornales < (s.E.jornalesTurno || R.JORNALES_TURNO);
+      if (hay && !yaTrabajo) return error(ws, s.E.jornalesTurno === 2
+        ? "Todavía tienes jugadas posibles con tus dos jornales" : "Todavía tienes jugadas posibles con tu jornal");
       s.E.registro.push(j.nombre + (yaTrabajo ? " cerró su turno" : " no tenía jugada y pasó"));
       s.E.jornales = 0;
       consumir(s); cerrarTurno(s); return difundir(s);

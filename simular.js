@@ -2,12 +2,13 @@
    estados imposibles: cultivos repetidos, cartas perdidas, bucles.
    Ejercita también jornales, clima y las dos vías de victoria. */
 const R = require("./public/reglas.js");
+let DOS = false;   /* una de cada tres partidas, con la regla de dos jornales */
 
 function nuevaPartida(n, bonanza, espantos, metaCertificada, clima){
   const E = {
     jugadores: Array.from({length:n},(_,i)=>({nombre:"J"+i,mano:[],finca:[],bonos:0})),
     mazo: R.barajar(R.crearMazo(bonanza, espantos)), descarte:[], retiradas:[],
-    turno:0, jornales:R.JORNALES_TURNO, sentido:1, rondaPaso:0, rebarajadas:0,
+    turno:0, jornalesTurno:DOS?2:1, jornales:DOS?2:1, sentido:1, rondaPaso:0, rebarajadas:0,
     objetivo:4, metaCertificada:!!metaCertificada, climaOn:!!clima, registro:[]
   };
   E.jugadores.forEach((_,i)=>R.robar(E,i));
@@ -88,6 +89,7 @@ function jugarPartida(n, bonanza, semilla, espantos, metaCertificada, clima){
 let fallos=0, tipos={}, certGanadas=0, porPuntosN=0, climas=0;
 for (let s=1; s<=300; s++){
   const n = 2+(s%5), bon = s%3!==0, esp = s%2===0, cert = s%4===0, clima = s%2===1;
+  DOS = s%3===1;
   try{
     const r = jugarPartida(n, bon, s*7919, esp, cert, clima);
     if(r.ganador===null && !r.porPuntos && !cert)

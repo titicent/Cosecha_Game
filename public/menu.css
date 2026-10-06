@@ -176,6 +176,7 @@
 .baraja[aria-pressed=false] b{opacity:.6}
 .baraja.fija{cursor:default}
 .m-reglas{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.m-reglas>:last-child:nth-child(odd){grid-column:1/-1}
 .reglaT{display:flex;align-items:center;gap:10px;text-align:left;border-radius:14px;border:1.5px solid rgba(255,255,255,.14);
   background:rgba(0,0,0,.22);color:var(--m-crema);padding:9px 10px}
 .reglaT .ico{width:34px;height:34px;flex:none;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.08)}

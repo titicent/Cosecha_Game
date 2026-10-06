@@ -24,7 +24,7 @@ const MENU = (() => {
   const NIVELES = ["novato", "normal", "experto"];
   const NIVEL = { novato: ["Novato", "improvisa y se equivoca"], normal: ["Normal", "juega bien casi siempre"],
     experto: ["Baquiano", "siempre elige lo mejor"] };
-  const BASE = { bonanza: true, espantos: false, clima: true, metaCertificada: false, duelo: false, aprendiz: false,
+  const BASE = { bonanza: true, espantos: false, clima: true, metaCertificada: false, duelo: false, aprendiz: false, dosJornales: false,
     segundosTurno: 60, minutosJugador: 0 };
   let solo = Object.assign({}, BASE, { jugadores: 4, nivel: "normal" }, guardado("cosecha.cfg.solo", {}));
   let priv = Object.assign({}, BASE, guardado("cosecha.cfg.privada", {}));
@@ -65,7 +65,8 @@ const MENU = (() => {
     ["clima", "Clima", "Cada tres vueltas cambia el tiempo", "k_aguacero"],
     ["metaCertificada", "Meta certificada", "Para ganar, las cuatro certificadas", "r_bioinsumo_huerta"],
     ["duelo", "Mano a mano", "Solo con dos: se gana con cinco", "c_huerta"],
-    ["aprendiz", "Modo aprendiz", "El mayordomo sugiere jugadas", "f_consejo"]
+    ["aprendiz", "Modo aprendiz", "El mayordomo sugiere jugadas", "f_consejo"],
+    ["dosJornales", "Dos jornales", "Dos cartas por turno; las faenas cuestan dos", "f_jornalExtra"]
   ];
   const reglas = (cfg, dos) => `
     <div class="m-seccion"><h3>Reglas</h3><div class="m-reglas">
@@ -253,7 +254,7 @@ const MENU = (() => {
     $app.querySelectorAll("[data-regla]").forEach(b => b.onclick = () => { c[b.dataset.regla] = !c[b.dataset.regla]; listo(); });
   }
   const opcionesDe = (c, dos) => ({ bonanza: !!c.bonanza, espantos: !!c.espantos, clima: !!c.clima,
-    metaCertificada: !!c.metaCertificada, duelo: !!(c.duelo && dos), aprendiz: !!c.aprendiz,
+    metaCertificada: !!c.metaCertificada, duelo: !!(c.duelo && dos), aprendiz: !!c.aprendiz, dosJornales: !!c.dosJornales,
     segundosTurno: c.segundosTurno, minutosJugador: c.minutosJugador || 0 });
 
   /* ── 4 · Transición de entrada ──────────────────────────────────
@@ -267,8 +268,11 @@ const MENU = (() => {
         texto: "Junta <b>cuatro cultivos distintos</b>: café, plátano, cacao y caña. La huerta es el comodín." },
       { k: "p_comun_cafe", t: "#8C3A2B", titulo: "Cuida tus matas",
         texto: "Las plagas arruinan las matas y los remedios las curan. <b>El color manda</b>: la broca solo le entra al café." },
-      { k: "f_jornalExtra", t: "#3F6B4A", titulo: "Un jornal por turno",
-        texto: "Con tu jornal juegas <b>una carta</b>: siembras, plagas, curas o haces una faena. El <b>Jornal extra</b> te da otro." },
+      (o && o.dosJornales)
+        ? { k: "f_jornalExtra", t: "#3F6B4A", titulo: "Dos jornales por turno",
+            texto: "Sembrar, plagar o curar cuesta un jornal. Una faena, los dos." }
+        : { k: "f_jornalExtra", t: "#3F6B4A", titulo: "Un jornal por turno",
+            texto: "Con tu jornal juegas <b>una carta</b>: siembras, plagas, curas o haces una faena. El <b>Jornal extra</b> te da otro." },
       { k: "c_huerta", t: "#C9A227", titulo: "¡Finca lista!",
         texto: "Cuando la completes, todos lo verán. Si aguanta <b>una vuelta de la mesa</b>, cosechas y ganas." }
     ];
@@ -334,7 +338,7 @@ const MENU = (() => {
     const o = V.opciones, anf = V.anfitrion, n = V.jugadores.length;
     const [tv, tu] = tiempo(o.segundosTurno);
     const res = [["Cosecha", true], ["Bonanza", o.bonanza], ["Espantos", o.espantos], ["Clima", o.clima],
-      ["Meta certificada", o.metaCertificada], ["Mano a mano", o.duelo], ["Aprendiz", o.aprendiz]]
+      ["Meta certificada", o.metaCertificada], ["Mano a mano", o.duelo], ["Aprendiz", o.aprendiz], ["Dos jornales", o.dosJornales]]
       .filter(([, v]) => v).map(([t]) => `<span class="on">${t}</span>`).join("") +
       `<span>Turno: ${o.segundosTurno ? tv + " " + tu : "sin límite"}</span>` +
       (o.minutosJugador ? `<span>Banco: ${o.minutosJugador} min</span>` : "");

@@ -46,8 +46,13 @@ const ESPANTOS = new Set(["mohan_cafe","mohan_platano","mohan_cacao","mohan_cana
    tener en qué gastar el segundo; con uno, la cuarta parte. Las faenas
    bajaron a 1: a 2 no se podían jugar nunca. Ver ritmo-jornal.js. */
 const JORNALES_TURNO = 1;
-function cuesta(c){
+/* En línea la sala puede elegir la regla vieja de dos jornales
+   (E.jornalesTurno = 2): las faenas cuestan dos, salvo el Jornal extra, que
+   cuesta uno y da dos. La baraja impresa usa siempre la de uno. */
+const dosJornales = E => !!E && E.jornalesTurno === 2;
+function cuesta(c, E){
   if(!c) return 0;
+  if(dosJornales(E) && c.k === "faena") return c.tr === "jornalExtra" ? 1 : 2;
   return 1;
 }
 
@@ -200,7 +205,7 @@ const activo=j=>!j.fuera;
 function jugadasLegales(E, ji, idx){
   const yo=E.jugadores[ji], carta=yo.mano[idx], out=[];
   if(!carta)return out;
-  if(E.jornales !== undefined && cuesta(carta) > E.jornales) return out;   /* no alcanza el jornal */
+  if(E.jornales !== undefined && cuesta(carta, E) > E.jornales) return out;   /* no alcanza el jornal */
   const nom=(j,o)=>(j===ji?"tu "+CULTIVO[E.jugadores[j].finca[o].carta.c].label.toLowerCase():conArt(E.jugadores[j].finca[o].carta.c))+
                    (j===ji?"":" de "+E.jugadores[j].nombre);
 
@@ -308,7 +313,7 @@ function jugadasLegales(E, ji, idx){
     return out;
   }
   if(tr==="jornalExtra"){
-    out.push({tipo:"jornalExtra",etiqueta:"Ganar otro jornal en este turno"});
+    out.push({tipo:"jornalExtra",etiqueta:dosJornales(E)?"Sumar dos jornales a este turno":"Ganar otro jornal en este turno"});
     return out;
   }
   if(tr==="consejo"){
@@ -404,7 +409,7 @@ function aplicar(E, ji, idx, jugada, protegidos){
   const yo=E.jugadores[ji];
   const carta=yo.mano.splice(idx,1)[0];
   const reg=[]; let sonido=jugada.tipo;
-  if(E.jornales !== undefined) E.jornales = Math.max(0, E.jornales - cuesta(carta));
+  if(E.jornales !== undefined) E.jornales = Math.max(0, E.jornales - cuesta(carta, E));
   const mata=(j,o)=>E.jugadores[j].finca[o];
   /* En el diario, «Borbón certificó el cacao de Borbón» sobra: cuando el dueño
      es quien juega, se dice «su cacao». */
@@ -518,8 +523,9 @@ function aplicar(E, ji, idx, jugada, protegidos){
       break;}
     case "jornalExtra":{
       E.descarte.push(carta);
-      if(E.jornales !== undefined) E.jornales += 1;
-      reg.push(yo.nombre+" consiguió jornal extra: juega otra carta");
+      const extra = dosJornales(E) ? 2 : 1;
+      if(E.jornales !== undefined) E.jornales += extra;
+      reg.push(yo.nombre+" consiguió jornal extra: "+(extra===2?"dos jornales más":"juega otra carta"));
       break;}
     case "consejo":{
       E.descarte.push(carta);
@@ -600,7 +606,7 @@ function porPuntos(E){
 }
 function avanzarTurno(E){
   robar(E,E.turno);
-  E.jornales=JORNALES_TURNO;
+  E.jornales=E.jornalesTurno||JORNALES_TURNO;
   E.rondaPaso=(E.rondaPaso||0)+1;
   let vueltas=0;
   const n=E.jugadores.length, paso=E.sentido||1;
@@ -717,7 +723,7 @@ function sugerencias(E,ji){
 }
 
 /* ── Qué hace cada carta, en una frase ──────────────────────── */
-function queHace(x){
+function queHace(x, dos){
   if(!x)return "";
   if(x.k==="cultivo"){
     if(x.c==="vivero")return "Vivero: crece bajo techo, así que cuenta como certificado y vale dos puntos de cosecha. Ninguna plaga lo alcanza y no admite remedios, pero sí te lo pueden cambiar o llevar.";
@@ -747,7 +753,8 @@ function queHace(x){
     propagacion:"Pasas tus plagas a matas sanas de los vecinos, tantas como quepan, en una sola jugada.",
     chaparron:"Todos los demás botan su mano y pierden el turno siguiente buscando semilla.",
     lindero:"Cambias tu finca entera con la de un vecino, certificadas incluidas. La única carta que mueve lo blindado.",
-    jornalExtra:"Gastas tu jornal y te dan otro: juegas una carta más en el mismo turno.",
+    jornalExtra:dos?"Cuesta un jornal y te da dos: te alcanza para una faena y algo más en el mismo turno."
+                   :"Gastas tu jornal y te dan otro: juegas una carta más en el mismo turno.",
     consejo:"Cambias tu mano con la de un vecino y te devuelven el jornal para usarla.",
     mallasombra:"Guárdala: se juega cuando te atacan, para que la carta no te toque. No robas después de usarla.",
     erradicacion:"Saca del juego una plaga, común o resistente, hasta que termine la partida.",
@@ -764,7 +771,7 @@ function queHace(x){
   return D[x.tr]||"";
 }
 
-const API={COLORES,CULTIVO,FAENA,ESPANTOS,CLIMAS,MAZOS,mazoDe,JORNALES_TURNO,RONDAS_POR_CLIMA,
+const API={COLORES,CULTIVO,FAENA,ESPANTOS,CLIMAS,MAZOS,mazoDe,JORNALES_TURNO,dosJornales,RONDAS_POR_CLIMA,
   crearMazo,barajar,nombreCarta,claseCarta,NOMBRE_PROPIO,colorCarta,etColor,esEspanto,cuesta,queHace,
   estadoMata,esVivero,esInjerto,estaSano,sanos,certificado,certificados,logrados,puntos,
   afectaColor,tieneCultivo,descEstado,explicaMata,dañina,activo,lista,

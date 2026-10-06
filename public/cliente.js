@@ -309,7 +309,7 @@ function atril() {
        jugada, toca trabajar o botar (el servidor no deja pasar de brazos
        cruzados). */
     const hay = V.jugadas.some(j => j.length);
-    const yaTrabajo = V.jornales < R.JORNALES_TURNO;
+    const yaTrabajo = V.jornales < (V.jornalesTurno || R.JORNALES_TURNO);
     b += `<div class="acciones">`;
     if (V.jornales >= 1 && V.mano.length)
       b += `<button class="acc ${hay?"tenue":""}" data-descartar="1">Botar cartas · 1 jornal</button>`;
@@ -385,7 +385,7 @@ function verCarta(i) {
     <div class="grandota">${A.caraCarta(c, R.colorCarta(c), true)}</div>
     <h3>${esc(R.nombreCarta(c))}</h3>
     ${(c.k==="plaga"||c.k==="remedio")?`<p class="clase">${esc(R.claseCarta(c))}</p>`:""}
-    <p>${esc(R.queHace(c))}</p>
+    <p>${esc(R.queHace(c, V && V.jornalesTurno === 2))}</p>
     <div class="fila"><button class="btn claro" data-cerrar="1">Entendido</button></div></div></div>`;
   $modal.querySelector("[data-cerrar]").onclick = cerrarModal;
 }
@@ -395,7 +395,7 @@ function abrirDescarte() {
   const marcadas = new Set();
   const dibujar = () => {
     $modal.innerHTML = `<div class="telon"><div class="dialogo">
-      <h3>Suelta lo que no sirve</h3><p>De una a tres cartas, por tu jornal. Al final del turno robas hasta volver a tener tres.</p>
+      <h3>Suelta lo que no sirve</h3><p>${V.jornalesTurno === 2 ? "De una a tres cartas, por un jornal. Si te queda otro, sigues jugando; al final del turno robas hasta volver a tener tres." : "De una a tres cartas, por tu jornal. Al final del turno robas hasta volver a tener tres."}</p>
       <div class="cartas">${V.mano.map((c,i) => `<button class="carta ${marcadas.has(i)?"elegida":""}" data-d="${i}">
         ${A.caraCarta(c, R.colorCarta(c), false)}</button>`).join("")}</div>
       <div style="height:16px"></div>

@@ -65,6 +65,10 @@ haces una faena o botas de una a tres cartas. El **Jornal extra** te da otro jor
 **Consejo del mayordomo** y el **Duende** te devuelven el que gastaste, así que con ellos
 juegas una carta más. Cuando se acaba el jornal pasa el turno y robas hasta tener tres cartas.
 
+En línea, al armar la mesa se puede elegir la regla **Dos jornales**: dos jornales por turno,
+las faenas cuestan dos y el Jornal extra cuesta uno y da dos. La baraja impresa usa siempre
+la de un jornal.
+
 Se gana de dos maneras:
 
 - **Cosecha anunciada:** con cuatro cultivos distintos y sanos (cinco en el mano a mano) tu
