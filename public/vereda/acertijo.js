@@ -82,7 +82,7 @@ function pintar() {
     <section class="marco">
       <div class="meta"><span class="ico">${V.arteClave("f_consejo", { k: "faena", tr: "consejo" })}</span>
         <span>${textoMeta()}${P.delDia ? " <small style='color:var(--oro)'>· acertijo de hoy</small>" : ""}</span></div>
-      ${E.jugadores.slice(1).map((v, k) => `<div class="vecino"><div class="quien"><span class="av">${A.avatar(k + 1, 30)}</span>
+      ${E.jugadores.slice(1).map((v, k) => `<div class="vecino"><div class="quien"><span class="av">${A.avatar(A.carasMesa(6)[k + 1], 30)}</span>
         <span>${esc(v.nombre)}</span>${Q.lista(E, k + 1) ? `<span class="badge">¡Finca lista!</span>` : ""}
         ${v.maldicion ? `<span class="badge" style="background:#6B4FA8">Madremonte</span>` : ""}</div>
         <div class="finca">${matas(k + 1) || `<span class="nota">Sin matas</span>`}</div></div>`).join("")}

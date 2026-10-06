@@ -17,8 +17,11 @@ const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&a
 const guardado = (k, d) => { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } };
 const guarda = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
 
-const SILLAS = [["a_aguadeno", "#C9A227"], ["a_carriel", "#A34A2B"], ["a_poncho", "#2F8F72"], ["a_ruana", "#3B5BC4"], ["a_mochila", "#7B4FB5"]];
-const avatar = i => `<img class="av" src="cartas/${SILLAS[i % 5][0]}.png" alt="" style="--c:${SILLAS[i % 5][1]}">`;
+const SILLAS = [["a_aguadeno", "#C9A227"], ["a_carriel", "#A34A2B"], ["a_poncho", "#2F8F72"], ["a_ruana", "#3B5BC4"], ["a_mochila", "#7B4FB5"], ["a_machete", "#6E7A3A"]];
+/* La cara de cada silla la decide el servidor, según la que eligió cada quien en el menú. */
+const caraSilla = i => { const s = V && V.sillas && V.sillas[i]; return s && Number.isInteger(s.cara) ? s.cara : i; };
+const avatar = i => { const c = caraSilla(i) % 6; return `<img class="av" src="cartas/${SILLAS[c][0]}.png" alt="" style="--c:${SILLAS[c][1]}">`; };
+const miCara = () => { try { const c = parseInt(localStorage.getItem("cosecha.cara"), 10); return c >= 0 && c < 6 ? c : 0; } catch (e) { return 0; } };
 const arte = x => `<img src="cartas/${R.claveArte(x)}.png" alt="" draggable="false" loading="lazy">`;
 const cult = c => `<img src="cartas/c_${c}.png" alt="" draggable="false">`;
 
@@ -134,11 +137,11 @@ function portada() {
     const k = g.dataset.g; pref[k] = k === "jugadores" ? +b.dataset.v : b.dataset.v; guarda("cosecha2.pref", pref);
     pref.nombre = document.getElementById("nombre").value.trim(); portada(); }));
   document.getElementById("solo").onclick = () => { const x = nom(); if (!x) return;
-    mandar({ t: "crear", nombre: x, opciones: { juego: pref.juego, modo: pref.modo, meta: pref.meta }, bots: Array(pref.jugadores - 1).fill(pref.nivel), empezar: true }); };
-  document.getElementById("crear").onclick = () => { const x = nom(); if (!x) return; mandar({ t: "crear", nombre: x, opciones: { juego: pref.juego, modo: pref.modo, meta: pref.meta } }); };
+    mandar({ t: "crear", nombre: x, opciones: { juego: pref.juego, modo: pref.modo, meta: pref.meta }, bots: Array(pref.jugadores - 1).fill(pref.nivel), empezar: true, cara: miCara() }); };
+  document.getElementById("crear").onclick = () => { const x = nom(); if (!x) return; mandar({ t: "crear", nombre: x, opciones: { juego: pref.juego, modo: pref.modo, meta: pref.meta }, cara: miCara() }); };
   document.getElementById("unir").onclick = () => { const x = nom(); if (!x) return;
     const c = document.getElementById("codigo").value.trim().toUpperCase(); if (c.length !== 4) return error("El código tiene 4 letras");
-    mandar({ t: "unir", codigo: c, nombre: x }); };
+    mandar({ t: "unir", codigo: c, nombre: x, cara: miCara() }); };
   document.getElementById("reglas").onclick = () => verReglas(pref.juego);
 }
 

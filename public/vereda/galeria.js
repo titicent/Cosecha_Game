@@ -88,10 +88,10 @@ function portada() {
     pref[g.dataset.g] = g.dataset.g === "vecinos" ? +b.dataset.v : b.dataset.v; portada(); }));
   const nom = () => { const n = document.getElementById("nombre").value.trim() || V.nombre() || "Tú";
     try { localStorage.setItem("cosecha.nombre", n); } catch (e) {} return n; };
-  document.getElementById("solo").onclick = () => mandar({ t: "crear", nombre: nom(), bots: Array(pref.vecinos).fill(pref.nivel), empezar: true });
-  document.getElementById("abrir").onclick = () => mandar({ t: "crear", nombre: nom() });
+  document.getElementById("solo").onclick = () => mandar({ t: "crear", nombre: nom(), bots: Array(pref.vecinos).fill(pref.nivel), empezar: true, cara: A.miCara() });
+  document.getElementById("abrir").onclick = () => mandar({ t: "crear", nombre: nom(), cara: A.miCara() });
   document.getElementById("entrar").onclick = () => { const c = document.getElementById("codigo").value.trim().toUpperCase();
-    if (c.length !== 4) return V.aviso("El código tiene 4 letras", "#FFB4A8"); mandar({ t: "unir", codigo: c, nombre: nom() }); };
+    if (c.length !== 4) return V.aviso("El código tiene 4 letras", "#FFB4A8"); mandar({ t: "unir", codigo: c, nombre: nom(), cara: A.miCara() }); };
 }
 
 function plaza() {
@@ -101,7 +101,7 @@ function plaza() {
     <h2>La plaza está abierta</h2><p>Comparte este código con los que van a ofrecer:</p>
     <div class="clave">${[...vista.codigo].map(l => `<i>${l}</i>`).join("")}</div>
     <button class="boton" id="copiar">Copiar enlace</button></div><div class="plaza-gente">
-    <div class="gente-g">${vista.jugadores.map((j, i) => `<div>${A.avatar(i, 36)}<span>${esc(j.nombre)}${i === vista.yo ? " (tú)" : ""}<small>${j.bot ? "vecino · " + j.bot : i === vista.anfitrion ? "abrió la plaza" : "listo"}</small></span></div>`).join("")}</div>
+    <div class="gente-g">${vista.jugadores.map((j, i) => `<div>${A.avatar(A.caraDe(j, i), 36)}<span>${esc(j.nombre)}${i === vista.yo ? " (tú)" : ""}<small>${j.bot ? "vecino · " + j.bot : i === vista.anfitrion ? "abrió la plaza" : "listo"}</small></span></div>`).join("")}</div>
     ${soy ? `<div class="fila centro"><button class="boton" id="mas" ${n >= G.MAX_JUG ? "disabled" : ""}>+ Vecino</button><button class="boton" id="menos" ${vista.jugadores.some(j => j.bot) ? "" : "disabled"}>− Vecino</button></div>
       <button class="jugar" id="empezar" ${n < G.MIN_JUG ? "disabled" : ""}>Empezar la subasta</button>`
       : `<p>Esperando a que ${esc(vista.jugadores[vista.anfitrion].nombre)} empiece…</p>`}
@@ -149,7 +149,7 @@ function subasta() {
         <div class="rapidas">${[0, 1, 2, 3, 5, 8].filter(k => k <= mi.monedas).map(k => `<button class="boton chico" data-k="${k}">${k}</button>`).join("")}</div>
         <button class="jugar" id="ofrecer">Ofrecer ${oferta} ${oferta === 1 ? "moneda" : "monedas"}</button></section>`) : ""}
     <section class="gente-g tabla-g">${v.jugadores.map((j, i) => `<div class="${u && !pujando && u.ganador === i ? "gana" : ""} ${i === yo ? "yo" : ""}">
-        ${A.avatar(i, 34)}<span class="nm">${esc(j.nombre)}${i === yo ? " (tú)" : ""}<small>${j.monedas} monedas${!j.conectado && !j.bot ? " · sin conexión" : ""}</small></span>
+        ${A.avatar(A.caraDe(j, i), 34)}<span class="nm">${esc(j.nombre)}${i === yo ? " (tú)" : ""}<small>${j.monedas} monedas${!j.conectado && !j.bot ? " · sin conexión" : ""}</small></span>
         <span class="bod">${bodegaHTML(j.bodega)}</span>
         <span class="of ${pujando ? (j.listo ? "listo" : "") : "abierta"}">${pujando ? (j.listo ? (i === yo ? j.puja : "✓") : "…") : (u ? u.pujas[i] : "")}</span></div>`).join("")}</section>
     <p class="nota">Puntos por cultivo según cuántos juntes: ${G.TABLA.slice(1, 6).map((p, k) => (k + 1) + "→" + p).join(" · ")}. Cada ${G.POR_MONEDA} monedas que sobren, 1 punto.</p>`;
@@ -166,7 +166,7 @@ function final() {
   const gano = v.ganadores.includes(yo), mi = v.jugadores[yo];
   app.innerHTML = `<section class="marco plaza-fin" style="text-align:center"><h2>Se cerró la plaza</h2>
     <div class="gente-g tabla-g final">${orden.map(({ j, i }) => `<div class="${v.ganadores.includes(i) ? "gana" : ""} ${i === yo ? "yo" : ""}">
-      ${A.avatar(i, 34)}<span class="nm">${esc(j.nombre)}${i === yo ? " (tú)" : ""}<small>${j.puntos.cosecha} de cosecha + ${j.puntos.monedas} de monedas</small></span>
+      ${A.avatar(A.caraDe(j, i), 34)}<span class="nm">${esc(j.nombre)}${i === yo ? " (tú)" : ""}<small>${j.puntos.cosecha} de cosecha + ${j.puntos.monedas} de monedas</small></span>
       <span class="bod">${bodegaHTML(j.bodega)}</span><span class="of abierta">${j.puntos.total}</span></div>`).join("")}</div>
     <div class="fila centro">${yo === v.anfitrion ? `<button class="jugar" id="otra">Otra subasta</button>` : `<p class="nota">Quien abrió la plaza puede pedir otra.</p>`}
       <button class="boton" id="salir2">Volver a la vereda</button></div></section>`;

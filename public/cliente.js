@@ -231,7 +231,7 @@ function rivalHTML(i, pos) {
   return `<div class="rival ${pos} ${activo?"activo":""} ${j.fuera?"ido":""} ${j.lista?"lista":""}" data-silla="${i}">
     ${j.lista?`<span class="letrero">¡Cosecha lista!</span>`:""}
     <div class="rcab">
-      <div class="ravwrap">${A.avatar(i, 38)}
+      <div class="ravwrap">${A.avatar(A.caraDe(j, i), 38)}
         <span class="rmeta ${meta>=V.objetivo-1?"cerca":""}">${meta}/${V.objetivo}</span></div>
       <div class="rinfo"><span class="rnom">${esc(j.nombre)}${j.bot?" ·":""}</span>
         <span class="rmini">${j.fuera?"fuera":j.cartas+" cartas · "+j.cosecha+" cosecha"}${j.maldicion?" · 🌿":""}</span></div>

@@ -11,6 +11,7 @@ const path = require("path");
 const crypto = require("crypto");
 const { WebSocketServer } = require("ws");
 const R = require("./public/reglas.js");
+const CARAS = require("./caras.js");
 const GALERIA = require("./galeria-servidor.js");   /* La Galería: la subasta de La Vereda */
 const PEDIDOS = require("./pedidos-servidor.js");   /* Pedidos del pueblo: el modo alterno */
 
@@ -83,17 +84,18 @@ function ponerOpciones(s, o) {
     segundosTurno: seg.includes(+o.segundosTurno) ? +o.segundosTurno : 60,
     minutosJugador: min.includes(+o.minutosJugador) ? +o.minutosJugador : 0 });
 }
-function crearSala(nombre, ws) {
+function crearSala(nombre, ws, cara) {
   const s = { codigo: codigo(), jugadores: [], opciones: {bonanza:true, duelo:false, aprendiz:false, espantos:false, metaCertificada:false, clima:true, dosJornales:false, segundosTurno:60, minutosJugador:0},
     iniciada:false, E:null, pendiente:null, reloj:null, relojAusente:null, creada:Date.now() };
   salas.set(s.codigo, s);
-  sentar(s, nombre, ws);
+  sentar(s, nombre, ws, cara);
   return s;
 }
-function sentar(s, nombre, ws) {
+function sentar(s, nombre, ws, cara) {
   const j = { id: s.jugadores.length, token: crypto.randomUUID(),
     nombre: (nombre||"").trim().slice(0,14) || "Jugador " + (s.jugadores.length+1), ws, conectado:true, bot:null };
   s.jugadores.push(j);
+  CARAS.asignar(s.jugadores, j, cara);
   return j;
 }
 /* variedades de café, para que los rivales de la máquina suenen a la casa */
@@ -103,6 +105,7 @@ function sentarBot(s, nivel) {
   const nombre = NOMBRES_BOT.find(n => !usados.has(n)) || "Bot " + (s.jugadores.length+1);
   const j = { id: s.jugadores.length, token: crypto.randomUUID(), nombre, ws:null, conectado:true, bot:nivel };
   s.jugadores.push(j);
+  CARAS.asignar(s.jugadores, j, null);
   return j;
 }
 /* Solo cuentan las personas: una sala con puros bots no tiene razón de existir. */
@@ -113,7 +116,7 @@ function vista(s, yo) {
   const E = s.E;
   const base = { codigo: s.codigo, iniciada: s.iniciada, yo, anfitrion: yo === 0,
     opciones: s.opciones,
-    jugadores: s.jugadores.map((j,i) => ({ nombre: j.nombre, conectado: j.conectado,
+    jugadores: s.jugadores.map((j,i) => ({ nombre: j.nombre, conectado: j.conectado, cara: j.cara,
       finca: E ? E.jugadores[i].finca : [], cartas: E ? E.jugadores[i].mano.length : 0,
       fuera: E ? !!E.jugadores[i].fuera : false,
       bot: j.bot || null,
@@ -473,7 +476,7 @@ wss.on("connection", ws => {
     const j = s && ws.jugador !== null ? s.jugadores[ws.jugador] : null;
 
     if (m.t === "crear") {
-      const nueva = crearSala(m.nombre, ws);
+      const nueva = crearSala(m.nombre, ws, m.cara);
       ws.sala = nueva.codigo; ws.jugador = 0;
       /* El menú de modos manda la partida ya configurada: reglas, vecinos de
          la máquina y, en el modo solo, la orden de arrancar. Todo en un paso,
@@ -490,7 +493,7 @@ wss.on("connection", ws => {
       if (!sa) return error(ws, "No existe esa sala");
       if (sa.iniciada) return error(ws, "Esa partida ya empezó");
       if (sa.jugadores.length >= 6) return error(ws, "La mesa está llena");
-      const nj = sentar(sa, m.nombre, ws);
+      const nj = sentar(sa, m.nombre, ws, m.cara);
       ws.sala = sa.codigo; ws.jugador = nj.id;
       enviar(nj, {t:"sesion", codigo:sa.codigo, token:nj.token, yo:nj.id});
       difundir(sa); return;

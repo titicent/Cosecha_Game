@@ -23,15 +23,17 @@ class J{ constructor(){this.V=null;}
 (async()=>{
   await espera(600);
   let ganadas=0, detalle=[];
-  let dosVisto=null, k=0;
+  let dosVisto=null, k=0, carasMal=null;
   for(const conf of [["experto","experto","experto"],["normal","novato"],["experto"]]){
     const dos = k++ === 1;            /* la segunda, con la regla de dos jornales */
     const yo=new J(); await yo.abrir();
-    yo.env({t:"crear",nombre:"Ricardo"}); await espera(150);
+    yo.env({t:"crear",nombre:"Ricardo",cara:3}); await espera(150);
     for(const n of conf){ yo.env({t:"bot",nivel:n}); await espera(70); }
     yo.env({t:"opciones",opciones:{bonanza:true,espantos:true,duelo:false,aprendiz:false,metaCertificada:false,dosJornales:dos,segundosTurno:0,minutosJugador:0}});
     await espera(120); yo.env({t:"empezar"}); await espera(400);
     if(dos) dosVisto = yo.V.jornalesTurno;
+    const cs = yo.V.jugadores.map(j => j.cara);
+    if (cs[0] !== 3 || new Set(cs).size !== cs.length) carasMal = cs.join(",");
     const t=Date.now();
     while(Date.now()-t<16000 && yo.V.iniciada && yo.V.ganador===null && !yo.V.terminada) await espera(120);
     const g=yo.V.ganador;
@@ -41,7 +43,8 @@ class J{ constructor(){this.V=null;}
   }
   console.log("partidas en solitario completadas:", ganadas+"/3");
   console.log("sala con dos jornales:", dosVisto===2 ? "sí" : "NO ("+dosVisto+")");
-  if(dosVisto!==2){ srv.kill(); process.exit(1); }
+  console.log("caras: la tuya respetada y ninguna repetida:", carasMal ? "NO ("+carasMal+")" : "sí");
+  if(dosVisto!==2 || carasMal){ srv.kill(); process.exit(1); }
   detalle.forEach(d=>console.log("   ·",d));
   srv.kill(); process.exit(0);
 })();

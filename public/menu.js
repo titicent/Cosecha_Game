@@ -91,6 +91,9 @@ const MENU = (() => {
       <div class="m-logo"><span class="antes">El juego de la finca</span><span class="palabra">Cosecha</span></div>
       <div class="m-marco">
         <p class="m-pide">¿Cómo te llaman en la vereda?</p>
+        <div class="m-caras" role="radiogroup" aria-label="Escoge tu cara">${A.SILLAS.map((x, k) =>
+          `<button type="button" class="m-cara" role="radio" aria-checked="${k === A.miCara()}" aria-label="${esc(x.nombre)}" data-cara="${k}"
+            style="--c:${x.hex}">${A.arteDe(A.claveSilla(k)) ? `<img src="cartas/${A.claveSilla(k)}.png" alt="">` : A.avatar(k, 52)}</button>`).join("")}</div>
         <form class="m-barra" id="mForm">
           <input id="nombre" maxlength="14" placeholder="Escribe tu nombre…" autocomplete="nickname" value="${esc(nombre())}">
           <button class="m-boton" type="submit">Continuar</button>
@@ -99,6 +102,11 @@ const MENU = (() => {
       <p class="m-nota">Así te verán los demás en la mesa.</p>
     </section>`;
     const inp = document.getElementById("nombre");
+    $app.querySelectorAll("[data-cara]").forEach(b => b.onclick = () => {
+      A.ponCara(+b.dataset.cara);
+      $app.querySelectorAll("[data-cara]").forEach(x => x.setAttribute("aria-checked", x === b));
+      try { S.efecto("tic"); } catch (e) {}
+    });
     setTimeout(() => { try { inp.focus(); } catch (e) {} }, 60);
     document.getElementById("mForm").onsubmit = ev => {
       ev.preventDefault();
@@ -113,7 +121,7 @@ const MENU = (() => {
   /* ── 2 · Modos ──────────────────────────────────────────────── */
   function pModos() {
     $app.innerHTML = `<section class="m m-pmodos">
-      <button class="m-jugador" data-cambianombre title="Cambiar el nombre">${foto("a_aguadeno", "", 0)}<span>${esc(nombre())}</span><span class="lapiz">✎</span></button>
+      <button class="m-jugador" data-cambianombre title="Cambiar el nombre">${foto(A.claveSilla(A.miCara()), "", A.miCara())}<span>${esc(nombre())}</span><span class="lapiz">✎</span></button>
       <h2 class="m-titulo">¿Cómo quieres jugar?</h2>
       ${sesion ? `<div class="m-seguir"><span>Tienes una partida en la sala <b>${esc(sesion.codigo)}</b>.</span>
         <button class="m-boton" data-volvermesa>Volver</button></div>` : ""}
@@ -156,8 +164,8 @@ const MENU = (() => {
   function pSolo() {
     const c = solo, n = c.jugadores, ti = TIEMPOS.indexOf(c.segundosTurno), ni = NIVELES.indexOf(c.nivel);
     const [tv, tu] = tiempo(c.segundosTurno);
-    const sillas = Array.from({ length: n }, (_, i) =>
-      A.arteDe(A.claveSilla(i)) ? `<img src="cartas/${A.claveSilla(i)}.png" alt="">` : A.avatar(i, 20)).join("");
+    const sillas = A.carasMesa(n).map(k =>
+      A.arteDe(A.claveSilla(k)) ? `<img src="cartas/${A.claveSilla(k)}.png" alt="">` : A.avatar(k, 20)).join("");
     $app.innerHTML = `<section class="m m-pconfig">
       <h2 class="m-titulo">Contra la máquina</h2>
       <p class="m-sub">Arma tu mesa: cuántos juegan, cuánto tiempo hay y qué tan duros son los vecinos.</p>
@@ -178,7 +186,7 @@ const MENU = (() => {
       const opciones = opcionesDe(c, n === 2);
       introAntes(opciones, () => {
         pantallaJuego();
-        mandar({ t: "crear", nombre: nombre(), opciones, bots: Array(n - 1).fill(c.nivel), empezar: true });
+        mandar({ t: "crear", nombre: nombre(), opciones, bots: Array(n - 1).fill(c.nivel), empezar: true, cara: A.miCara() });
       });
     };
   }
@@ -218,7 +226,7 @@ const MENU = (() => {
       enganchar(c, "privada", pintarMenu);
       document.getElementById("mArmar").onclick = () => {
         introPendiente = true;
-        mandar({ t: "crear", nombre: nombre(), opciones: opcionesDe(c, true) });
+        mandar({ t: "crear", nombre: nombre(), opciones: opcionesDe(c, true), cara: A.miCara() });
       };
     } else {
       const inp = document.getElementById("codigo");
@@ -227,7 +235,7 @@ const MENU = (() => {
         const k = inp.value.trim().toUpperCase();
         if (k.length !== 4) return alerta("El código tiene cuatro letras");
         introPendiente = true;
-        mandar({ t: "unir", codigo: k, nombre: nombre() });
+        mandar({ t: "unir", codigo: k, nombre: nombre(), cara: A.miCara() });
       };
       inp.onkeydown = ev => { if (ev.key === "Enter") entrar(); };
       document.getElementById("mEntrar").onclick = entrar;
@@ -355,8 +363,8 @@ const MENU = (() => {
         <div class="m-sillas">${Array.from({ length: 6 }, (_, i) => {
           const j = V.jugadores[i];
           if (!j) return `<div class="m-silla libre"><span class="hueco">+</span><small>Silla libre</small></div>`;
-          return `<div class="m-silla ${i === V.yo ? "mia" : ""}">${A.avatar(i, 58)}<b>${esc(j.nombre)}</b>
-            <small>${j.bot ? "vecino " + (j.bot === "experto" ? "baquiano" : j.bot) : !j.conectado ? "sin señal" : A.SILLAS[i % 6].nombre}</small>
+          return `<div class="m-silla ${i === V.yo ? "mia" : ""}">${A.avatar(A.caraDe(j, i), 58)}<b>${esc(j.nombre)}</b>
+            <small>${j.bot ? "vecino " + (j.bot === "experto" ? "baquiano" : j.bot) : !j.conectado ? "sin señal" : A.SILLAS[A.caraDe(j, i) % 6].nombre}</small>
             ${i === 0 ? `<span class="etq">anfitrión</span>` : i === V.yo ? `<span class="etq">tú</span>` : ""}</div>`; }).join("")}
         </div>
         ${anf ? `<div class="m-seccion m-secvecinos"><h3>Vecinos de la máquina</h3><div class="m-vecinos">

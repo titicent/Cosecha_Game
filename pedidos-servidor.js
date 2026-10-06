@@ -8,6 +8,7 @@
 "use strict";
 const crypto = require("crypto");
 const R = require("./public/pedidos-reglas.js");
+const CARAS = require("./caras.js");
 
 const PENSAR_BOT = Number(process.env.PENSAR_BOT || 900);
 const SEG_TURNO = Number(process.env.SEG_TURNO_PEDIDOS || 90);   /* reloj por turno para las personas */
@@ -36,13 +37,14 @@ function crearSala(opciones) {
   salas.set(sala.codigo, sala);
   return sala;
 }
-function sentar(sala, nombre, bot) {
+function sentar(sala, nombre, bot, cara) {
   if (sala.E) throw new Error("La partida ya empezó");
   if (sala.sillas.length >= R.MAX_JUG) throw new Error("La mesa está llena (máximo " + R.MAX_JUG + ")");
   const base = bot ? R.NOMBRES_BOT.find(n => !sala.sillas.some(s => s.nombre === n)) || "Vecino" : limpiaNombre(nombre);
   const silla = { nombre: nombreLibre(sala, base), token: crypto.randomBytes(12).toString("hex"),
     ws: null, bot: bot || null, conectado: !!bot, ausencias: 0 };
   sala.sillas.push(silla);
+  CARAS.asignar(sala.sillas, silla, cara);
   return silla;
 }
 
@@ -53,7 +55,7 @@ function vistaSala(sala, i) {
   return Object.assign(base, {
     juego: "pedidos", codigo: sala.codigo, iniciada: !!sala.E, yo: i, anfitrion: sala.sillas.findIndex(s => !s.bot),
     opciones: sala.opciones, restante: sala.E && !sala.E.terminada ? Math.max(0, Math.round((sala.limite - Date.now()) / 1000)) : null,
-    sillas: sala.sillas.map(s => ({ nombre: s.nombre, bot: s.bot, conectado: s.conectado }))
+    sillas: sala.sillas.map(s => ({ nombre: s.nombre, bot: s.bot, conectado: s.conectado, cara: s.cara }))
   });
 }
 function difundir(sala) {
@@ -117,7 +119,7 @@ function procesar(ws, m) {
   if (m.t === "latido") return;
   if (m.t === "crear") {
     const sala = crearSala(m.opciones);
-    sentar(sala, m.nombre);
+    sentar(sala, m.nombre, null, m.cara);
     unirWs(ws, sala, 0);
     (Array.isArray(m.bots) ? m.bots : []).slice(0, R.MAX_JUG - 1).forEach(n => sentar(sala, null, NIVELES.includes(n) ? n : "normal"));
     if (m.empezar) return empezar(sala);
@@ -126,7 +128,7 @@ function procesar(ws, m) {
   if (m.t === "unir") {
     const sala = salas.get(String(m.codigo || "").toUpperCase().trim());
     if (!sala) throw new Error("No hay ninguna sala de Pedidos con ese código");
-    sentar(sala, m.nombre);
+    sentar(sala, m.nombre, null, m.cara);
     unirWs(ws, sala, sala.sillas.length - 1);
     return difundir(sala);
   }

@@ -7,6 +7,7 @@
 "use strict";
 const crypto = require("crypto");
 const G = require("./public/vereda/galeria-reglas.js");
+const CARAS = require("./caras.js");
 
 const SEG_PUJA = Number(process.env.SEG_PUJA || 30);     /* para ofrecer en cada ronda */
 const MS_VER = Number(process.env.MS_VER_PUJAS || 4200);  /* lo que se ven las ofertas destapadas */
@@ -25,13 +26,14 @@ const limpia = n => String(n || "").replace(/[<>]/g, "").trim().slice(0, 14) || 
 const manda = (ws, m) => { if (ws && ws.readyState === 1) ws.send(JSON.stringify(m)); };
 const error = (ws, msg) => manda(ws, { t: "g_error", msg });
 
-function sentar(s, nombre, bot) {
+function sentar(s, nombre, bot, cara) {
   if (s.jugadores.length >= G.MAX_JUG) throw new Error("La plaza está llena (máximo " + G.MAX_JUG + ")");
   const usados = new Set(s.jugadores.map(j => j.nombre));
   let n = bot ? (VECINOS.find(v => !usados.has(v)) || "Vecino") : limpia(nombre);
   for (let k = 2; usados.has(n); k++) n = limpia(nombre) + " " + k;
   const j = { nombre: n, token: crypto.randomBytes(12).toString("hex"), ws: null, bot: bot || null, conectado: !!bot };
   s.jugadores.push(j);
+  CARAS.asignar(s.jugadores, j, cara);
   return j;
 }
 function unirWs(s, i, ws) {
@@ -51,7 +53,7 @@ function vista(s, yo) {
     restante: E && E.fase === "pujando" ? Math.max(0, Math.round((s.limite - Date.now()) / 1000)) : null,
     jugadores: s.jugadores.map((j, i) => {
       const x = E ? E.jugadores[i] : null;
-      return { nombre: j.nombre, bot: j.bot, conectado: j.conectado,
+      return { nombre: j.nombre, bot: j.bot, conectado: j.conectado, cara: j.cara,
         monedas: x ? x.monedas : G.MONEDAS, bodega: x ? x.bodega : null, puntos: x ? G.puntos(x) : null,
         listo: !!x && x.puja !== null, puja: x && (rev || i === yo) ? x.puja : null };
     })
@@ -99,7 +101,7 @@ function atender2(ws, m) {
   if (m.t === "crear") {
     const s = { codigo: codigo(), jugadores: [], E: null, reloj: null, bots: [], creada: Date.now(), actividad: Date.now() };
     salas.set(s.codigo, s);
-    sentar(s, m.nombre); unirWs(s, 0, ws);
+    sentar(s, m.nombre, null, m.cara); unirWs(s, 0, ws);
     (Array.isArray(m.bots) ? m.bots : []).slice(0, G.MAX_JUG - 1).forEach(n => sentar(s, null, NIVELES.includes(n) ? n : "normal"));
     if (m.empezar) return empezar(s);
     return difundir(s);
@@ -108,7 +110,7 @@ function atender2(ws, m) {
     const s = salas.get(String(m.codigo || "").toUpperCase().trim());
     if (!s) throw new Error("No hay ninguna plaza con ese código");
     if (s.E) throw new Error("Esa subasta ya empezó");
-    sentar(s, m.nombre); unirWs(s, s.jugadores.length - 1, ws);
+    sentar(s, m.nombre, null, m.cara); unirWs(s, s.jugadores.length - 1, ws);
     return difundir(s);
   }
   if (m.t === "reconectar") {

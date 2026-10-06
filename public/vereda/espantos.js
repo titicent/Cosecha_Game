@@ -193,6 +193,7 @@ function portada() {
 function jugar() {
   const yo = V.nombre() || "Tú";
   const E = nueva([yo].concat(VECINOS.slice(0, cuantos - 1)));
+  const caras = A.carasMesa(cuantos);   /* tú con tu cara; los vecinos, las que quedan */
   const temps = E.jugadores.map((_, i) => TEMPERAMENTOS[(i + Math.floor(Math.random() * 4)) % 4]);
   let vistoSuc = 0, alumbrado = null, ocupado = false, decis = {};
 
@@ -217,7 +218,7 @@ function jugar() {
           : `<b>La noche está tranquila.</b><small>Todavía no ha salido ningún espanto.</small>`}
       </section>
       <section class="gente">${E.jugadores.map((j, i) => `<div class="persona ${j.enCamino ? "camina" : "casa"} ${i === 0 ? "yo" : ""}">
-          ${A.avatar(i, 40)}<span class="nom">${esc(j.nombre)}${i === 0 && j.nombre !== "Tú" ? " (tú)" : ""}<small>${j.enCamino ? "en el camino" : "en la casa"}${decis[i] ? " · " + (decis[i] === "volver" ? "se devuelve" : "sigue") : ""}</small></span>
+          ${A.avatar(caras[i], 40)}<span class="nom">${esc(j.nombre)}${i === 0 && j.nombre !== "Tú" ? " (tú)" : ""}<small>${j.enCamino ? "en el camino" : "en la casa"}${decis[i] ? " · " + (decis[i] === "volver" ? "se devuelve" : "sigue") : ""}</small></span>
           <span class="lleva" title="lo que lleva esta noche">${j.lleva}</span><span class="costal-p" title="costal">${j.costal}</span></div>`).join("")}
         <div class="leyenda-p"><span>lleva esta noche</span><span>costal</span></div></section>
       <div class="decide">${mi.enCamino && !E.fin && !E.esperaNoche
@@ -272,7 +273,7 @@ function jugar() {
     v.innerHTML = `<div class="modal" style="--t:${tono}"><div class="medalla">${esp ? arteE(esp.carta.t) : arteH("cafe")}</div>
       <span class="cinta">Noche ${E.noche}</span><h2>${esp ? "¡Espantados!" : "Noche tranquila"}</h2><p>${linea}</p>
       ${esp ? `<p class="nota">Una carta de ${esc(ESPANTOS[esp.carta.t].nom)} se queda en la casa: las próximas noches sale menos.</p>` : ""}
-      <div class="tabla">${E.jugadores.map((j, i) => `<div>${A.avatar(i, 30)}<span>${esc(j.nombre)}</span><b>${j.costal}</b></div>`).join("")}</div>
+      <div class="tabla">${E.jugadores.map((j, i) => `<div>${A.avatar(caras[i], 30)}<span>${esc(j.nombre)}</span><b>${j.costal}</b></div>`).join("")}</div>
       <div class="fila"><button class="jugar" id="sig">Noche ${E.noche + 1}</button></div></div>`;
     document.body.appendChild(v);
     v.querySelector("#sig").onclick = async () => { v.remove(); seguirNoche(E); await contar(); ocupado = false; pintar(); };

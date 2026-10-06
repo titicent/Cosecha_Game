@@ -363,6 +363,22 @@ const SILLAS = [
 const claveSilla = i => "a_" + SILLAS[i % 6].nombre.toLowerCase()
   .normalize("NFD").replace(/[̀-ͯ]/g, "");
 
+/* La cara que eligió cada quien (una de las seis sillas). Se guarda en el
+   teléfono; el servidor la respeta en las mesas. En las partidas contra la
+   máquina de La Vereda, tú llevas la tuya y los vecinos las que quedan. */
+const CLAVE_CARA = "cosecha.cara";
+function miCara(){
+  try { const c = parseInt(localStorage.getItem(CLAVE_CARA), 10); if (c >= 0 && c < 6) return c; } catch (e) {}
+  return 0;
+}
+function ponCara(c){ try { localStorage.setItem(CLAVE_CARA, String(c)); } catch (e) {} }
+const caraDe = (j, i) => (j && Number.isInteger(j.cara)) ? j.cara : i;
+/* Caras para una mesa local: la tuya primero y luego las demás, en orden. */
+function carasMesa(n){
+  const mia = miCara(), otras = [0,1,2,3,4,5].filter(k => k !== mia);
+  return [mia].concat(otras).slice(0, n);
+}
+
 function avatar(silla, tam){
   /* Si hay ilustración propia para esta silla, va esa, recortada en círculo
      sobre el color de la silla, igual que el sombrero vectorial. */
@@ -444,7 +460,7 @@ function caraCarta(carta, tono, grande){
    decidir si tienen imagen o deben usar su figura de respaldo. */
 const arteDe = k => EXTERNAS.has(k) ? `<img src="cartas/${k}.png" alt="" draggable="false">` : null;
 
-const API = {dibujo, dibujoCultivo, avatar, colorSilla, SILLAS, claveSilla, claveCarta, clavesCarta,
+const API = {dibujo, dibujoCultivo, avatar, colorSilla, SILLAS, claveSilla, claveCarta, clavesCarta, miCara, ponCara, caraDe, carasMesa,
   caraCarta, rotulos, usarExternas, sello, SELLOS, ilustracion, arteDe};
 if (typeof module !== "undefined" && module.exports) module.exports = API; else raiz.ARTE = API;
 })(typeof self !== "undefined" ? self : globalThis);
