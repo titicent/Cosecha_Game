@@ -35,6 +35,7 @@ const MENU = (() => {
     ? `<img class="${clase}" src="cartas/${k}.png" alt="" draggable="false">`
     : `<span class="${clase}">${A.avatar(silla || 0, 46)}</span>`;
   const HEX = c => R.CULTIVO[c].hex;
+  const caraImg = (k, t) => A.arteDe(A.claveSilla(k)) ? `<img src="cartas/${A.claveSilla(k)}.png" alt="">` : A.avatar(k, t);
   let _cuantas = null;              /* cuántas cartas trae cada baraja, contado del motor */
   const cuantas = () => _cuantas || (_cuantas = R.crearMazo(true, true).reduce((n, c) => (n[c.m] = (n[c.m] || 0) + 1, n), {}));
   const tiempo = s => s === 0 ? ["∞", ""] : s < 60 ? [String(s), "s"] : [Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"), "min"];
@@ -91,10 +92,9 @@ const MENU = (() => {
       <div class="m-logo"><span class="antes">El juego de la finca</span><span class="palabra">Cosecha</span></div>
       <div class="m-marco">
         <p class="m-pide">¿Cómo te llaman en la vereda?</p>
-        <div class="m-caras" role="radiogroup" aria-label="Escoge tu cara">${A.SILLAS.map((x, k) =>
-          `<button type="button" class="m-cara ${x.abierta ? "" : "cerrada"}" role="radio" aria-checked="${k === A.miCara()}"
-            aria-label="${esc(x.nombre)}${x.abierta ? "" : " · se abre con " + esc(A.REGIONES[x.region])}" title="${esc(x.nombre)}" data-cara="${k}"
-            style="--c:${x.hex}">${A.arteDe(A.claveSilla(k)) ? `<img src="cartas/${A.claveSilla(k)}.png" alt="">` : A.avatar(k, 52)}${x.abierta ? "" : `<span class="candado">🔒</span>`}</button>`).join("")}</div>
+        <button type="button" class="m-micara" data-cambiacara title="Cambiar avatar">
+          <span class="disco" style="--c:${A.SILLAS[A.miCara()].hex}">${caraImg(A.miCara(), 64)}</span>
+          <span class="txt">Cambiar avatar</span></button>
         <form class="m-barra" id="mForm">
           <input id="nombre" maxlength="14" placeholder="Escribe tu nombre…" autocomplete="nickname" value="${esc(nombre())}">
           <button class="m-boton" type="submit">Continuar</button>
@@ -103,12 +103,9 @@ const MENU = (() => {
       <p class="m-nota">Así te verán los demás en la mesa.</p>
     </section>`;
     const inp = document.getElementById("nombre");
-    $app.querySelectorAll("[data-cara]").forEach(b => b.onclick = () => {
-      const x = A.SILLAS[+b.dataset.cara];
-      if (!x.abierta) return alerta(x.nombre + " se abre cuando llegues a la región " + A.REGIONES[x.region]);
-      A.ponCara(+b.dataset.cara);
-      $app.querySelectorAll("[data-cara]").forEach(x => x.setAttribute("aria-checked", x === b));
-      try { S.efecto("tic"); } catch (e) {}
+    $app.querySelector("[data-cambiacara]").onclick = () => catalogoCaras(() => {
+      const d = $app.querySelector("[data-cambiacara] .disco");
+      if (d) { d.style.setProperty("--c", A.SILLAS[A.miCara()].hex); d.innerHTML = caraImg(A.miCara(), 64); }
     });
     setTimeout(() => { try { inp.focus(); } catch (e) {} }, 60);
     document.getElementById("mForm").onsubmit = ev => {
@@ -119,6 +116,37 @@ const MENU = (() => {
       try { S.arrancar(); } catch (e) {}
       ir("modos");
     };
+  }
+
+  /* ── Avatares ───────────────────────────────────────────────────
+     De entrada cada quien tiene una cara al azar y no se le pregunta nada.
+     «Cambiar avatar» abre el catálogo por regiones; las que tienen candado se
+     abren cuando se llega a su región. */
+  function catalogoCaras(alCambiar) {
+    const hoja = document.createElement("div"); hoja.className = "m-hoja m-catalogo";
+    const pinta = () => {
+      const mia = A.miCara();
+      hoja.innerHTML = `<div class="m-marco" role="dialog" aria-label="Escoge tu avatar">
+        <h2 class="m-titulo">Escoge tu avatar</h2>
+        <div class="m-regiones">${Object.keys(A.REGIONES).map(r => {
+          const caras = A.SILLAS.map((x, k) => ({ x, k })).filter(({ x }) => x.region === r);
+          return `<section class="m-region"><h3>${A.REGIONES[r]}</h3><div class="m-caras">${caras.map(({ x, k }) =>
+            `<button type="button" class="m-cara ${x.abierta ? "" : "cerrada"}" aria-pressed="${k === mia}" data-cara="${k}"
+              aria-label="${esc(x.nombre)}${x.abierta ? "" : " · se abre con " + esc(A.REGIONES[x.region])}" style="--c:${x.hex}">
+              <span class="disco">${caraImg(k, 52)}${x.abierta ? "" : `<span class="candado">🔒</span>`}</span>
+              <small>${esc(x.nombre)}</small></button>`).join("")}</div></section>`; }).join("")}</div>
+        <button class="m-jugar" data-listo>Listo</button></div>`;
+      hoja.querySelectorAll("[data-cara]").forEach(b => b.onclick = () => {
+        const k = +b.dataset.cara, x = A.SILLAS[k];
+        if (!x.abierta) return alerta(x.nombre + " se abre cuando llegues a la región " + A.REGIONES[x.region]);
+        A.ponCara(k); try { S.efecto("tic"); } catch (e) {}
+        if (alCambiar) alCambiar(); pinta();
+      });
+      hoja.querySelector("[data-listo]").onclick = () => hoja.remove();
+    };
+    hoja.addEventListener("click", ev => { if (ev.target === hoja) hoja.remove(); });
+    document.body.appendChild(hoja);
+    pinta();
   }
 
   /* ── 2 · Modos ──────────────────────────────────────────────── */

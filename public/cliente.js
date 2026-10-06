@@ -229,7 +229,8 @@ function rivalHTML(i, pos) {
   /* Finca lista: completa y a la espera de aguantar la vuelta. Se marca en
      dorado y con su letrero, porque es lo que la mesa tiene que frenar. */
   return `<div class="rival ${pos} ${activo?"activo":""} ${j.fuera?"ido":""} ${j.lista?"lista":""}" data-silla="${i}">
-    ${j.lista?`<span class="letrero">¡Cosecha lista!</span>`:""}
+    ${j.lista?`<span class="letrero">¡Cosecha lista!</span>`
+      :(j.maldicion&&!j.fuera)?`<span class="letrero maldita" title="La Madremonte no le deja cosechar">🌿 Madremonte${meta>=V.objetivo?": no puede cosechar":""}</span>`:""}
     <div class="rcab">
       <div class="ravwrap">${A.avatar(A.caraDe(j, i), 38)}
         <span class="rmeta ${meta>=V.objetivo-1?"cerca":""}">${meta}/${V.objetivo}</span></div>
@@ -332,8 +333,12 @@ function atril() {
     }).join("")}</div>`;
 
   const yoLista = V.jugadores[V.yo] && V.jugadores[V.yo].lista;
-  const fincaHTML = `<div class="mifinca ${yoLista?"lista":""}">
-      ${yoLista?`<span class="letrero">¡Cosecha lista! Aguanta la vuelta</span>`:""}
+  /* Con la Madremonte encima, la finca completa no cosecha. Hay que decirlo
+     claro, o parece que el juego se trabó. */
+  const yoMaldito = V.jugadores[V.yo] && V.jugadores[V.yo].maldicion;
+  const fincaHTML = `<div class="mifinca ${yoLista?"lista":""} ${yoMaldito?"maldita":""}">
+      ${yoLista?`<span class="letrero">¡Cosecha lista! Aguanta la vuelta</span>`
+        :yoMaldito?`<span class="letrero maldita">🌿 Madremonte: ${meta>=V.objetivo?"no puedes cosechar. ":""}pásala con un remedio en la finca de un vecino</span>`:""}
       <span class="mimeta ${meta>=V.objetivo-1?"cerca":""}">${meta}/${V.objetivo}${V.metaCertificada?" ✓":""}</span>
       ${miFinca.length?miFinca.map((o,oi)=>fichaHTML(o,V.yo,oi,false)).join(""):'<span class="sinmata">siembra para<br>armar tu finca</span>'}
     </div>`;

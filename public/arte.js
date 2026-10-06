@@ -388,9 +388,14 @@ const claveSilla = i => "a_" + SILLAS[i % CARAS].nombre.toLowerCase()
    teléfono; el servidor la respeta en las mesas. En las partidas contra la
    máquina de La Vereda, tú llevas la tuya y los vecinos las que quedan. */
 const CLAVE_CARA = "cosecha.cara";
+/* Si nunca ha escogido, le toca una al azar entre las abiertas y se queda
+   con ella: así nadie arranca con la misma cara ni tiene que decidir de una. */
 function miCara(){
   try { const c = parseInt(localStorage.getItem(CLAVE_CARA), 10); if (c >= 0 && c < CARAS && SILLAS[c].abierta) return c; } catch (e) {}
-  return 0;
+  const abiertas = SILLAS.map((x, k) => x.abierta ? k : -1).filter(k => k >= 0);
+  const c = abiertas[Math.floor(Math.random() * abiertas.length)] || 0;
+  ponCara(c);
+  return c;
 }
 function ponCara(c){ try { localStorage.setItem(CLAVE_CARA, String(c)); } catch (e) {} }
 const caraDe = (j, i) => (j && Number.isInteger(j.cara)) ? j.cara : i;

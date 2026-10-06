@@ -440,6 +440,8 @@ body:has(.tablero) .barra .son,body:has(.tablero) .barra .chip{background:rgba(9
 /* los rivales se sientan arriba y a los lados: el letrero va debajo, o se
    saldría de la pantalla */
 .rival .letrero{top:auto;bottom:-9px}
+.letrero.maldita{background:#6B4FA8;white-space:normal;width:max-content;max-width:min(92vw,330px);text-align:center;line-height:1.25}
+.mifinca.maldita{box-shadow:0 0 0 2px #9B7FE0, 0 0 22px 4px rgba(107,79,168,.35)}
 @media (prefers-reduced-motion:reduce){.rival.lista,.mifinca.lista{animation:none}}
 
 /* ═══════ BIENVENIDA Y TRANSICIONES ═══════ */
