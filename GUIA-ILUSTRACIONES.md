@@ -16,13 +16,7 @@ instrucciones de siempre, así las imágenes nuevas salen iguales a las que ya t
 **Listas y procesadas: 19 de 19** (los 7 del espantapájaros y los 12 avatares). Quedaron sin
 fondo en `public/cartas/` y los avatares ya salen en el selector del nombre.
 
-**Para repetir, pero no bloquea:**
-- `a_marimba.png`: la camisa blanca llega hasta el borde de abajo sin contorno de tinta, así que
-  al quitar el fondo blanco se come parte de la camisa. Pídelo otra vez con la frase *«con el
-  contorno de tinta cerrado alrededor de todo el busto, también abajo»*, o con la camisa de otro
-  color. Está entre los de candado, así que todavía nadie lo ve.
-- `a_vueltiao.png` quedó bien, pero tiene el mismo riesgo por la guayabera blanca. Si lo repites
-  por otra razón, usa la misma frase.
+`a_vueltiao.png` y `a_marimba.png` se repitieron con la camisa bien definida y ya quedaron.
 
 ---
 
