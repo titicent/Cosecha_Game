@@ -3,11 +3,26 @@
 Esta guía es para generar con IA los PNG que faltan. Usa el mismo estilo, formato e
 instrucciones de siempre, así las imágenes nuevas salen iguales a las que ya tienes.
 
-**Lo que falta hoy:**
+**Lo que se pidió en esta tanda:**
 - **7 ilustraciones** para el mini juego **El espantapájaros** de La Vereda (6 animales y la
   medalla del lugar en el mapa).
 - **12 avatares nuevos**, que se suman a los 6 de siempre: 3 más de la región cafetera y 3 de
   cada región que se abre al subir de nivel (Caribe, Pacífico y Orinoquía).
+
+---
+
+## Estado (6 de octubre)
+
+**Listas y procesadas: 19 de 19** (los 7 del espantapájaros y los 12 avatares). Quedaron sin
+fondo en `public/cartas/` y los avatares ya salen en el selector del nombre.
+
+**Para repetir, pero no bloquea:**
+- `a_marimba.png`: la camisa blanca llega hasta el borde de abajo sin contorno de tinta, así que
+  al quitar el fondo blanco se come parte de la camisa. Pídelo otra vez con la frase *«con el
+  contorno de tinta cerrado alrededor de todo el busto, también abajo»*, o con la camisa de otro
+  color. Está entre los de candado, así que todavía nadie lo ve.
+- `a_vueltiao.png` quedó bien, pero tiene el mismo riesgo por la guayabera blanca. Si lo repites
+  por otra razón, usa la misma frase.
 
 ---
 
@@ -128,6 +143,10 @@ estilo** (no de persona) y dile que use el mismo trazo, la misma luz y el mismo 
 **Ojo con el encuadre:** el juego los muestra recortados en círculo y pequeños (de 30 a 60 px).
 La cara tiene que quedar en el centro y el sombrero entero, sin cortarse arriba.
 
+**Ojo con la ropa blanca:** si la camisa es blanca y el fondo también, pide el contorno de tinta
+cerrado alrededor de todo el busto, también abajo. Si no, al quitar el fondo se va con él un
+pedazo de la camisa.
+
 El nombre que sale en la sala es el de la prenda u objeto (como «Aguadeño» o «Ruana»), por eso
 la clave lleva ese nombre.
 
@@ -187,10 +206,12 @@ Propuesta para que haya más caras desde el principio sin quitarle gracia a abri
    `a_turbante.png` y `a_llanero.png`.
 7. **Los 6 que se abren con las regiones.** Estos no tienen afán.
 
-## 7. Lo que hago yo cuando lleguen los avatares
+## 7. Cómo quedaron los avatares en el juego
 
-El código hoy tiene 6 caras fijas. Cuando me pases los nuevos:
-- el selector del nombre muestra todas, con candado las que aún no se abren;
-- el servidor reparte las caras entre los jugadores igual que ahora, sin repetir;
-- a cada cara le pongo su color de silla y su nombre;
-- Pedidos, La Galería y los mini juegos las usan sin cambiar nada más.
+- El selector del nombre muestra las 18 caras; las 6 de las regiones salen grises y con candado.
+- El servidor reparte entre los jugadores solo las abiertas, sin repetir.
+- Cada cara tiene su color de silla y su nombre en `public/arte.js` (lista `SILLAS`). Para abrir
+  una región basta con cambiar `abierta: false` por `true` en sus caras.
+- Para agregar más caras después: pinta el PNG con la clave `a_<nombre>.png` y agrega una línea al
+  final de esa lista, con su nombre, color, región y si está abierta. El orden de las que ya existen
+  no se cambia, porque el número de cara se guarda en el teléfono de cada jugador.

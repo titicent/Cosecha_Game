@@ -92,8 +92,9 @@ const MENU = (() => {
       <div class="m-marco">
         <p class="m-pide">¿Cómo te llaman en la vereda?</p>
         <div class="m-caras" role="radiogroup" aria-label="Escoge tu cara">${A.SILLAS.map((x, k) =>
-          `<button type="button" class="m-cara" role="radio" aria-checked="${k === A.miCara()}" aria-label="${esc(x.nombre)}" data-cara="${k}"
-            style="--c:${x.hex}">${A.arteDe(A.claveSilla(k)) ? `<img src="cartas/${A.claveSilla(k)}.png" alt="">` : A.avatar(k, 52)}</button>`).join("")}</div>
+          `<button type="button" class="m-cara ${x.abierta ? "" : "cerrada"}" role="radio" aria-checked="${k === A.miCara()}"
+            aria-label="${esc(x.nombre)}${x.abierta ? "" : " · se abre con " + esc(A.REGIONES[x.region])}" title="${esc(x.nombre)}" data-cara="${k}"
+            style="--c:${x.hex}">${A.arteDe(A.claveSilla(k)) ? `<img src="cartas/${A.claveSilla(k)}.png" alt="">` : A.avatar(k, 52)}${x.abierta ? "" : `<span class="candado">🔒</span>`}</button>`).join("")}</div>
         <form class="m-barra" id="mForm">
           <input id="nombre" maxlength="14" placeholder="Escribe tu nombre…" autocomplete="nickname" value="${esc(nombre())}">
           <button class="m-boton" type="submit">Continuar</button>
@@ -103,6 +104,8 @@ const MENU = (() => {
     </section>`;
     const inp = document.getElementById("nombre");
     $app.querySelectorAll("[data-cara]").forEach(b => b.onclick = () => {
+      const x = A.SILLAS[+b.dataset.cara];
+      if (!x.abierta) return alerta(x.nombre + " se abre cuando llegues a la región " + A.REGIONES[x.region]);
       A.ponCara(+b.dataset.cara);
       $app.querySelectorAll("[data-cara]").forEach(x => x.setAttribute("aria-checked", x === b));
       try { S.efecto("tic"); } catch (e) {}
@@ -364,7 +367,7 @@ const MENU = (() => {
           const j = V.jugadores[i];
           if (!j) return `<div class="m-silla libre"><span class="hueco">+</span><small>Silla libre</small></div>`;
           return `<div class="m-silla ${i === V.yo ? "mia" : ""}">${A.avatar(A.caraDe(j, i), 58)}<b>${esc(j.nombre)}</b>
-            <small>${j.bot ? "vecino " + (j.bot === "experto" ? "baquiano" : j.bot) : !j.conectado ? "sin señal" : A.SILLAS[A.caraDe(j, i) % 6].nombre}</small>
+            <small>${j.bot ? "vecino " + (j.bot === "experto" ? "baquiano" : j.bot) : !j.conectado ? "sin señal" : A.SILLAS[A.caraDe(j, i) % A.CARAS].nombre}</small>
             ${i === 0 ? `<span class="etq">anfitrión</span>` : i === V.yo ? `<span class="etq">tú</span>` : ""}</div>`; }).join("")}
         </div>
         ${anf ? `<div class="m-seccion m-secvecinos"><h3>Vecinos de la máquina</h3><div class="m-vecinos">

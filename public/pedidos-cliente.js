@@ -17,11 +17,12 @@ const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&a
 const guardado = (k, d) => { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } };
 const guarda = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
 
-const SILLAS = [["a_aguadeno", "#C9A227"], ["a_carriel", "#A34A2B"], ["a_poncho", "#2F8F72"], ["a_ruana", "#3B5BC4"], ["a_mochila", "#7B4FB5"], ["a_machete", "#6E7A3A"]];
+/* Las mismas caras de arte.js, en el mismo orden. */
+const SILLAS = [["a_aguadeno", "#C9A227"], ["a_carriel", "#A34A2B"], ["a_poncho", "#2F8F72"], ["a_ruana", "#3B5BC4"], ["a_mochila", "#7B4FB5"], ["a_machete", "#6E7A3A"], ["a_tapapinche", "#B5651D"], ["a_panolon", "#8A6F8F"], ["a_tinto", "#6B4A2E"], ["a_vueltiao", "#D08A2E"], ["a_turbante", "#C2552E"], ["a_llanero", "#9B3A2A"], ["a_palenquera", "#E0A21A"], ["a_acordeon", "#2E8BC0"], ["a_marimba", "#3E7D4F"], ["a_atarraya", "#2C6E8F"], ["a_cuatro", "#B23A48"], ["a_soga", "#8C7A3B"]];
 /* La cara de cada silla la decide el servidor, según la que eligió cada quien en el menú. */
 const caraSilla = i => { const s = V && V.sillas && V.sillas[i]; return s && Number.isInteger(s.cara) ? s.cara : i; };
-const avatar = i => { const c = caraSilla(i) % 6; return `<img class="av" src="cartas/${SILLAS[c][0]}.png" alt="" style="--c:${SILLAS[c][1]}">`; };
-const miCara = () => { try { const c = parseInt(localStorage.getItem("cosecha.cara"), 10); return c >= 0 && c < 6 ? c : 0; } catch (e) { return 0; } };
+const avatar = i => { const c = caraSilla(i) % SILLAS.length; return `<img class="av" src="cartas/${SILLAS[c][0]}.png" alt="" style="--c:${SILLAS[c][1]}">`; };
+const miCara = () => { try { const c = parseInt(localStorage.getItem("cosecha.cara"), 10); return c >= 0 && c < SILLAS.length ? c : 0; } catch (e) { return 0; } };
 const arte = x => `<img src="cartas/${R.claveArte(x)}.png" alt="" draggable="false" loading="lazy">`;
 const cult = c => `<img src="cartas/c_${c}.png" alt="" draggable="false">`;
 

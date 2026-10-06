@@ -354,13 +354,34 @@ function dibujoCultivo(clave){
 }
 
 /* ── Avatares: sombreros de finquero, uno por silla ─────────── */
+/* Las caras del juego. Las seis primeras son las sillas de siempre (y su
+   orden no se toca: el número de cara se guarda en el teléfono). Después van
+   las de la región cafetera y las de las regiones que se abren al subir de
+   nivel. `abierta: false` sale en el selector con candado. */
 const SILLAS = [
-  {nombre:"Aguadeño", hex:"#C9A227"}, {nombre:"Carriel",  hex:"#A34A2B"},
-  {nombre:"Poncho",   hex:"#2F8F72"}, {nombre:"Ruana",    hex:"#3B5BC4"},
-  {nombre:"Mochila",  hex:"#7B4FB5"}, {nombre:"Machete",  hex:"#6E7A3A"}
+  {nombre:"Aguadeño",   hex:"#C9A227", region:"cafetera",  abierta:true},
+  {nombre:"Carriel",    hex:"#A34A2B", region:"cafetera",  abierta:true},
+  {nombre:"Poncho",     hex:"#2F8F72", region:"cafetera",  abierta:true},
+  {nombre:"Ruana",      hex:"#3B5BC4", region:"cafetera",  abierta:true},
+  {nombre:"Mochila",    hex:"#7B4FB5", region:"cafetera",  abierta:true},
+  {nombre:"Machete",    hex:"#6E7A3A", region:"cafetera",  abierta:true},
+  {nombre:"Tapapinche", hex:"#B5651D", region:"cafetera",  abierta:true},
+  {nombre:"Pañolón",    hex:"#8A6F8F", region:"cafetera",  abierta:true},
+  {nombre:"Tinto",      hex:"#6B4A2E", region:"cafetera",  abierta:true},
+  {nombre:"Vueltiao",   hex:"#D08A2E", region:"caribe",    abierta:true},
+  {nombre:"Turbante",   hex:"#C2552E", region:"pacifico",  abierta:true},
+  {nombre:"Llanero",    hex:"#9B3A2A", region:"orinoquia", abierta:true},
+  {nombre:"Palenquera", hex:"#E0A21A", region:"caribe",    abierta:false},
+  {nombre:"Acordeón",   hex:"#2E8BC0", region:"caribe",    abierta:false},
+  {nombre:"Marimba",    hex:"#3E7D4F", region:"pacifico",  abierta:false},
+  {nombre:"Atarraya",   hex:"#2C6E8F", region:"pacifico",  abierta:false},
+  {nombre:"Cuatro",     hex:"#B23A48", region:"orinoquia", abierta:false},
+  {nombre:"Soga",       hex:"#8C7A3B", region:"orinoquia", abierta:false}
 ];
+const REGIONES = {cafetera:"Región cafetera", caribe:"Caribe", pacifico:"Pacífico", orinoquia:"Orinoquía"};
+const CARAS = SILLAS.length;
 /* Clave de archivo de cada silla: «Aguadeño» → a_aguadeno.png */
-const claveSilla = i => "a_" + SILLAS[i % 6].nombre.toLowerCase()
+const claveSilla = i => "a_" + SILLAS[i % CARAS].nombre.toLowerCase()
   .normalize("NFD").replace(/[̀-ͯ]/g, "");
 
 /* La cara que eligió cada quien (una de las seis sillas). Se guarda en el
@@ -368,14 +389,14 @@ const claveSilla = i => "a_" + SILLAS[i % 6].nombre.toLowerCase()
    máquina de La Vereda, tú llevas la tuya y los vecinos las que quedan. */
 const CLAVE_CARA = "cosecha.cara";
 function miCara(){
-  try { const c = parseInt(localStorage.getItem(CLAVE_CARA), 10); if (c >= 0 && c < 6) return c; } catch (e) {}
+  try { const c = parseInt(localStorage.getItem(CLAVE_CARA), 10); if (c >= 0 && c < CARAS && SILLAS[c].abierta) return c; } catch (e) {}
   return 0;
 }
 function ponCara(c){ try { localStorage.setItem(CLAVE_CARA, String(c)); } catch (e) {} }
 const caraDe = (j, i) => (j && Number.isInteger(j.cara)) ? j.cara : i;
 /* Caras para una mesa local: la tuya primero y luego las demás, en orden. */
 function carasMesa(n){
-  const mia = miCara(), otras = [0,1,2,3,4,5].filter(k => k !== mia);
+  const mia = miCara(), otras = SILLAS.map((_, k) => k).filter(k => k !== mia && SILLAS[k].abierta);
   return [mia].concat(otras).slice(0, n);
 }
 
@@ -385,10 +406,10 @@ function avatar(silla, tam){
   const k = claveSilla(silla);
   if (EXTERNAS.has(k)) {
     const t = tam || 36;
-    return `<span class="av avimg" style="width:${t}px;height:${t}px;--silla:${SILLAS[silla % 6].hex}">
+    return `<span class="av avimg" style="width:${t}px;height:${t}px;--silla:${SILLAS[silla % CARAS].hex}">
       <img src="cartas/${k}.png" alt="" draggable="false"></span>`;
   }
-  const s = SILLAS[silla % 6];
+  const s = SILLAS[silla % CARAS];
   const ojos = silla % 3;
   const cara = ojos===0
     ? `<circle cx="20" cy="27" r="2.2" fill="#3A2A18"/><circle cx="28" cy="27" r="2.2" fill="#3A2A18"/>
@@ -408,7 +429,7 @@ function avatar(silla, tam){
     <circle cx="24" cy="29" r="13" fill="none" stroke="rgba(0,0,0,.18)" stroke-width="1.4"/>`,
     `width="${tam||36}" height="${tam||36}" class="av"`);
 }
-const colorSilla = i => SILLAS[i % 6].hex;
+const colorSilla = i => SILLAS[i % CARAS].hex;
 
 /* ── Cara de carta ──────────────────────────────────────────── */
 let EXTERNAS = new Set();
@@ -460,7 +481,7 @@ function caraCarta(carta, tono, grande){
    decidir si tienen imagen o deben usar su figura de respaldo. */
 const arteDe = k => EXTERNAS.has(k) ? `<img src="cartas/${k}.png" alt="" draggable="false">` : null;
 
-const API = {dibujo, dibujoCultivo, avatar, colorSilla, SILLAS, claveSilla, claveCarta, clavesCarta, miCara, ponCara, caraDe, carasMesa,
+const API = {dibujo, dibujoCultivo, avatar, colorSilla, SILLAS, claveSilla, claveCarta, clavesCarta, miCara, ponCara, caraDe, carasMesa, REGIONES, CARAS,
   caraCarta, rotulos, usarExternas, sello, SELLOS, ilustracion, arteDe};
 if (typeof module !== "undefined" && module.exports) module.exports = API; else raiz.ARTE = API;
 })(typeof self !== "undefined" ? self : globalThis);

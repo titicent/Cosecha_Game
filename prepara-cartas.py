@@ -41,6 +41,47 @@ def quitar_fondo(im):
     nuevo[..., 3] = np.where(fondo, 0, al)
     return Image.fromarray(nuevo.astype(np.uint8), "RGBA"), fondo.mean()
 
+def quitar_fondo_retrato(im, cierre=4):
+    """Como quitar_fondo, pero para retratos con camisa blanca: el fondo no
+    puede colarse por los huecos finos del contorno. Se busca el fondo con el
+    blanco «adelgazado» (así un hueco de pocos píxeles no conecta la camisa con
+    el borde) y después se le devuelve su grosor sin pasar del contorno."""
+    a = np.asarray(im.convert("RGBA")).astype(np.int16)
+    rgb, al = a[..., :3], a[..., 3]
+    claro = rgb.min(axis=2) >= 168
+    neutro = (rgb.max(axis=2) - rgb.min(axis=2)) <= 22
+    candidato = (claro & neutro) | (al < 16)
+    flaco = ndimage.binary_erosion(candidato, iterations=cierre, border_value=1)
+    etiquetas, _ = ndimage.label(flaco)
+    borde = np.unique(np.concatenate([etiquetas[0], etiquetas[-1], etiquetas[:, 0], etiquetas[:, -1]]))
+    fondo = np.isin(etiquetas, borde[borde > 0])
+    fondo = ndimage.binary_dilation(fondo, iterations=cierre + 1, mask=candidato)
+    # La camisa blanca que llega al borde de abajo no tiene contorno que la
+    # separe del fondo, y el fondo se le mete por ahí. Si pasó (hay fondo en el
+    # centro de abajo, donde va el pecho), se vuelve a buscar el fondo sin
+    # dejarlo entrar por la franja de abajo, y en esa franja solo es fondo lo
+    # que queda por fuera del cuerpo, fila por fila.
+    alto, ancho = fondo.shape
+    if fondo[int(alto * .82):, int(ancho * .38):int(ancho * .62)].mean() > .15:
+        corte = int(alto * .8)
+        arriba = candidato.copy(); arriba[corte:] = False
+        flaco = ndimage.binary_erosion(arriba, iterations=cierre, border_value=1)
+        flaco[corte - cierre - 1:] = False
+        etiquetas, _ = ndimage.label(flaco)
+        borde = np.unique(np.concatenate([etiquetas[0], etiquetas[:, 0], etiquetas[:, -1]]))
+        fondo = np.isin(etiquetas, borde[borde > 0])
+        fondo = ndimage.binary_dilation(fondo, iterations=cierre + 1, mask=arriba)
+        for y in range(corte, alto):
+            cuerpo = np.flatnonzero(~candidato[y])
+            if cuerpo.size < 2: fondo[y] = candidato[y]; continue
+            fondo[y, :cuerpo[0]] = candidato[y, :cuerpo[0]]
+            fondo[y, cuerpo[-1] + 1:] = candidato[y, cuerpo[-1] + 1:]
+    halo = ndimage.binary_dilation(fondo, iterations=1) & claro & neutro
+    fondo |= halo
+    nuevo = a.copy()
+    nuevo[..., 3] = np.where(fondo, 0, al)
+    return Image.fromarray(nuevo.astype(np.uint8), "RGBA"), fondo.mean()
+
 def encuadrar(im):
     caja = im.getchannel("A").point(lambda v: 255 if v > 24 else 0).getbbox()
     if caja: im = im.crop(caja)
@@ -59,7 +100,13 @@ for f in sorted(os.listdir(ORIGEN)):
     if not f.lower().endswith(".png"): continue
     im = Image.open(os.path.join(ORIGEN, f))
     if f.startswith("a_"):
+        # Avatares: se respeta el encuadre del retrato (el juego lo recorta en
+        # círculo). Solo se quita el fondo si viene en blanco liso, como pasa
+        # cuando la IA los entrega en JPG.
         im = im.convert("RGBA"); quitado = 0.0
+        esquinas = [im.getpixel(p) for p in [(0, 0), (im.size[0] - 1, 0), (0, im.size[1] - 1), (im.size[0] - 1, im.size[1] - 1)]]
+        if all(c[3] > 200 and min(c[:3]) >= 235 for c in esquinas):
+            im, quitado = quitar_fondo_retrato(im)
         if im.size[0] != im.size[1]: im = encuadrar(im)
     else:
         im, quitado = quitar_fondo(im)
