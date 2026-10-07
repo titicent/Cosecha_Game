@@ -64,7 +64,7 @@ function conectar() {
   ws.onmessage = ev => {
     const m = JSON.parse(ev.data);
     if (m.t === "sesion") { sesion = {codigo:m.codigo, token:m.token}; guardar(); }
-    if (m.t === "vista") { V = m.v; sel = null; paso = null; recibido = Date.now(); restante = V.restante; pintar(); sonarSegunVista(); }
+    if (m.t === "vista") { V = m.v; sel = null; paso = null; recibido = Date.now(); restante = V.restante; pintar(); sonarSegunVista(); revisarGuia(); }
     if (m.t === "error") { alerta(m.msg); MENU.errorDeEntrada(); }
   };
   ws.onclose = () => { if (reintento++ < 40) setTimeout(conectar, Math.min(600 * reintento, 4000)); };
@@ -625,3 +625,50 @@ cargaArte.then(ok => {
   const escribiendo = document.activeElement && document.activeElement.tagName === "INPUT" && document.activeElement.value;
   if (!escribiendo) portada();
 });
+
+/* ── Partida guiada ─────────────────────────────────────────────
+   La primera partida contra la máquina viene preparada desde el servidor
+   (prepararGuia en server.js): aquí solo van los pasos de la manito. */
+let guiaEnCurso = false;
+function revisarGuia() {
+  if (guiaEnCurso || !window.GUIA || !V || !V.iniciada || !V.opciones || !V.opciones.guia || V.ganador !== null) return;
+  guiaEnCurso = true;
+  GUIA.iniciar(pasosGuia(), {
+    alTerminar: () => { GUIA.marcar("cosecha"); GUIA.final({ titulo: "¡Ya sabes jugar!",
+      texto: "Siembra la caña para completar tu finca. Si tus cuatro cultivos aguantan sanos una vuelta completa, cosechas y ganas.",
+      botones: [{ texto: "Seguir jugando", primario: true }] }); },
+    alSaltar: () => GUIA.marcar("cosecha")
+  });
+}
+function pasosGuia() {
+  const $ = q => document.querySelector(q);
+  const yo = () => V.yo, mi = () => V.jugadores[V.yo], rosa = () => V.jugadores[1 - V.yo];
+  const idx = (k, c) => (V.mano || []).findIndex(x => x.k === k && x.c === c);
+  const carta = (k, c) => () => $(`#atril [data-c="${idx(k, c)}"]`);
+  const mataDe = c => mi().finca.findIndex(o => o.carta.c === c);
+  const mata = c => () => mataDe(c) >= 0 ? $(`#atril [data-mata="${yo()}.${mataDe(c)}"]`) : null;
+  const tiene = (c, f) => mi().finca.some(o => o.carta.c === c && (!f || f(o)));
+  const accion = () => $("#atril [data-j]");
+  const juego = () => V && miTurno();
+  return [
+    { objetivo: () => $(".mifinca"), texto: "Esta es tu finca. Gana quien tenga 4 cultivos distintos y sanos", ms: 3800 },
+    { objetivo: carta("cultivo", "cafe"), texto: "Toca tu café", hecho: () => sel === idx("cultivo", "cafe") || tiene("cafe") },
+    { objetivo: accion, texto: "Siémbralo", hecho: () => tiene("cafe") },
+    { objetivo: () => $(".mifinca .mimeta"), texto: "Ya tienes 1 de 4", ms: 2600 },
+    { objetivo: () => $(".rival"), texto: "Cada turno juegas una carta. Ahora juega Rosa", esperar: true, hecho: () => juego() && rosa().finca.length >= 1 },
+    { objetivo: carta("cultivo", "platano"), texto: "Siembra el plátano", hecho: () => sel === idx("cultivo", "platano") || tiene("platano") },
+    { objetivo: accion, texto: "Siémbralo", hecho: () => tiene("platano") },
+    { objetivo: () => $(".rival"), texto: "Juega Rosa…", esperar: true, hecho: () => juego() && tiene("cafe", o => o.plagas.length) },
+    { objetivo: mata("cafe"), texto: "¡Rosa le echó broca a tu café! Una mata plagada no cuenta", ms: 3600 },
+    { objetivo: carta("remedio", "cafe"), texto: "Toca el Caldo bordelés: cura el café", hecho: () => sel === idx("remedio", "cafe") || tiene("cafe", o => !o.plagas.length) },
+    { objetivo: mata("cafe"), texto: "Cúralo", hecho: () => tiene("cafe", o => !o.plagas.length) },
+    { objetivo: () => $(".rival"), texto: "Juega Rosa…", esperar: true, hecho: () => juego() && rosa().finca.length >= 2 },
+    { objetivo: carta("cultivo", "cacao"), texto: "Siembra el cacao", hecho: () => sel === idx("cultivo", "cacao") || tiene("cacao") },
+    { objetivo: accion, texto: "Siémbralo", hecho: () => tiene("cacao") },
+    { objetivo: () => $(".mifinca .mimeta"), texto: "Vas 3 de 4", ms: 2400 },
+    { objetivo: () => $(".rival"), texto: "Juega Rosa…", esperar: true, hecho: () => juego() && rosa().finca.length >= 3 },
+    { objetivo: carta("remedio", "platano"), texto: "Protege tu plátano con la Ceniza", hecho: () => sel === idx("remedio", "platano") || tiene("platano", o => o.remedios.length) },
+    { objetivo: mata("platano"), texto: "Pónsela", hecho: () => tiene("platano", o => o.remedios.length) },
+    { objetivo: mata("platano"), texto: "Protegida: con dos remedios queda certificada y ya nadie la toca", ms: 3800 }
+  ];
+}

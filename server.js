@@ -430,6 +430,8 @@ function turnoBot(s) {
   const ji = E.turno;
   if (!esBot(s, ji) || E.jugadores[ji].fuera) return;
   consumir(s);
+  const g = s.guion && s.guion.length ? jugadaGuion(s, ji) : null;
+  if (g) return resolverJugada(s, ji, g.idx, g.j);
   const el = eligeBot(E, ji, s.jugadores[ji].bot);
   if (el) return resolverJugada(s, ji, el.idx, el.j);
   const mano = E.jugadores[ji].mano;
@@ -460,6 +462,39 @@ function botsResponden(s) {
   }
   if (p.tipo === "reelegir" && esBot(s, p.ji))
     setTimeout(() => { if (s.pendiente === p) cerrarPendiente(s); }, PENSAR_BOT);
+}
+
+/* ── Partida guiada ─────────────────────────────────────────────
+   La primera partida de Cosecha enseña con la manito (public/guia.js). Para
+   que en pocos turnos pase todo lo que hay que aprender, el mazo viene
+   arreglado y Rosa juega a propósito: siembra, le echa una broca a tu café
+   para que lo cures, y sigue sembrando. Después juega sola, como novata. */
+const ROSA_CARA = 7;                       /* a_panolon */
+function prepararGuia(s) {
+  const E = s.E;
+  const pool = E.mazo.concat(...E.jugadores.map(j => j.mano.splice(0)));
+  const toma = (k, c, t) => { const i = pool.findIndex(x => x.k === k && x.c === c && (!t || x.t === t)); return pool.splice(i, 1)[0]; };
+  E.jugadores[0].mano = [toma("cultivo", "cafe"), toma("cultivo", "platano"), toma("remedio", "cafe", "casero")];
+  E.jugadores[1].mano = [toma("cultivo", "cacao"), toma("plaga", "cafe", "comun"), toma("cultivo", "cana")];
+  /* Lo que se roba, en orden: tú, Rosa, tú, Rosa… */
+  const arriba = [toma("cultivo", "cacao"), toma("cultivo", "platano"), toma("remedio", "platano", "casero"),
+    toma("remedio", "cacao", "casero"), toma("cultivo", "cana"), toma("remedio", "cana", "casero")];
+  E.mazo = pool.concat(arriba.reverse());
+  E.turno = 0; E.jornales = 1; E.climaOn = false;
+  E.registro = ["Empieza la jornada", "Arranca " + E.jugadores[0].nombre];
+  s.guion = [
+    E => ({ tipo: "sembrar", carta: x => x.k === "cultivo" && x.c === "cacao" }),
+    E => ({ tipo: "plagar", carta: x => x.k === "plaga" && x.c === "cafe", j: 0, o: E.jugadores[0].finca.findIndex(o => o.carta.c === "cafe") }),
+    E => ({ tipo: "sembrar", carta: x => x.k === "cultivo" && x.c === "cana" }),
+    E => ({ tipo: "sembrar", carta: x => x.k === "cultivo" && x.c === "platano" })
+  ];
+  programarTurno(s);
+}
+function jugadaGuion(s, ji) {
+  const E = s.E, q = s.guion.shift()(E), idx = E.jugadores[ji].mano.findIndex(q.carta);
+  if (idx < 0) return null;
+  const j = R.jugadasLegales(E, ji, idx).find(x => x.tipo === q.tipo && (q.j === undefined || (x.j === q.j && x.o === q.o)));
+  return j ? { idx, j } : null;
 }
 
 /* ── Salir de la partida y terminarla sin ganador ───────────── */
@@ -526,6 +561,16 @@ wss.on("connection", ws => {
       if (Array.isArray(m.bots)) m.bots.slice(0, 5).forEach(n =>
         sentarBot(nueva, ["novato","normal","experto"].includes(n) ? n : "normal"));
       enviar(nueva.jugadores[0], {t:"sesion", codigo:nueva.codigo, token:nueva.jugadores[0].token, yo:0});
+      /* La partida guiada: tú contra Rosa, sin reloj ni clima, con el mazo
+         arreglado y Rosa jugando a propósito (ver prepararGuia). */
+      if (m.opciones && m.opciones.guia) {
+        nueva.jugadores.splice(1);
+        const r = sentarBot(nueva, "novato"); r.nombre = "Rosa";
+        if (nueva.jugadores[0].cara !== ROSA_CARA) r.cara = ROSA_CARA;
+        Object.assign(nueva.opciones, { guia: true, segundosTurno: 0, minutosJugador: 0, clima: false, aprendiz: false, espantos: false, dosJornales: false, duelo: false, metaCertificada: false });
+        empezar(nueva); prepararGuia(nueva);
+        difundir(nueva); return;
+      }
       if (m.empezar && nueva.jugadores.length >= 2) empezar(nueva);
       difundir(nueva); return;
     }
@@ -603,6 +648,7 @@ wss.on("connection", ws => {
       return difundir(s);
     }
     if (m.t === "revancha" && s.iniciada && (s.E.ganador !== null || s.E.terminada !== null)) {
+      s.opciones.guia = false; s.guion = null;
       empezar(s); return difundir(s);
     }
 

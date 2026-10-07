@@ -538,3 +538,8 @@
   .m-hcuenta .m-marco{width:min(100%,520px)}
   .m-cuentatxt{font-size:13.5px}
 }
+
+/* Partida guiada */
+.m-guiada{margin-top:8px}
+.m-enlace{background:none;border:0;color:var(--m-oro);text-decoration:underline;text-underline-offset:3px;font:inherit;font-size:13px;cursor:pointer;padding:2px}
+@media (orientation:landscape) and (max-height:500px){ .m-guiada{margin-top:2px;font-size:11.5px} }

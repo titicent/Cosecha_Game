@@ -218,6 +218,7 @@ const MENU = (() => {
   });
 
   /* ── 2 · Modos ──────────────────────────────────────────────── */
+  const guiaPendiente = () => !!(window.GUIA && !GUIA.hecha("cosecha"));
   function pModos() {
     $app.innerHTML = `<section class="m m-pmodos">
       <div class="m-quien"><button class="m-jugador" data-cambianombre title="Cambiar el nombre">${foto(A.claveSilla(A.miCara()), "", A.miCara())}<span>${esc(nombre())}</span><span class="lapiz">✎</span></button>
@@ -280,10 +281,14 @@ const MENU = (() => {
         ${reglas(c, n === 2)}
       </div>
       <button class="m-jugar" id="mJugar">¡A sembrar!</button>
+      <p class="m-nota m-guiada">${guiaPendiente() ? "Tu primera partida es guiada: te mostramos qué hacer, paso a paso." : `<button type="button" class="m-enlace" id="mGuiada">Jugar otra vez la partida guiada</button>`}</p>
       ${volver("modos")}
     </section>`;
     enganchar(c, "solo", pintarMenu);
+    const guiada = () => { pantallaJuego(); mandar({ t: "crear", nombre: nombre(), opciones: { guia: true }, bots: ["novato"], empezar: true, cara: A.miCara() }); };
+    const g = document.getElementById("mGuiada"); if (g) g.onclick = guiada;
     document.getElementById("mJugar").onclick = () => {
+      if (guiaPendiente()) return guiada();
       const opciones = opcionesDe(c, n === 2);
       introAntes(opciones, () => {
         pantallaJuego();
