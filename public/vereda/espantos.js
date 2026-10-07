@@ -196,6 +196,18 @@ function jugar() {
   const caras = A.carasMesa(cuantos);   /* tú con tu cara; los vecinos, las que quedan */
   const temps = E.jugadores.map((_, i) => TEMPERAMENTOS[(i + Math.floor(Math.random() * 4)) % 4]);
   let vistoSuc = 0, alumbrado = null, ocupado = false, decis = {};
+  const guiada = !!(window.GUIA && !GUIA.hecha("espantos"));
+  if (guiada) {
+    /* La primera noche viene arreglada: un hallazgo, el Mohán, otro hallazgo
+       y, si sigues, el Mohán otra vez. El farol te deja verlo venir. */
+    const todo = E.mazo.concat(E.camino);
+    const toma = f => todo.splice(todo.findIndex(f), 1)[0];
+    const arriba = [toma(x => x.k === "h" && x.v === 7), toma(x => x.k === "e" && x.t === "mohan"), toma(x => x.k === "h" && x.v === 5), toma(x => x.k === "e" && x.t === "mohan")];
+    E.camino = []; E.vistos = {}; E.jugadores.forEach(j => { j.lleva = 0; });
+    E.sucesos = E.sucesos.filter(x => x.t === "noche");
+    E.mazo = todo.concat(arriba.reverse());
+    revelar(E);
+  }
 
   function pintar() {
     const mi = E.jugadores[0], p = riesgo(E);
@@ -292,7 +304,23 @@ function jugar() {
       arte: arteE("mohan"), tono: "#6B4FA8", cinta: "Espantos en la oscuridad", ganados, lam
     }).then(b => b === "salir" ? (location.href = "vereda/index.html") : portada());
   }
-  contar().then(pintar);
+  contar().then(() => { pintar(); if (guiada) guiar(); });
+
+  function guiar() {
+    const $ = q => document.querySelector(q);
+    const quieto = n => () => E.camino.length >= n && !ocupado;
+    GUIA.iniciar([
+      { objetivo: () => $(".camino-rio"), texto: "Esto dejó la creciente. Se reparte entre los que siguen en el camino", ms: 3400 },
+      { objetivo: () => $(".gente"), texto: "Antes de cada paso, todos deciden a la vez: seguir o devolverse", ms: 3200 },
+      { objetivo: () => $("#sigo"), texto: "Toca Sigo para dar otro paso", hecho: quieto(2) },
+      { objetivo: () => $(".alerta"), texto: "¡Salió el Mohán! Si sale otra vez esta noche, todos los que sigan salen corriendo", ms: 3800 },
+      { objetivo: () => $("#sigo"), texto: "Arriésgate un paso más", hecho: quieto(3) },
+      { objetivo: () => $("#farol"), texto: "Usa el farol para ver lo que viene", hecho: () => !!alumbrado },
+      { objetivo: () => $(".alumbrada"), texto: "¡El Mohán otra vez! Mejor devuélvete", ms: 3000 },
+      { objetivo: () => $("#vuelvo"), texto: "Toca Me devuelvo", hecho: () => !E.jugadores[0].enCamino },
+      { objetivo: () => $(".hud .dato:nth-child(3)"), texto: "Lo que llevabas quedó en tu costal. En 5 noches gana el costal más lleno", ms: 3800 }
+    ], { alTerminar: () => GUIA.marcar("espantos"), alSaltar: () => GUIA.marcar("espantos") });
+  }
 }
 
 V.montar({ titulo: "Espantos en la oscuridad", volver: "vereda/index.html", escena: "noche" });

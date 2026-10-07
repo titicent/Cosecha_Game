@@ -58,11 +58,26 @@ function portada() {
     <p class="nota">${rec ? "Tu récord: " + rec + " puntos" : "Todavía no tienes récord."}</p>
     </div>
   </section>`;
-  document.getElementById("ya").onclick = jugar;
+  document.getElementById("ya").onclick = () => (window.GUIA && !GUIA.hecha("recolecta")) ? practica() : jugar();
+}
+
+/* ── La primera vez: una rama de práctica, sin reloj ─────────── */
+function practica() {
+  const P = jugar({ practica: true });
+  const $ = s => document.querySelector(s);
+  const hay = t => $(`.cereza[data-tipo="${t}"]:not(.sale):not(.cogida)`);
+  GUIA.iniciar([
+    { objetivo: () => $(".rama"), texto: "Esta es la rama del café. Vamos a practicar", ms: 2600 },
+    { alEmpezar: () => P.brotarEn(5, "madura"), objetivo: () => hay("madura"), texto: "Toca la cereza roja: está madura", hecho: () => P.estado().cogidas >= 1 },
+    { alEmpezar: () => P.brotarEn(6, "verde", 3400), objetivo: () => hay("verde"), texto: "La verde todavía no: déjala crecer", esperar: true, hecho: () => !hay("verde") },
+    { alEmpezar: () => P.brotarEn(9, "brocada"), objetivo: () => hay("brocada"), texto: "Esta tiene broca: tócala para sacarla de la mata", hecho: () => P.estado().brocas >= 1 },
+    { objetivo: () => $(".hud"), texto: "Tienes un minuto. ¡Coge todas las que puedas!", ms: 3000 }
+  ], { alTerminar: () => { GUIA.marcar("recolecta"); P.parar(); jugar(); }, alSaltar: () => { GUIA.marcar("recolecta"); P.parar(); jugar(); } });
 }
 
 /* ── El juego ──────────────────────────────────────────────── */
-function jugar() {
+function jugar(opc) {
+  const practicando = !!(opc && opc.practica);
   let resta = DURACION, puntos = 0, cogidas = 0, brocas = 0, verdes = 0, caidas = 0, racha = 0, vivo = true;
   const ocupados = new Map();
   app.innerHTML = `
@@ -75,20 +90,20 @@ function jugar() {
   const $ = id => document.getElementById(id), rama = $("rama");
   const hud = () => { $("hP").textContent = puntos; $("hC").textContent = cogidas; $("hB").textContent = brocas; };
 
-  function brotar() {
+  function brotar(fijo, tipoFijo, vidaFija) {
     if (!vivo) return;
     const libres = PUNTOS.map((_, i) => i).filter(i => !ocupados.has(i));
     if (!libres.length) return;
-    const i = libres[Math.floor(Math.random() * libres.length)];
+    const i = fijo !== undefined ? fijo : libres[Math.floor(Math.random() * libres.length)];
     const avance = 1 - resta / DURACION;                        /* 0 al empezar, 1 al final */
-    const x = Math.random(), tipo = x < .62 ? "madura" : x < .84 ? "verde" : "brocada";
+    const x = Math.random(), tipo = tipoFijo || (x < .62 ? "madura" : x < .84 ? "verde" : "brocada");
     const b = document.createElement("button");
     b.className = "cereza"; b.dataset.tipo = tipo;
     b.setAttribute("aria-label", tipo === "madura" ? "Cereza madura" : tipo === "verde" ? "Cereza verde" : "Cereza con broca");
     b.style.left = PUNTOS[i][0] + "%"; b.style.top = PUNTOS[i][1] + "%";
     b.innerHTML = cereza(TIPOS[tipo].color, TIPOS[tipo].brocada);
     const vida = 1700 - avance * 750 + (tipo === "verde" ? 300 : 0);
-    const t = setTimeout(() => quitar(i, b, false), vida);
+    const t = practicando && !vidaFija ? null : setTimeout(() => quitar(i, b, false), vidaFija || vida);
     ocupados.set(i, { b, t });
     b.addEventListener("pointerdown", e => { e.preventDefault(); tocar(i, b); });
     rama.appendChild(b);
@@ -118,6 +133,11 @@ function jugar() {
     hud(); quitar(i, b, tipo !== "verde");
   }
 
+  if (practicando) {
+    $("hT").textContent = "—"; $("reloj").style.visibility = "hidden";
+    hud();
+    return { brotarEn: (i, t, v) => brotar(i, t, v), estado: () => ({ cogidas, brocas, verdes }), parar: () => { vivo = false; ocupados.forEach(o => clearTimeout(o.t)); ocupados.clear(); } };
+  }
   let proxima = 0;
   const paso = 100;
   const tic = setInterval(() => {

@@ -132,10 +132,30 @@ function portada() {
   </section>`;
   app.querySelectorAll("[data-n]").forEach(b => b.onclick = () => {
     nivel = +b.dataset.n; const d = V.datos(); d.colores = { nivel }; V.guardar(); portada(); });
-  document.getElementById("ya").onclick = jugar;
+  document.getElementById("ya").onclick = () => (window.GUIA && !GUIA.hecha("colores")) ? practica() : jugar();
 }
 
-function jugar() {
+/* ── La primera vez: tres preguntas de práctica, sin reloj ───── */
+function practica() {
+  const fija = (k, cx, cm) => { const o = { carta: carta("cultivo", cm), remedios: [], plagas: [] }, x = carta(k, cx, k === "plaga" ? "comun" : "casero"), jug = resolver(o, x);
+    return { o, x, jug, si: !!jug, porque: porque(o, x, jug) }; };
+  const P = jugar({ practica: [fija("plaga", "cafe", "cafe"), fija("plaga", "platano", "cacao"), fija("plaga", "huerta", "cana")] });
+  const $ = s => document.querySelector(s);
+  const explica = () => $("#exp") && $("#exp").textContent;
+  const listo = n => () => P.estado().respondidas >= n;
+  GUIA.iniciar([
+    { objetivo: () => $("#duelo"), texto: "Sale una carta y una mata de tu finca", ms: 2800 },
+    { objetivo: () => $("[data-r='1']"), texto: "La broca es del café: le entra. Toca ¡Sí!", hecho: listo(1) },
+    { objetivo: () => $("#exp"), texto: "Aquí te explica por qué", ms: 2800, alEmpezar: () => {} },
+    { alEmpezar: () => P.siguiente(), objetivo: () => $("[data-r='0']"), texto: "La sigatoka es del plátano y esta mata es cacao. Toca ¡No!", hecho: listo(2) },
+    { objetivo: () => $("#exp"), texto: "¡El color manda!", ms: 2600 },
+    { alEmpezar: () => P.siguiente(), objetivo: () => $("[data-r='1']"), texto: "Lo de huerta le entra a cualquier mata. Toca ¡Sí!", hecho: listo(3) },
+    { objetivo: () => $(".hud"), texto: "Tienes un minuto. Cada error te quita 3 segundos", ms: 3000 }
+  ], { alTerminar: () => { GUIA.marcar("colores"); P.parar(); jugar(); }, alSaltar: () => { GUIA.marcar("colores"); P.parar(); jugar(); } });
+}
+
+function jugar(opc) {
+  const fijas = opc && opc.practica ? opc.practica.slice() : null;
   const r = Math.random;
   let resta = DURACION, aciertos = 0, errores = 0, racha = 0, q = null, esperando = false;
   const vistas = new Set();
@@ -154,8 +174,9 @@ function jugar() {
   const $ = id => document.getElementById(id);
   const botones = app.querySelectorAll("[data-r]");
 
+  let respondidas = 0;
   function nueva() {
-    q = pregunta(nivel, r);
+    q = fijas ? fijas.shift() : pregunta(nivel, r);
     $("duelo").innerHTML = V.cartica(q.x, { costo: false }) + `<span class="flecha">➜</span>` +
       V.mata(q.o).replace("</button>", `<span class="tu">tu ${esc(R.CULTIVO[q.o.carta.c].label.toLowerCase())}</span></button>`);
     $("preg").textContent = q.x.k === "plaga" ? "¿Le entra esta plaga?" : "¿Le sirve este remedio?";
@@ -167,6 +188,7 @@ function jugar() {
     if (esperando || resta <= 0) return;
     esperando = true; botones.forEach(b => b.disabled = true);
     const bien = dijo === q.si;
+    respondidas++;
     if (bien) {
       aciertos++; racha++;
       vistas.add(ARTE.clavesCarta(q.x)[0]); vistas.add("c_" + q.o.carta.c);
@@ -180,7 +202,8 @@ function jugar() {
     $("exp").textContent = bien ? "¡Eso! " + q.porque
       : "¡Uy! " + q.porque.replace(/^Sí:/, "Sí se podía:").replace(/^No:/, "No se podía:");
     $("exp").className = "explica " + (bien ? "bien" : "mal");
-    pintarReloj();
+    if (fijas) return;                     /* en la práctica, la guía dice cuándo sigue */
+    pintarReloj();                     /* en la práctica, la guía dice cuándo sigue */
     setTimeout(() => { if (resta > 0) nueva(); }, bien ? 1100 : 2300);
   }
   botones.forEach(b => b.onclick = () => responder(b.dataset.r === "1"));
@@ -191,6 +214,10 @@ function jugar() {
     $("hT").textContent = Math.ceil(resta);
     $("reloj").querySelector("i").style.transform = `scaleX(${resta / DURACION})`;
     $("reloj").classList.toggle("poco", resta <= 10);
+  }
+  if (fijas) {
+    nueva(); $("hT").textContent = "—"; $("reloj").style.visibility = "hidden";
+    return { siguiente: () => { if (fijas.length) nueva(); }, estado: () => ({ respondidas }), parar: () => document.removeEventListener("keydown", teclas) };
   }
   /* El reloj solo corre mientras hay pregunta: leer la explicación no cuesta. */
   const tic = setInterval(() => {

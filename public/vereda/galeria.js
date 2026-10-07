@@ -58,6 +58,24 @@ function pintar() {
   if (!vista.iniciada) return plaza();
   if (vista.fase === "fin") return final();
   subasta();
+  revisarGuia();
+}
+
+/* La primera subasta, la manito acompaña el primer lote. */
+let guiaEnCurso = false;
+function revisarGuia() {
+  if (guiaEnCurso || !window.GUIA || GUIA.hecha("galeria") || !vista || vista.fase !== "pujando" || vista.ronda !== 1) return;
+  guiaEnCurso = true;
+  const $ = q => document.querySelector(q), mi = () => vista.jugadores[vista.yo];
+  GUIA.iniciar([
+    { objetivo: () => $(".lotes"), texto: "Este es el lote que se subasta", ms: 2800 },
+    { objetivo: () => $(".vale"), texto: "Esto te sumaría a ti si te lo llevas", ms: 2800 },
+    { objetivo: () => $('.rapidas [data-k="3"]'), texto: "Escoge cuánto ofreces. Prueba con 3", hecho: () => oferta === 3 || mi().listo },
+    { objetivo: () => $("#ofrecer"), texto: "Ofrécelo: nadie ve tu oferta", hecho: () => mi().listo || vista.fase !== "pujando" },
+    { objetivo: () => $(".tabla-g"), texto: "Esperando a los demás…", esperar: true, hecho: () => vista.fase !== "pujando" || vista.ronda > 1 },
+    { objetivo: () => $(".tabla-g"), texto: "Se destapan todas a la vez: la oferta más alta se lleva el lote", ms: 3400 },
+    { objetivo: () => $(".nota"), texto: "Al final cuentan los cultivos que juntes y las monedas que te sobren", ms: 3600 }
+  ], { alTerminar: () => GUIA.marcar("galeria"), alSaltar: () => GUIA.marcar("galeria") });
 }
 
 function portada() {

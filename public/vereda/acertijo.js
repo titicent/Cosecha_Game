@@ -51,7 +51,24 @@ function empezar(nivel, rnd, delDia) {
     E = Q.clonar(P.E); pila = []; sel = null; pistas = 0; pistaId = null;
     diario = "Tienes " + E.jornales + " jornales. ¿Por dónde empiezas?";
     pintar();
+    if (window.GUIA && !GUIA.hecha("acertijo")) guiar();
   }, 30);
+}
+
+/* La primera vez, la manito juega contigo la primera carta de la solución. */
+function guiar() {
+  const $ = q => document.querySelector(q), paso = P.solucion[0];
+  const op = () => [...document.querySelectorAll("#ops [data-op]")].find(b => b.textContent === paso.jugada.etiqueta);
+  GUIA.iniciar([
+    { objetivo: () => $(".meta"), texto: "Esta es la meta del mayordomo", ms: 3000 },
+    { objetivo: () => $(".tuya-finca"), texto: "Tu finca: mira qué le falta para quedar lista", ms: 3000 },
+    { objetivo: () => $(".tuya-juego .jornales"), texto: "Tienes 2 jornales. Cada carta cuesta uno", ms: 2800 },
+    { objetivo: () => $(`[data-carta="${paso.id}"]`), texto: "Empieza con esta carta", hecho: () => sel === paso.id || pila.length > 0 },
+    { objetivo: op, texto: "Juégala así", hecho: () => pila.length > 0 },
+    { objetivo: () => $(".diario"), texto: "Aquí ves lo que pasó", ms: 2600 },
+    { objetivo: () => $("#deshacer"), texto: "Si te equivocas, deshaces la jugada", ms: 2600 },
+    { objetivo: () => $("#pista"), texto: "Y si te enredas, el mayordomo te da una pista. ¡Termínalo tú!", ms: 3200 }
+  ], { alTerminar: () => GUIA.marcar("acertijo"), alSaltar: () => GUIA.marcar("acertijo") });
 }
 
 /* ── La mesa ───────────────────────────────────────────────── */

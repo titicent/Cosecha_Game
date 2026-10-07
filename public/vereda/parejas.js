@@ -158,6 +158,26 @@ function jugar() {
     }).then(b => b === "salir" ? (location.href = "vereda/index.html") : portada());
   }
   hud();
+  if (window.GUIA && !GUIA.hecha("parejas")) guiar();
+
+  /* La primera vez, la manito muestra una pareja equivocada y una buena;
+     después sigue la misma partida. */
+  function guiar() {
+    const ip = cartas.findIndex(x => x.k === "plaga");
+    const ir = cartas.findIndex(x => x.k === "remedio" && x.par === cartas[ip].par);
+    const otro = x => x.k === "remedio" && x.par !== cartas[ip].par;
+    const iw = Math.max(cartas.findIndex(x => otro(x) && x.c !== "huerta"), cartas.findIndex(otro));
+    const nom = R.nombreCarta(cartas[ip]), abierta = i => naipes[i].classList.contains("abierta");
+    GUIA.iniciar([
+      { objetivo: () => $("tab"), texto: "Las cartas están boca abajo. Se voltean de a dos", ms: 2800 },
+      { objetivo: () => naipes[ip], texto: "Voltea esta", hecho: () => abierta(ip) },
+      { objetivo: () => naipes[iw], texto: "Y esta otra", hecho: () => abierta(iw) },
+      { objetivo: () => $("cuaderno"), texto: "No se entienden: el cuaderno te dice por qué", ms: 3200 },
+      { objetivo: () => naipes[ip], texto: "¿Te acuerdas de " + nom + "? Voltéala otra vez", hecho: () => abierta(ip) && !ocupado },
+      { objetivo: () => naipes[ir], texto: "Su remedio estaba aquí", hecho: () => halladas.has(ir) },
+      { objetivo: () => $("cuaderno"), texto: "¡Pareja! Se quedan boca arriba. Sigue tú", ms: 3200 }
+    ], { alTerminar: () => GUIA.marcar("parejas"), alSaltar: () => GUIA.marcar("parejas") });
+  }
 }
 
 V.montar({ titulo: "Parejas", volver: "vereda/index.html", escena: "juego" });
