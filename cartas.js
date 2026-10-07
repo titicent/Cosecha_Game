@@ -41,6 +41,10 @@ for (const c of R.CLIMAS) ambiente.set("k_" + c.id, "clima: " + c.nombre.toLower
 A.SILLAS.forEach((s, i) => ambiente.set(A.claveSilla(i), "avatar: " + s.nombre.toLowerCase()));
 /* Animales y figuras de la finca (los usará el minijuego Mi finca). */
 for (const k of ["ardilla", "gallina", "ternero", "abeja", "mariquita", "pajarito", "espantapajaros"]) ambiente.set("n_" + k, "animales de la finca: " + k);
+/* Mi finca: sus dibujos y las comidas de los encargos (las mismas de Pedidos del pueblo). */
+const FINCA = require("./public/vereda/finca-reglas.js");
+FINCA.ARTE.forEach(k => ambiente.set(k, "mi finca: " + k));
+FINCA.ENCARGOS.forEach(e => ambiente.set(e.clave, "encargo: " + e.nombre.toLowerCase()));
 
 const hay = new Set(
   fs.readdirSync(dir)

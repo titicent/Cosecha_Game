@@ -531,14 +531,27 @@ function fin(forzar) {
   if (esMadura()) return finMadura();
   const orden = V.jugadores.map((j, i) => ({ j, i })).sort((a, b) => b.j.puntos - a.j.puntos || b.j.bodega.length - a.j.bodega.length);
   const gano = V.ganadores.includes(V.yo);
+  const monedas = monedasVereda(gano);
   const v = ventana(`<h2>${V.ganadores.length > 1 ? "¡Comparten la cosecha!" : gano ? "¡Ganaste!" : esc(V.jugadores[V.ganadores[0]].nombre) + " ganó"}</h2>
     <p style="text-align:center">${V.finPor === "tierra" ? "Se agotó la tierra." : V.finPor === "abandono" ? "La mesa se quedó sola." : "Alguien llegó a la meta y se terminó la vuelta."}</p>
+    ${monedas ? `<p class="nota" style="text-align:center">+${monedas} monedas para <a href="vereda/" style="color:inherit">La Vereda</a></p>` : ""}
     <div class="podio">${orden.map(({ j, i }) => `<div class="${V.ganadores.includes(i) ? "gana" : ""}">${avatar(i)}<span>${esc(j.nombre)}${i === V.yo ? " (tú)" : ""}</span>
       <b>${j.puntos}</b></div>`).join("")}</div>
     <div class="fila" style="justify-content:center">${V.yo === V.anfitrion ? `<button class="jugar" id="revancha" style="font-size:18px">Otra partida</button>` : `<p class="nota">Quien armó la mesa puede pedir otra partida.</p>`}
       <button class="boton" id="aInicio">Volver al inicio</button><button class="boton" data-cerrar>Ver la mesa</button></div>`);
   const r = v.querySelector("#revancha"); if (r) r.onclick = () => { v.remove(); mandar({ t: "revancha" }); };
   v.querySelector("#aInicio").onclick = () => { v.remove(); salir(); };
+}
+/* Como en Cosecha, cada partida terminada deja monedas para La Vereda y Mi finca
+   (una sola vez por partida). Se guardan como «granos», el nombre de siempre. */
+let partidaPagada = null, pagoUltimo = 0;
+function monedasVereda(gano) {
+  const marca = (V.codigo || "") + ":" + (V.registro || []).length + ":" + V.jugadores.map(j => j.puntos).join(",");
+  if (partidaPagada === marca) return pagoUltimo;
+  partidaPagada = marca; pagoUltimo = gano ? 20 : 5;
+  try { const d = JSON.parse(localStorage.getItem("cosecha.vereda") || "{}"); d.granos = (d.granos || 0) + pagoUltimo; d.total = (d.total || 0) + pagoUltimo;
+    localStorage.setItem("cosecha.vereda", JSON.stringify(d)); } catch (e) { return 0; }
+  return pagoUltimo;
 }
 function verReglas(juego) {
   if (juego === "madura" || (!juego && esMadura())) return reglasMadura();

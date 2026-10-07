@@ -22,6 +22,13 @@ console.log("\nCuentas: juntar el avance");
   ok(C.juntar(tel, nube, "local")["cosecha.cara"] === "4", "si el teléfono ya era de la cuenta, gana lo del teléfono");
 }
 
+{
+  const fin = xp => JSON.stringify({ v: 1, xp, lotes: [] });
+  const j1 = C.juntar({ "cosecha.finca": fin(40) }, { "cosecha.finca": fin(12) }, "remoto");
+  const j2 = C.juntar({ "cosecha.finca": fin(3) }, { "cosecha.finca": fin(90) }, "local");
+  ok(JSON.parse(j1["cosecha.finca"]).xp === 40 && JSON.parse(j2["cosecha.finca"]).xp === 90, "de dos fincas queda la que más ha crecido, sin mezclarlas");
+}
+
 console.log("\nCuentas: qué hacer al encontrarse");
 {
   const uid = "u1", loc = { "cosecha.nombre": "Ana", "cosecha.vereda": V({ granos: 5 }) }, rem = { "cosecha.nombre": "Ana", "cosecha.vereda": V({ granos: 40 }) };

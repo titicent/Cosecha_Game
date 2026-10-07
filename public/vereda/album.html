@@ -75,10 +75,10 @@ function pintar() {
       <div class="album-cab"><div><h2>Álbum de la finca</h2>
         <p style="margin:0">Cada lámina trae un dato de verdad del campo colombiano.</p></div>
         <button class="jugar" id="sobre" style="width:auto;font-size:18px;padding:12px 18px" ${completo || V.granos() < V.PRECIO_SOBRE ? "disabled" : ""}>
-          Abrir sobre · ${V.PRECIO_SOBRE} granos</button></div>
+          Abrir sobre · ${V.PRECIO_SOBRE} monedas</button></div>
       <div class="barra-av"><i style="width:${(n / L.length * 100).toFixed(1)}%"></i></div>
       <p class="nota" style="text-align:left">${completo ? "¡Álbum completo! Eres un finquero de verdad." :
-        `Tienes ${n} de ${L.length}. Juega en la vereda para ganar láminas, o ábrelas con granos.`}</p>
+        `Tienes ${n} de ${L.length}. Juega en la vereda para ganar láminas, o ábrelas con monedas.`}</p>
       <nav class="hojas" aria-label="Páginas del álbum">${V.GRUPOS.map(([g, t]) => {
         const del = L.filter(l => l.grupo === g), ya = del.filter(l => V.tiene(l.clave)).length;
         return `<button data-hoja="${g}" aria-pressed="${g === hoja}">${t}<small>${ya}/${del.length}</small></button>`; }).join("")}</nav>

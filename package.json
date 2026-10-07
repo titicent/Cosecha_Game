@@ -14,7 +14,7 @@
     "hero": "node gen-hero.js",
     "test:navegador": "node pruebas-navegador.js",
     "test:coherencia": "node pruebas-coherencia.js",
-    "test": "node pruebas-coherencia.js && node simular.js && node prueba.js && node pruebas-bots.js && node pruebas-clima.js && node pruebas-inactividad.js && node pruebas-vereda.js && node pruebas-pedidos.js && node pruebas-cuenta.js",
+    "test": "node pruebas-coherencia.js && node simular.js && node prueba.js && node pruebas-bots.js && node pruebas-clima.js && node pruebas-inactividad.js && node pruebas-vereda.js && node pruebas-pedidos.js && node pruebas-cuenta.js && node pruebas-finca.js",
     "ritmo": "node ritmo.js",
     "preparar": "python3 prepara-cartas.py",
     "guia": "node gen-guia.js",

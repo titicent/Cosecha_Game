@@ -252,7 +252,7 @@ function mesa() {
   else if (V.ganador !== null)
     fin = `<div class="cierre"><div class="trofeo"><b>${V.ganador===V.yo?"¡Ganaste!":esc(V.jugadores[V.ganador].nombre)+" ganó"}</b>
       <span>${V.terminada?"":V.metaCertificada?"finca certificada":V.jugadores[V.ganador].cosecha+" de cosecha"}</span>
-      ${ultimosGranos?`<span>+${ultimosGranos} granos para <a href="vereda/" style="color:inherit">La Vereda</a></span>`:""}</div>
+      ${ultimosGranos?`<span>+${ultimosGranos} monedas para <a href="vereda/" style="color:inherit">La Vereda</a></span>`:""}</div>
       ${V.anfitrion?`<button class="btn oro" id="bRevancha">Otra partida</button>`:""}</div>`;
 
   const centro = `<div class="pila">
@@ -515,9 +515,9 @@ function anunciarListas() {
   listasVistas = ahora;
 }
 
-/* ── La Vereda: cada partida terminada deja granos en el costal ──
+/* ── La Vereda: cada partida terminada deja monedas ──
    Los mini juegos (carpeta vereda/) guardan el costal en el teléfono; aquí
-   solo se le suman granos, para que jugar Cosecha también cuente allá. */
+   solo se le suman monedas, para que jugar Cosecha también cuente allá. */
 const GRANOS_GANAR = 20, GRANOS_JUGAR = 5;
 function granosVereda(gane){
   try{

@@ -74,19 +74,19 @@ function revisarGuia() {
     { objetivo: () => $("#ofrecer"), texto: "Ofrécelo: nadie ve tu oferta", hecho: () => mi().listo || vista.fase !== "pujando" },
     { objetivo: () => $(".tabla-g"), texto: "Esperando a los demás…", esperar: true, hecho: () => vista.fase !== "pujando" || vista.ronda > 1 },
     { objetivo: () => $(".tabla-g"), texto: "Se destapan todas a la vez: la oferta más alta se lleva el lote", ms: 3400 },
-    { objetivo: () => $(".nota"), texto: "Al final cuentan los cultivos que juntes y las monedas que te sobren", ms: 3600 }
+    { objetivo: () => $(".nota"), texto: "Al final cuentan los cultivos que juntes y los pesos que te sobren", ms: 3600 }
   ], { alTerminar: () => GUIA.marcar("galeria"), alSaltar: () => GUIA.marcar("galeria") });
 }
 
 function portada() {
   app.innerHTML = `<section class="marco v-portada"><div class="v-cuento">
     <h2>La Galería</h2>
-    <p>Es día de mercado en la plaza del pueblo. Salen lotes de cosecha y cada uno ofrece en secreto, desde su teléfono, cuántas monedas da.</p>
+    <p>Es día de mercado en la plaza del pueblo. Salen lotes de cosecha y cada uno ofrece en secreto, desde su teléfono, cuántos pesos da.</p>
     <ol class="pasos">
-      <li>Todos empiezan con <b>${G.MONEDAS} monedas</b>. Hay 12 lotes.</li>
+      <li>Todos empiezan con <b>${G.MONEDAS} pesos</b>. Hay 12 lotes.</li>
       <li>Se destapan las ofertas a la vez: <b>la más alta se lleva el lote</b> y paga lo que ofreció.</li>
       <li>Si empatan, se lo lleva quien tenga menos cosecha. Si siguen empatados, nadie lo compra y se junta con el lote siguiente.</li>
-      <li>Al final, cada cultivo da más puntos entre más juntes: <b>1, 3, 6, 10…</b> Y cada ${G.POR_MONEDA} monedas que te sobren valen 1 punto.</li>
+      <li>Al final, cada cultivo da más puntos entre más juntes: <b>1, 3, 6, 10…</b> Y cada ${G.POR_MONEDA} pesos que te sobren valen 1 punto.</li>
     </ol>
     </div><div class="v-elige">
     <div class="dos">
@@ -147,13 +147,13 @@ function subasta() {
   let cab = "";
   if (!pujando && u) {
     const g = u.ganador !== null ? v.jugadores[u.ganador] : null;
-    cab = `<div class="resultado ${u.ganador === yo ? "mio" : ""}">${g ? `<b>${u.ganador === yo ? "¡Te lo llevaste!" : esc(g.nombre) + " se lo lleva"}</b> por ${u.max} ${u.max === 1 ? "moneda" : "monedas"}`
+    cab = `<div class="resultado ${u.ganador === yo ? "mio" : ""}">${g ? `<b>${u.ganador === yo ? "¡Te lo llevaste!" : esc(g.nombre) + " se lo lleva"}</b> por ${u.max} ${u.max === 1 ? "peso" : "pesos"}`
       : u.empate ? `<b>¡Empate en ${u.max}!</b> Nadie lo compra: se junta con el lote que sigue.` : v.quedan ? "<b>Nadie ofreció.</b> El lote se fue sin dueño." : "<b>Sin dueño.</b>"}</div>`;
   }
   const lotes = pujando ? v.mesa : (u ? u.lotes : []);
   app.innerHTML = `
     <div class="hud"><div class="dato"><b>${Math.min(v.ronda, v.rondas)}/${v.rondas}</b><small>Lote</small></div>
-      <div class="dato"><b>${mi.monedas}</b><small>Monedas</small></div>
+      <div class="dato"><b>${mi.monedas}</b><small>Pesos</small></div>
       <div class="dato"><b>${mi.puntos ? mi.puntos.total : 0}</b><small>Puntos</small></div>
       <div class="dato"><b id="reloj">${v.restante != null ? v.restante : "—"}</b><small>Segundos</small></div></div>
     <section class="mostrador">
@@ -165,12 +165,12 @@ function subasta() {
       : `<section class="oferta">
         <div class="monto"><button class="boton redondo" id="menos" aria-label="Menos">−</button><b id="cuanto">${oferta}</b><button class="boton redondo" id="mas" aria-label="Más">+</button></div>
         <div class="rapidas">${[0, 1, 2, 3, 5, 8].filter(k => k <= mi.monedas).map(k => `<button class="boton chico" data-k="${k}">${k}</button>`).join("")}</div>
-        <button class="jugar" id="ofrecer">Ofrecer ${oferta} ${oferta === 1 ? "moneda" : "monedas"}</button></section>`) : ""}
+        <button class="jugar" id="ofrecer">Ofrecer ${oferta} ${oferta === 1 ? "peso" : "pesos"}</button></section>`) : ""}
     <section class="gente-g tabla-g">${v.jugadores.map((j, i) => `<div class="${u && !pujando && u.ganador === i ? "gana" : ""} ${i === yo ? "yo" : ""}">
-        ${A.avatar(A.caraDe(j, i), 34)}<span class="nm">${esc(j.nombre)}${i === yo ? " (tú)" : ""}<small>${j.monedas} monedas${!j.conectado && !j.bot ? " · sin conexión" : ""}</small></span>
+        ${A.avatar(A.caraDe(j, i), 34)}<span class="nm">${esc(j.nombre)}${i === yo ? " (tú)" : ""}<small>${j.monedas} pesos${!j.conectado && !j.bot ? " · sin conexión" : ""}</small></span>
         <span class="bod">${bodegaHTML(j.bodega)}</span>
         <span class="of ${pujando ? (j.listo ? "listo" : "") : "abierta"}">${pujando ? (j.listo ? (i === yo ? j.puja : "✓") : "…") : (u ? u.pujas[i] : "")}</span></div>`).join("")}</section>
-    <p class="nota">Puntos por cultivo según cuántos juntes: ${G.TABLA.slice(1, 6).map((p, k) => (k + 1) + "→" + p).join(" · ")}. Cada ${G.POR_MONEDA} monedas que sobren, 1 punto.</p>`;
+    <p class="nota">Puntos por cultivo según cuántos juntes: ${G.TABLA.slice(1, 6).map((p, k) => (k + 1) + "→" + p).join(" · ")}. Cada ${G.POR_MONEDA} pesos que sobren, 1 punto.</p>`;
   const $ = id => document.getElementById(id);
   const fija = k => { oferta = Math.max(0, Math.min(mi.monedas, k)); subasta(); };
   if ($("menos")) { $("menos").onclick = () => fija(oferta - 1); $("mas").onclick = () => fija(oferta + 1);
@@ -184,7 +184,7 @@ function final() {
   const gano = v.ganadores.includes(yo), mi = v.jugadores[yo];
   app.innerHTML = `<section class="marco plaza-fin" style="text-align:center"><h2>Se cerró la plaza</h2>
     <div class="gente-g tabla-g final">${orden.map(({ j, i }) => `<div class="${v.ganadores.includes(i) ? "gana" : ""} ${i === yo ? "yo" : ""}">
-      ${A.avatar(A.caraDe(j, i), 34)}<span class="nm">${esc(j.nombre)}${i === yo ? " (tú)" : ""}<small>${j.puntos.cosecha} de cosecha + ${j.puntos.monedas} de monedas</small></span>
+      ${A.avatar(A.caraDe(j, i), 34)}<span class="nm">${esc(j.nombre)}${i === yo ? " (tú)" : ""}<small>${j.puntos.cosecha} de cosecha + ${j.puntos.monedas} de pesos</small></span>
       <span class="bod">${bodegaHTML(j.bodega)}</span><span class="of abierta">${j.puntos.total}</span></div>`).join("")}</div>
     <div class="fila centro">${yo === v.anfitrion ? `<button class="jugar" id="otra">Otra subasta</button>` : `<p class="nota">Quien abrió la plaza puede pedir otra.</p>`}
       <button class="boton" id="salir2">Volver a la vereda</button></div></section>`;
@@ -199,7 +199,7 @@ function final() {
   V.efecto(gano ? "victoria" : "derrota");
   V.premio({
     titulo: gano ? (v.ganadores.length > 1 ? "¡Empate en la plaza!" : "¡El mejor negocio!") : v.jugadores[v.ganadores[0]].nombre + " hizo el mejor negocio",
-    linea: `Hiciste ${pts} ${pts === 1 ? "punto" : "puntos"}: ${mi.puntos.cosecha} de cosecha y ${mi.puntos.monedas} de las monedas que guardaste.` + (nuevo && pts ? " ¡Récord nuevo!" : ""),
+    linea: `Hiciste ${pts} ${pts === 1 ? "punto" : "puntos"}: ${mi.puntos.cosecha} de cosecha y ${mi.puntos.monedas} de los pesos que guardaste.` + (nuevo && pts ? " ¡Récord nuevo!" : ""),
     arte: V.arteClave("k_feria", null) || arteC("cafe"), tono: "#B23A3A", cinta: "La Galería", ganados, lam,
     botones: [["ver", "Ver la tabla", true]]
   });

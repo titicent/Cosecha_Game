@@ -24,15 +24,15 @@ function portada() {
     <p>El mayordomo te deja la mesa armada: tu finca, la de los vecinos y unas cartas en la mano. Hoy te presta <b>dos jornales</b>: con ellos tienes que dejar la finca <b>lista</b>. No todas las cartas sirven: piénsalo antes de jugar.</p>
     <div class="dia"><span class="med">${V.arteClave("f_consejo", { k: "faena", tr: "consejo" })}</span>
       <div class="txt"><h3>El acertijo de hoy</h3>
-        <p>${hecho ? "¡Ya lo resolviste! Vuelve mañana por otro." : "Uno nuevo cada día, el mismo para todo el mundo. Vale " + (Q.NIVELES[2].granos + BONO_DIA) + " granos."}
+        <p>${hecho ? "¡Ya lo resolviste! Vuelve mañana por otro." : "Uno nuevo cada día, el mismo para todo el mundo. Vale " + (Q.NIVELES[2].granos + BONO_DIA) + " monedas."}
           ${a.racha > 0 ? `<br>Racha: <b>${a.racha} ${a.racha === 1 ? "día" : "días"}</b>` : ""}</p>
         <button class="boton" id="dia">${hecho ? "Jugarlo otra vez" : "Resolver el de hoy"}</button></div></div>
     </div><div class="v-elige">
     <h2 style="font-size:18px">Para practicar</h2>
     <div class="niveles">${[1, 2, 3].map(n => `<button class="nivel" data-n="${n}" aria-pressed="${n === nivelPractica}">
-      <b>${Q.NIVELES[n].nom}</b><small>${Q.NIVELES[n].nota}</small><small>${Q.NIVELES[n].granos} granos</small></button>`).join("")}</div>
+      <b>${Q.NIVELES[n].nom}</b><small>${Q.NIVELES[n].nota}</small><small>${Q.NIVELES[n].granos} monedas</small></button>`).join("")}</div>
     <button class="jugar" id="practica">Otro acertijo</button>
-    <p class="nota">Pista del mayordomo: ${PRECIO_PISTA} granos. Resolverlo sin pistas da ${BONO_LIMPIO} de más.</p>
+    <p class="nota">Pista del mayordomo: ${PRECIO_PISTA} monedas. Resolverlo sin pistas da ${BONO_LIMPIO} de más.</p>
     </div>
   </section>`;
   app.querySelectorAll("[data-n]").forEach(b => b.onclick = () => {
@@ -162,7 +162,7 @@ function jugar(id, jugada) {
 }
 
 function pista() {
-  if (V.granos() < PRECIO_PISTA) { V.aviso("Te faltan granos", "#FFB4A8"); return; }
+  if (V.granos() < PRECIO_PISTA) { V.aviso("Te faltan monedas", "#FFB4A8"); return; }
   const s = Q.resolver(E, P.meta, 4);
   if (!s || !s.pasos.length) { diario = "El mayordomo dice: por aquí ya no sale. Deshaz una jugada."; pintar(); return; }
   V.gastar(PRECIO_PISTA); pistas++;

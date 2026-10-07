@@ -20,7 +20,7 @@
 "use strict";
 
 const CLAVES = ["cosecha.nombre", "cosecha.cara", "cosecha.vereda", "cosecha.cfg.solo", "cosecha.cfg.privada",
-  "cosecha.sinintro", "cosecha2.pref", "cosecha.fondo", "cosecha.efectos", "cosecha.guias"];
+  "cosecha.sinintro", "cosecha2.pref", "cosecha.fondo", "cosecha.efectos", "cosecha.guias", "cosecha.finca"];
 const SINC = "cosecha.cuenta";            /* {uid, remoto, huella}: con quién y cuándo se sincronizó */
 
 /* ── Juntar dos avances (puro, se prueba sin navegador) ─────────── */
@@ -56,6 +56,8 @@ function juntar(local, remoto, preferido) {
     if (l == null) { out[k] = r; continue; }
     if (r == null) { out[k] = l; continue; }
     if (k === "cosecha.vereda") out[k] = JSON.stringify(juntarVereda(leerJSON(l), leerJSON(r)));
+    /* Dos fincas distintas no se pueden mezclar: queda la que más ha crecido. */
+    else if (k === "cosecha.finca") { const fl = leerJSON(l), fr = leerJSON(r); out[k] = ((fl && fl.xp) || 0) >= ((fr && fr.xp) || 0) ? l : r; }
     else out[k] = preferido === "local" ? l : r;
   }
   return out;
@@ -216,7 +218,15 @@ async function borrar() {
   return { ok };
 }
 
-raiz.CUENTA = Object.assign({ estado, entrar, salir, borrar, sincronizar: () => sincronizar(),
+/* La autopista para los vecinos: la vista pública de Mi finca (sin bodega ni
+   monedas) queda en la tabla fincas, que cualquiera con cuenta puede leer. */
+async function publicarFinca(vista) {
+  if (!cliente || !sesion || !vista) return false;
+  const r = await cliente.from("fincas").upsert({ user_id: sesion.user.id, nombre: String(vista.nombre || "").slice(0, 30), publica: vista });
+  return !r.error;
+}
+
+raiz.CUENTA = Object.assign({ estado, entrar, salir, borrar, publicarFinca, sincronizar: () => sincronizar(),
   alCambiar: f => { oyentes.push(f); f(estado); } }, PURO);
 if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", arrancar); else arrancar();
 })(typeof self !== "undefined" ? self : globalThis);

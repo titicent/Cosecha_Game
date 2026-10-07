@@ -15,6 +15,9 @@ const LUGARES = [
   { id: "recolecta", sitio: "El cafetal", nom: "La Recolecta", ense: "Coge el café maduro y saca los granos con broca antes de que se riegue.",
     href: "vereda/recolecta.html", arte: ["c_cafe", { k: "cultivo", c: "cafe" }], t: R.CULTIVO.cafe.hex,
     rec: () => V.recordDe("recolecta", 1) ? "Récord: " + V.recordDe("recolecta", 1) + " cerezas" : "" },
+  { id: "mifinca", sitio: "La casa", nom: "Mi finca", ense: "Siembra, cosecha y vende. Cura las plagas a tiempo o la mata se seca.",
+    href: "vereda/finca.html", arte: ["b_casa", { k: "cultivo", c: "huerta" }], t: "#7A5A2E",
+    rec: () => resumenFinca(), etq: () => { const a = avisosFinca(); return a && (a.plagas || a.listas) ? (a.plagas ? "¡Plaga!" : "Para cosechar") : ""; } },
   { id: "colores", sitio: "El beneficiadero", nom: "El color manda", ense: "¿Le entra o no le entra? Aprende a qué mata le sirve cada carta.",
     href: "vereda/colores.html", arte: ["p_comun_platano", { k: "plaga", c: "platano", t: "comun" }], t: R.CULTIVO.platano.hex,
     rec: () => { const m = Math.max(V.recordDe("colores", 1), V.recordDe("colores", 2), V.recordDe("colores", 3));
@@ -35,6 +38,20 @@ const LUGARES = [
     href: "vereda/espantos.html", arte: ["f_mohan_cafe", { k: "faena", tr: "mohan_cafe" }], t: "#6B4FA8",
     rec: () => V.recordDe("espantos", 1) ? "Costal más lleno: " + V.recordDe("espantos", 1) + " granos" : "" }
 ];
+
+/* Mi finca, vista desde el mapa: qué está listo y qué tiene plaga. */
+function avisosFinca() {
+  try { const f = JSON.parse(localStorage.getItem("cosecha.finca") || "null"); return f && window.FINCA ? FINCA.avisos(f, Date.now()) : null; } catch (e) { return null; }
+}
+function resumenFinca() {
+  const a = avisosFinca(); if (!a) return "";
+  const p = [];
+  if (a.listas) p.push(a.listas + (a.listas === 1 ? " mata lista" : " matas listas"));
+  if (a.plagas) p.push(a.plagas + (a.plagas === 1 ? " con plaga" : " con plaga"));
+  if (a.muertas) p.push(a.muertas + (a.muertas === 1 ? " seca" : " secas"));
+  if (a.huevos) p.push("huevos para recoger");
+  return p.length ? p.join(" · ") : a.creciendo ? "Tus matas están creciendo" : "";
+}
 
 /* El camino de tierra que une los lugares, detrás de las tarjetas. */
 const CAMINO = `<svg class="camino" viewBox="0 0 120 1000" preserveAspectRatio="none" aria-hidden="true">
@@ -64,7 +81,7 @@ function pintar() {
       <a class="accion" href="vereda/album.html"><span class="ico">${V.arteClave("r_bioinsumo_cafe", { k: "remedio", c: "cafe", t: "bioinsumo" })}</span>
         <span>Álbum de la finca<small>${lam} de ${total} láminas</small></span></a>
       <div class="accion"><span class="ico">${V.GRANO}</span>
-        <span>${V.granos()} granos en el costal<small>Los ganas jugando. Con ${V.PRECIO_SOBRE} abres un sobre de láminas.</small></span></div>
+        <span>${V.granos()} monedas<small>Las ganas jugando. Con ${V.PRECIO_SOBRE} abres un sobre de láminas, y en Mi finca compras semillas.</small></span></div>
     </div>`;
 }
 

@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════════════
    LA VEREDA — núcleo compartido de los mini juegos
-   Lo que todos los juegos comparten: el costal de granos, el álbum
+   Lo que todos los juegos comparten: las monedas, el álbum
    de la finca, los récords, el paisaje, la barra de arriba y la
    ventana de premio. Todo se guarda en el teléfono (localStorage).
 
@@ -22,7 +22,7 @@ function datos() {
 function guardar() { try { localStorage.setItem(LLAVE, JSON.stringify(datos())); } catch (e) {} }
 const nombre = () => { try { return localStorage.getItem("cosecha.nombre") || ""; } catch (e) { return ""; } };
 
-/* ── Granos ────────────────────────────────────────────────── */
+/* ── Monedas (en el guardado: granos) ────────────────────────────────────────────────── */
 function granos() { return datos().granos; }
 function sumar(n) {
   n = Math.max(0, Math.round(n)); if (!n) return 0;
@@ -148,10 +148,11 @@ function hoy() {
 
 /* ── Piezas de pantalla ─────────────────────────────────────── */
 const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-const GRANO = `<svg class="grano" viewBox="0 0 48 48" aria-hidden="true"><ellipse cx="24" cy="24" rx="15" ry="19" fill="#7B4B2A"/>
-  <ellipse cx="24" cy="24" rx="15" ry="19" fill="none" stroke="#3E2413" stroke-width="2.4"/>
-  <path d="M24 7c-5 6-5 28 0 34" fill="none" stroke="#3E2413" stroke-width="3" stroke-linecap="round"/>
-  <ellipse cx="17" cy="16" rx="3.5" ry="5" fill="#fff" opacity=".28"/></svg>`;
+/* La moneda de La Vereda (en el guardado sigue llamándose «granos», para no perder lo que ya hay). */
+const GRANO = `<svg class="grano moneda" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="19" fill="#D9A93A"/>
+  <circle cx="24" cy="24" r="19" fill="none" stroke="#7A5512" stroke-width="2.6"/><circle cx="24" cy="24" r="13.5" fill="none" stroke="#9C7018" stroke-width="2" opacity=".75"/>
+  <path d="M24 15c-3.6 3.4-3.6 14.6 0 18" fill="none" stroke="#7A5512" stroke-width="2.6" stroke-linecap="round"/><ellipse cx="24" cy="24" rx="6" ry="8.5" fill="none" stroke="#7A5512" stroke-width="2.4"/>
+  <ellipse cx="17" cy="15" rx="4" ry="5.5" fill="#fff" opacity=".35"/></svg>`;
 
 /* La ilustración de una carta: el PNG si existe, si no el dibujo vectorial. */
 const ilustra = carta => A.ilustracion(carta, R.colorCarta(carta));
@@ -202,7 +203,7 @@ function montar({ titulo, volver, escena }) {
       <a class="atras" href="${esc(volver || "index.html")}" aria-label="Volver">‹</a>
       <span class="titulo">${esc(titulo || "La Vereda")}</span>
       <button class="son" id="vSon" aria-label="Efectos de sonido" aria-pressed="${S ? S.estado.efectos : false}">${ICO_SON}</button>
-      <span class="costal" id="vCostal" title="Granos de tu costal">${GRANO}<b>${granos()}</b></span>
+      <span class="costal" id="vCostal" title="Tus monedas">${GRANO}<b>${granos()}</b></span>
     </header>`);
   const b = document.getElementById("vSon");
   b.onclick = () => { if (!S) return; b.setAttribute("aria-pressed", S.alternar("efectos")); };
@@ -238,7 +239,7 @@ function premio({ titulo, linea, arte, tono, cinta, ganados, lam, botones }) {
       <div class="medalla">${arte || GRANO}</div>${cinta ? `<span class="cinta">${esc(cinta)}</span>` : ""}
       <h2>${esc(titulo)}</h2>${linea ? `<p>${linea}</p>` : ""}
       <div class="premios">
-        ${ganados ? `<span class="premio">${GRANO}<span>+${ganados} granos</span></span>` : ""}
+        ${ganados ? `<span class="premio">${GRANO}<span>+${ganados} ${ganados === 1 ? "moneda" : "monedas"}</span></span>` : ""}
         ${lam ? `<span class="premio lam"><span class="cartica" style="--t:${lam.tono};width:90px"><span class="ilu">${ilustra(lam.carta)}</span>
           <span class="n">${esc(lam.nombre)}</span></span><span>¡Lámina nueva para el álbum!</span></span>` : ""}
       </div>

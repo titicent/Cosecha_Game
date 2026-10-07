@@ -179,10 +179,10 @@ const MENU = (() => {
       hoja.innerHTML = `<div class="m-marco" role="dialog" aria-label="Tu cuenta">
         <h2 class="m-titulo">${e.conectado ? "Tu cuenta" : "Guarda tu avance"}</h2>
         ${e.conectado ? `<p class="m-cuentatxt">Entraste como <b>${esc(e.nombre || e.correo)}</b>${e.nombre && e.correo ? `<br><small>${esc(e.correo)}</small>` : ""}</p>
-          <p class="m-cuentatxt">${e.guardando ? "Guardando…" : e.error ? esc(e.error) : "☁ Tus granos, tu álbum, tus récords y tu avatar están guardados. Entra con la misma cuenta en otro teléfono y los encuentras ahí."}</p>
+          <p class="m-cuentatxt">${e.guardando ? "Guardando…" : e.error ? esc(e.error) : "☁ Tus monedas, tu finca, tu álbum, tus récords y tu avatar están guardados. Entra con la misma cuenta en otro teléfono y los encuentras ahí."}</p>
           <button class="m-boton" data-salir>Cerrar sesión en este teléfono</button>
           <button class="m-borrar" data-borrar>Borrar mi cuenta y mi avance</button>`
-        : `<p class="m-cuentatxt">Con una cuenta, tus granos, tu álbum, tus récords y tu avatar quedan guardados. Si cambias de teléfono, entras con la misma cuenta y los recuperas.</p>
+        : `<p class="m-cuentatxt">Con una cuenta, tus monedas, tu finca, tu álbum, tus récords y tu avatar quedan guardados. Si cambias de teléfono, entras con la misma cuenta y los recuperas.</p>
           <p class="m-cuentatxt"><small>Si eres menor de edad, pídele ayuda a un adulto. Sin cuenta también puedes jugar: tu avance queda en este teléfono.</small></p>
           <button type="button" class="m-google" data-google>${LOGO_G}<span>Entrar con Google</span></button>
           ${e.error ? `<p class="m-nota m-error">${esc(e.error)}</p>` : ""}`}
@@ -250,7 +250,7 @@ const MENU = (() => {
         <span class="vflecha">›</span></a>
       <a class="m-vereda" href="vereda/">
         <span class="vimg">${arte("f_consejo", { k: "faena", tr: "consejo" })}</span>
-        <span class="vtxt"><b>La Vereda</b><span>Mini juegos para aprender, ganar granos y llenar el álbum</span></span>
+        <span class="vtxt"><b>La Vereda</b><span>Mini juegos para aprender, ganar monedas y llenar el álbum</span></span>
         <span class="vflecha">›</span></a>
       ${ayuda}
       </div>
