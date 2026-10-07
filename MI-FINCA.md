@@ -127,7 +127,33 @@ teléfono.
 Lo que falta para la parte 3 es la pantalla: la lista de vecinos, entrar a una finca ajena y el
 botón de ayudar.
 
-## 10. Detalles técnicos
+## 10. Las reglas del mundo (para que todo encaje, hoy y cuando crezca)
+
+1. **Una sola manera de ver.** Todo se dibuja en la misma diagonal (vista isométrica, rombo 2:1),
+   con la misma luz desde arriba a la izquierda y el mismo trazo de tinta. Sin horizonte ni
+   montañas: un fondo en perspectiva nunca encaja con piezas en diagonal.
+2. **Una cuadrícula de casillas.** Cada casilla es un rombo de 124 × 62 en el mundo. Cada cosa
+   ocupa casillas enteras, y su tamaño sale de ahí, no a ojo:
+
+   | Pieza | Casillas |
+   |---|---|
+   | Parcela | 1 × 1 |
+   | Casa, secadero (y luego trapiche, corral) | 2 × 2 |
+   | Puesto, tablero, gallinero, colmena | 1 × 1 |
+   | Árbol grande de sombrío | 2 × 2 |
+   | Mata, arbusto, piedras, flores, tramo de cerca | 1 × 1 |
+
+3. **El suelo lo dibuja el código**, casilla por casilla: pasto de la finca, monte alrededor y
+   camino. Así la finca puede crecer sin pintar fondos nuevos.
+4. **Lo alto va atrás.** Las construcciones grandes se ponen en el borde de atrás de la finca y
+   alrededor de las parcelas queda un caminito libre, para que nada tape lo que se cosecha.
+5. **La finca crece por anillos.** Hoy la tierra propia es de 8 × 8 casillas dentro de un mapa de
+   14 × 14; al crecer se le suman casillas alrededor (10 × 10, 12 × 12) y el mapa se agranda.
+   Lo de afuera es monte con árboles y matas.
+6. **La cámara** encuadra la finca al entrar; se arrastra para mirar alrededor y en el computador
+   la rueda acerca o aleja.
+
+## 11. Detalles técnicos
 
 - El motor es `public/vereda/finca-reglas.js` (puro, se prueba sin navegador con
   `pruebas-finca.js`); la pantalla, `public/vereda/finca.js`.

@@ -45,7 +45,8 @@ const ENCARGOS = [
    existan, la pantalla usa los dibujos de las cartas. */
 const ARTE = ["m_semilla", "m_brote", ...ORDEN.flatMap(c => ["m_" + c + "_crece", "m_" + c + "_lista"]),
   "b_casa", "b_puesto", "b_tablero", "b_secadero", "b_gallinero", "pr_huevos", "pr_pergamino",
-  "t_surco", "f_finca"];      /* el surco y el fondo, si llegan, reemplazan al terreno dibujado */
+  "t_surco",      /* el surco pintado reemplaza al dibujado */
+  "d_guamo", "d_platanera", "d_cafetal", "d_arbusto", "d_piedras", "d_flores", "d_cerca_a", "d_cerca_b", "d_letrero"];
 const VECINOS = ["Doña Rosa", "Don Aurelio", "La señora Inés", "Don Chepe", "Doña Marina", "El profe Julián"];
 const CAMBIO_ENCARGO = 5 * MIN;
 

@@ -81,18 +81,28 @@ const conMoneda = n => `<span class="precio">${MONEDA}${n}</span>`;
 const plural = (n, [uno, varios]) => n + " " + (n === 1 ? uno : varios);
 const mmss = ms => { const s = Math.ceil(ms / 1000); return s >= 60 ? Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0") : s + " s"; };
 
-/* ── El terreno ────────────────────────────────────────────── */
-/* El mundo tiene la forma del fondo pintado (1024 × 572): así cada cosa queda
-   siempre en el mismo sitio del paisaje, se vea en la pantalla que se vea. */
-const W = 1024, H = 572, OX = 520, OY = 300, AW = 62, AH = 31;
-const centro = i => { const a = i % 3, b = Math.floor(i / 3); return [OX + (a - b) * AW, OY + (a + b) * AH]; };
+/* ── El terreno: una cuadrícula de casillas en diagonal ──────────
+   Todo se dibuja con la misma regla: cada casilla es un rombo de 124 × 62 y
+   cada cosa ocupa casillas enteras (una parcela, 1; la casa, 2 × 2). Así todo
+   tiene la misma escala y la misma luz, y la finca crece agregando casillas,
+   sin cambiar nada de lo que ya está. Fuera de la finca hay monte. */
+const N = 14, AW = 62, AH = 31, MARGEN_ARRIBA = 220;
+const W = 2 * N * AW, H = 2 * N * AH + MARGEN_ARRIBA + 40;
+const casilla = (i, j) => [N * AW + (i - j) * AW, MARGEN_ARRIBA + (i + j + 1) * AH];
+/* La tierra propia (8 × 8 por ahora) y dónde va cada cosa, en casillas.
+   Alrededor de las parcelas queda un caminito libre de una casilla. */
+const PROPIA = { i0: 3, j0: 3, n: 8 };
+const propia = (i, j) => i >= PROPIA.i0 && j >= PROPIA.j0 && i < PROPIA.i0 + PROPIA.n && j < PROPIA.j0 + PROPIA.n;
+const PARCELAS = { i0: 6, j0: 6 };
+const centro = k => casilla(PARCELAS.i0 + k % 3, PARCELAS.j0 + Math.floor(k / 3));
+/* Construcciones: casilla de arriba y cuántas ocupa (a lo ancho × a lo hondo). */
+/* Lo alto va atrás (arriba), para no tapar las parcelas. */
+const HUELLAS = { casa: [3, 3, 2, 2], secadero: [7, 3, 2, 2], puesto: [10, 5, 1, 1], tablero: [10, 9, 1, 1], gallinero: [3, 7, 1, 1] };
+const CAMINO = [[7, 9], [7, 10], [7, 11], [7, 12], [7, 13]];
+/* El punto de apoyo de una construcción: la punta de abajo de su huella. */
+function apoyo(k) { const [i, j, a, b] = HUELLAS[k], [x, y] = casilla(i + a - 1, j + b - 1); return [x, y + AH]; }
 const rombo = (x, y) => `${x},${y - AH} ${x + AW},${y} ${x},${y + AH} ${x - AW},${y}`;
-/* Dónde va cada construcción sobre el prado del fondo (punto de apoyo, abajo al centro). */
-const LUGARES = { casa: [258, 322], puesto: [792, 338], tablero: [748, 468], secadero: [232, 470], gallinero: [632, 526] };
-/* El terreno. Si ya llegaron las ilustraciones del surco (t_surco) y del
-   fondo (f_finca), se usan; si no, se dibuja aquí con el mismo trazo de tinta
-   de las ilustraciones: parcelas levantadas, surcos con luz y sombra, pasto
-   con matojos y un camino de piedritas. */
+const azar = (i, j, k) => { let h = (i * 73856093) ^ (j * 19349663) ^ (k * 83492791); h = Math.imul(h ^ h >>> 13, 1274126177); return ((h ^ h >>> 16) >>> 0) / 4294967296; };
 const surcos = (x, y, aw, ah) => {
   /* Un punto de la parcela: u va de la punta de arriba a la derecha, v de la de arriba a la izquierda. */
   const P = (u, v) => [x + u * aw - v * aw, y - ah + u * ah + v * ah];
@@ -105,46 +115,65 @@ const surcos = (x, y, aw, ah) => {
   return p;
 };
 function tierra() {
-  const conFondo = !!arte("f_finca"), surcoIlu = arte("t_surco");
-  const campo = document.getElementById("campo");
-  if (campo) campo.classList.toggle("con-fondo", conFondo);
-  let s = (conFondo ? arte("f_finca").replace(/^<img\b/, `<img class="f-fondo" style="position:absolute;inset:0;width:${W}px;height:${H}px;pointer-events:none"`) : "") +
-    `<svg class="tierra" viewBox="0 0 ${W} ${H}" aria-hidden="true"><defs>
-    <linearGradient id="fTierra" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#A06B3A"/><stop offset="1" stop-color="#7A4A26"/></linearGradient>
-    <linearGradient id="fCamino" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#D9BE86"/><stop offset="1" stop-color="#C4A26A"/></linearGradient></defs>`;
-  if (!conFondo) {
-    /* pasto con manchas de trébol y matojos, siempre en el mismo sitio */
-    for (let k = 0; k < 14; k++) { const x = (k * 151) % 600 + 20, y = (k * 89) % 380 + 20;
-      s += `<ellipse cx="${x}" cy="${y}" rx="${26 + (k % 3) * 10}" ry="${12 + (k % 3) * 5}" fill="#8CC35C" opacity=".18"/>`; }
-    for (let k = 0; k < 70; k++) { const x = (k * 113) % 630 + 5, y = (k * 71) % 410 + 5;
-      s += `<path d="M${x} ${y} q-1 -5 -3 -7 M${x} ${y} q0 -6 1 -9 M${x} ${y} q1 -4 4 -6" fill="none" stroke="${k % 4 ? "#4A8A2C" : "#A6D46C"}" stroke-width="1.5" stroke-linecap="round"/>`; }
-    for (let k = 0; k < 18; k++) { const x = (k * 97) % 620 + 10, y = (k * 53) % 400 + 10;
-      s += `<g transform="translate(${x} ${y})"><circle r="3.2" fill="${["#FFE38A", "#F7B2A0", "#FFFFFF"][k % 3]}" stroke="#7A5A2E" stroke-width=".8"/><circle r="1.1" fill="#E0A21A"/></g>`; }
-    /* el camino, que llega hasta las parcelas */
-    s += `<path d="M500 462 C 486 496, 532 526, 494 ${H + 4} L 564 ${H + 4} C 590 526, 548 496, 550 462 Z" fill="url(#fCamino)" stroke="#8A6A3A" stroke-width="2.4"/>`;
-    for (let k = 0; k < 9; k++) s += `<ellipse cx="${308 + (k * 17) % 40}" cy="${336 + k * 9}" rx="4" ry="2.4" fill="#A8885A" opacity=".8"/>`;
+  const surcoIlu = arte("t_surco");
+  let s = `<svg class="tierra" viewBox="0 0 ${W} ${H}" aria-hidden="true"><defs>
+    <linearGradient id="fTierra" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#A06B3A"/><stop offset="1" stop-color="#7A4A26"/></linearGradient></defs>`;
+  const esCamino = (i, j) => CAMINO.some(([a, b]) => a === i && b === j);
+  /* El suelo, casilla por casilla: pasto de la finca, monte alrededor y el camino. */
+  for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) {
+    const [x, y] = casilla(i, j), r = azar(i, j, 1);
+    const color = esCamino(i, j) ? (r < .5 ? "#C9A86E" : "#C4A267")
+      : propia(i, j) ? ["#7CB54F", "#7AB34D", "#7EB751"][Math.floor(r * 3)] : ["#5D9939", "#5B9738", "#5F9B3B"][Math.floor(r * 3)];
+    s += `<polygon points="${rombo(x, y)}" fill="${color}" stroke="${color}" stroke-width="1.2"/>`;
   }
-  /* sombra de las parcelas sobre el pasto */
-  s += `<polygon points="${OX},${OY - AH + 10} ${OX + 3 * AW + 14},${OY + 2 * AH + 6} ${OX},${OY + 5 * AH + 26} ${OX - 3 * AW - 14},${OY + 2 * AH + 6}" fill="#1E3A12" opacity=".14"/>`;
+  /* Matojos y florecitas, siempre en el mismo sitio. */
+  for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) {
+    if (esCamino(i, j)) continue;
+    const [x, y] = casilla(i, j);
+    for (let k = 0; k < 2; k++) {
+      const dx = (azar(i, j, 10 + k) - .5) * AW, dy = (azar(i, j, 20 + k) - .5) * AH, verde = propia(i, j) ? "#4E8F30" : "#3F7A26";
+      s += `<path d="M${x + dx} ${y + dy} q-1 -5 -3 -7 M${x + dx} ${y + dy} q0 -6 1 -9 M${x + dx} ${y + dy} q1 -4 4 -6" fill="none" stroke="${verde}" stroke-width="1.6" stroke-linecap="round"/>`;
+    }
+    if (propia(i, j) && azar(i, j, 30) < .3) { const dx = (azar(i, j, 31) - .5) * AW * .8, dy = (azar(i, j, 32) - .5) * AH * .8;
+      s += `<g transform="translate(${x + dx} ${y + dy})"><circle r="3" fill="${["#FFE38A", "#F7B2A0", "#FFFFFF"][Math.floor(azar(i, j, 33) * 3)]}" stroke="#7A5A2E" stroke-width=".8"/><circle r="1" fill="#E0A21A"/></g>`; }
+  }
+  /* El borde de la finca: una franja de tierra apisonada. */
+  const [tx, ty] = casilla(PROPIA.i0, PROPIA.j0), n = PROPIA.n;
+  const top = [tx, ty - AH], der = [tx + n * AW, ty - AH + n * AH], aba = [tx, ty - AH + 2 * n * AH], izq = [tx - n * AW, ty - AH + n * AH];
+  s += `<polygon points="${[top, der, aba, izq].map(p => p.join(",")).join(" ")}" fill="none" stroke="#B89A62" stroke-width="5" stroke-linejoin="round" opacity=".75"/>`;
+  /* Sombra suave de las parcelas. */
+  const [px, py] = casilla(PARCELAS.i0, PARCELAS.j0);
+  s += `<polygon points="${px},${py - AH + 8} ${px + 3 * AW + 6},${py + 2 * AH + 4} ${px},${py + 5 * AH + 12} ${px - 3 * AW - 6},${py + 2 * AH + 4}" fill="#1E3A12" opacity=".14"/>`;
   if (!surcoIlu) {
-    const g = 5, aw = AW - g, ah = AH - g / 2, alto = 14;
-    const orden = [0, 1, 3, 2, 4, 6, 5, 7, 8];          /* de atrás hacia adelante */
-    for (const i of orden) {
-      const [x, y] = centro(i);
+    const g = 5, aw = AW - g, ah = AH - g / 2, alto = 12;
+    for (const k of [0, 1, 3, 2, 4, 6, 5, 7, 8]) {
+      const [x, y] = centro(k);
       s += `<polygon points="${x},${y + ah} ${x + aw},${y} ${x + aw},${y + alto} ${x},${y + ah + alto}" fill="#5A3519" stroke="#33200E" stroke-width="2.2" stroke-linejoin="round"/>
         <polygon points="${x - aw},${y} ${x},${y + ah} ${x},${y + ah + alto} ${x - aw},${y + alto}" fill="#704322" stroke="#33200E" stroke-width="2.2" stroke-linejoin="round"/>
-        <polygon points="${x},${y - ah} ${x + aw},${y} ${x},${y + ah} ${x - aw},${y}" fill="url(#fTierra)" stroke="#33200E" stroke-width="2.4" stroke-linejoin="round"/>
-        ${surcos(x, y, aw, ah)}
-        <path d="M${x - aw + 8} ${y - 2} L${x - 6} ${y - ah + 5}" stroke="#C8925A" stroke-width="2" stroke-linecap="round" opacity=".6"/>`;
+        <polygon points="${x},${y - ah} ${x + aw},${y} ${x},${y + ah} ${x - aw},${y}" fill="url(#fTierra)" stroke="#33200E" stroke-width="2.4" stroke-linejoin="round"/>${surcos(x, y, aw, ah)}`;
     }
   }
   s += `</svg>`;
-  /* La parcela pintada viene un poco más alta que el rombo del terreno (2:1):
-     se aplana lo justo para que encaje, y su cara de arriba queda centrada en el surco. */
   if (surcoIlu) {
     const aw = 2 * AW + 6, ah = Math.round(aw * (387 / 512) * 0.78), arriba = Math.round(ah * 164 / 302);
-    s += [0, 1, 3, 2, 4, 6, 5, 7, 8].map(i => { const [x, y] = centro(i);
+    s += [0, 1, 3, 2, 4, 6, 5, 7, 8].map(k => { const [x, y] = centro(k);
       return surcoIlu.replace(/^<img\b/, `<img class="f-surco" style="position:absolute;left:${x - aw / 2}px;top:${y - arriba}px;width:${aw}px;height:${ah}px;z-index:2;pointer-events:none"`); }).join("");
+  }
+  return s + monte();
+}
+/* El monte de alrededor: árboles y matas en las casillas de afuera. Mientras
+   llegan sus ilustraciones (d_*), se usan las matas grandes de la finca. */
+function monte() {
+  const tipos = [["d_guamo", "m_cacao_lista", 96], ["d_platanera", "m_platano_lista", 80], ["d_cafetal", "m_cafe_lista", 70], ["d_arbusto", "m_huerta_crece", 0]];
+  let s = "";
+  for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) {
+    /* nada pegado a la finca: deja una franja libre alrededor */
+    if (i >= PROPIA.i0 - 1 && j >= PROPIA.j0 - 1 && i <= PROPIA.i0 + PROPIA.n && j <= PROPIA.j0 + PROPIA.n) continue;
+    if (CAMINO.some(([a, b]) => a === i && Math.abs(b - j) <= 0)) continue;
+    const r = azar(i, j, 40); if (r > .2) continue;
+    const t = tipos[Math.floor(azar(i, j, 41) * 3)], dib = arte(t[0]) || arte(t[1]); if (!dib) continue;
+    const [x, y] = casilla(i, j);
+    s += `<span class="f-obj" style="left:${x}px;top:${y + AH * .6}px;z-index:${Math.round(y)}">${ancho(dib, t[2])}</span>`;
   }
   return s;
 }
@@ -174,7 +203,7 @@ const firma = () => F.lotes.map(m => { const e = FI.estado(m, ahora()); return e
   + "|" + Object.keys(F.edificios).filter(k => F.edificios[k]).join() + "|" + FI.huevos(F, ahora());
 
 function edificio(k, dib, w, extra) {
-  const [x, y] = LUGARES[k], ilu = arte("b_" + k);
+  const [x, y] = apoyo(k), ilu = arte("b_" + k);
   return `<button class="f-obj toca" data-edificio="${k}" style="left:${x}px;top:${y}px;z-index:${y}" aria-label="${esc(k)}">
     <span style="position:relative">${ancho(ilu || dib, w)}${extra || ""}</span></button>`;
 }
@@ -186,9 +215,9 @@ function pintarTerreno(forzar) {
   const mundo = document.getElementById("mundo"); if (!mundo) return;
   const h = FI.huevos(F, ahora());
   mundo.innerHTML = tierra() +
-    edificio("casa", CASA, arte("b_casa") ? 138 : 120) + edificio("puesto", PUESTO, arte("b_puesto") ? 100 : 92) + edificio("tablero", TABLERO, arte("b_tablero") ? 56 : 62) +
-    (F.edificios.secadero ? edificio("secadero", SECADERO, arte("b_secadero") ? 108 : 92) : "") +
-    (F.edificios.gallinero ? edificio("gallinero", GALLINERO, arte("b_gallinero") ? 90 : 82, h ? `<span class="f-insignia huevo">${arte("pr_huevos") ? ancho(arte("pr_huevos"), 24) : "🥚"}</span>` : "") : "") +
+    edificio("casa", CASA, 236) + edificio("puesto", PUESTO, 120) + edificio("tablero", TABLERO, 66) +
+    (F.edificios.secadero ? edificio("secadero", SECADERO, 214) : "") +
+    (F.edificios.gallinero ? edificio("gallinero", GALLINERO, 112, h ? `<span class="f-insignia huevo">${arte("pr_huevos") ? ancho(arte("pr_huevos"), 24) : "🥚"}</span>` : "") : "") +
     F.lotes.map((_, i) => mataHTML(i)).join("") +
     F.lotes.map((_, i) => { const [x, y] = centro(i); return `<button class="f-lote" data-lote="${i}" style="left:${x}px;top:${y}px;width:${2 * AW}px;height:${2 * AH}px;z-index:1000" aria-label="Surco ${i + 1}"></button>`; }).join("");
   mundo.querySelectorAll("[data-lote]").forEach(b => b.onclick = () => tocarLote(+b.dataset.lote));
@@ -201,13 +230,42 @@ function actualizarRelojes() {
   document.querySelectorAll("[data-lista]").forEach(r => { r.textContent = mmss(+r.dataset.lista - t); });
   document.querySelectorAll("[data-muere]").forEach(r => { r.textContent = mmss(+r.dataset.muere - t); });
 }
-function escalar() {
+/* La cámara: al entrar se ve la finca entera; se arrastra para mirar
+   alrededor y, en el computador, la rueda acerca o aleja. */
+let cam = null, arrastrado = false;
+function encuadre() {
+  const c = document.getElementById("campo"); if (!c) return null;
+  /* Se encuadra lo que se usa (unas 7 casillas alrededor de las parcelas); el resto se ve arrastrando. */
+  const n = 7, [cx, cy] = casilla(PROPIA.i0 + PROPIA.n / 2 - .5, PROPIA.j0 + PROPIA.n / 2 - .5);
+  const s = Math.min(c.clientWidth / (2 * n * AW + 80), c.clientHeight / (2 * n * AH + 200));
+  return { x: cx, y: cy - 50, s, s0: s };
+}
+function limitar() {
+  const c = document.getElementById("campo"); if (!c || !cam) return;
+  const mx = c.clientWidth / 2 / cam.s, my = c.clientHeight / 2 / cam.s;
+  cam.x = W * cam.s > c.clientWidth ? Math.max(mx, Math.min(W - mx, cam.x)) : W / 2;
+  cam.y = H * cam.s > c.clientHeight ? Math.max(my, Math.min(H - my, cam.y)) : H / 2;
+}
+function escalar(reencuadrar) {
   const c = document.getElementById("campo"), m = document.getElementById("mundo"); if (!c || !m) return;
-  /* El fondo llena todo el recuadro (se recorta un poco por los bordes); sin
-     fondo pintado, el mundo cabe entero. */
-  const conFondo = !!arte("f_finca");
-  const s = conFondo ? Math.max(c.clientWidth / W, c.clientHeight / H) : Math.min(c.clientWidth / W, c.clientHeight / H) * 0.98;
-  m.style.transform = `translate(-50%,-50%) scale(${s})`;
+  if (!cam || reencuadrar) cam = encuadre();
+  limitar();
+  m.style.transform = `translate(${c.clientWidth / 2 - cam.x * cam.s}px,${c.clientHeight / 2 - cam.y * cam.s}px) scale(${cam.s})`;
+}
+function camara() {
+  const c = document.getElementById("campo"); if (!c) return;
+  let ini = null;
+  c.addEventListener("pointerdown", ev => { ini = { x: ev.clientX, y: ev.clientY, cx: cam.x, cy: cam.y }; arrastrado = false; });
+  addEventListener("pointermove", ev => {
+    if (!ini) return;
+    const dx = ev.clientX - ini.x, dy = ev.clientY - ini.y;
+    if (!arrastrado && Math.hypot(dx, dy) < 8) return;
+    arrastrado = true; cam.x = ini.cx - dx / cam.s; cam.y = ini.cy - dy / cam.s; escalar();
+  });
+  addEventListener("pointerup", () => { ini = null; });
+  /* Un arrastre no cuenta como toque. */
+  c.addEventListener("click", ev => { if (arrastrado) { ev.stopPropagation(); ev.preventDefault(); arrastrado = false; } }, true);
+  c.addEventListener("wheel", ev => { ev.preventDefault(); cam.s = Math.max(cam.s0 * .8, Math.min(cam.s0 * 2.4, cam.s * (ev.deltaY < 0 ? 1.12 : 1 / 1.12))); escalar(); }, { passive: false });
 }
 
 /* ── La pantalla ───────────────────────────────────────────── */
@@ -217,7 +275,8 @@ function pintar() {
     <div class="f-campo" id="campo"><div class="f-mundo" id="mundo"></div></div>
   </div>`;
   pintarTerreno(true);
-  escalar();
+  escalar(true);
+  camara();
 }
 function pintarLado() {
   const lado = document.getElementById("lado"); if (!lado) return;
@@ -398,7 +457,7 @@ function guiar() {
 V.montar({ titulo: "Mi finca", volver: "vereda/index.html", escena: "mediodia" });
 pintar();
 V.cargarArte().then(() => pintarTerreno(true));
-addEventListener("resize", escalar);
+addEventListener("resize", () => escalar(true));
 setInterval(() => pintarTerreno(false), 1000);
 /* Si la cuenta trajo una finca de otro teléfono, se vuelve a leer. */
 addEventListener("storage", ev => { if (ev.key === LLAVE) { F = cargar(); pintarTerreno(true); } });

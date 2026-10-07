@@ -15,9 +15,10 @@ diagonal**, como en los juegos de granja, para ponerlos sobre el terreno.
 
 - **Mi finca: 19 de 19, listas y en el juego** (7 de octubre). Quedaron en `public/cartas/`,
   recortadas al dibujo para que se paren sobre el terreno.
-- **El terreno y el fondo** (`t_surco.png` y `f_finca.png`) llegaron el 7 de octubre y ya están en
-  la finca. Si algún día repites el fondo, pídelo más grande (1920 de ancho): el de ahora tiene 1024
-  y en pantallas grandes se ve un poco suave.
+- **La parcela** (`t_surco.png`) llegó el 7 de octubre y ya está en la finca. Los fondos pintados
+  (`f_finca.png`) se probaron y se descartaron: estaban en perspectiva y no encajaban con las piezas
+  en diagonal. Ahora el suelo lo dibuja el código.
+- **El monte y los adornos:** 0 de 9 (sección 5). Mientras tanto se usan las matas grandes.
 - **Llegaron también** `c_huerta.png` y `e_mercado_campesino.png` nuevas, y ya reemplazaron a las
   anteriores.
 - **Para repetir si quieres** (no bloquean):
@@ -161,31 +162,28 @@ encargos, al lado de las cartas.
 
 ---
 
-### El terreno y el fondo (2) · nuevos
+### El monte y los adornos (9) · nuevos
 
-El terreno y el fondo los dibuja el código, y al lado de las ilustraciones se ven planos. Con estas
-dos imágenes el juego los cambia solo.
+La finca ahora es una cuadrícula de casillas en diagonal, como en los juegos de granja (ver
+«Las reglas del mundo» en `MI-FINCA.md`). El suelo lo dibuja el código; el fondo pintado ya no se
+usa, porque estaba en perspectiva y no encajaba. Lo que falta para que el monte de alrededor se vea
+bien son estas piezas, con el bloque 3b y **sin base de tierra**: van paradas directamente sobre el
+pasto, que no se dibuja.
 
-| Clave | Imagen | Sujeto para el prompt |
-|---|---|---|
-| `t_surco.png` | La parcela | Con el bloque 3b. Una sola parcela de tierra arada, levantada como un bancal bajito. La cara de arriba es un rombo exacto, dos veces más ancho que alto. Tierra café oscura y húmeda con cuatro surcos rectos paralelos a uno de los lados del rombo, con brillo en el lomo de cada surco. Se ven los dos costados del frente, bajitos, de tierra más oscura con alguna piedrita y raicitas. Sin plantas, sin pasto alrededor, sin cerca. |
-| `f_finca.png` | El fondo de la finca | Con el bloque 3c (abajo). Es la única imagen **con fondo**: no le quites el fondo en Photoroom. |
+**Regla nueva para todo lo que venga:** cada pieza ocupa casillas enteras. Dile a Gemini cuántas:
+«su base ocupa un rombo de 1 × 1» o «de 2 × 2». Así sale del tamaño justo.
 
-**3c. Bloque para el fondo (cópialo idéntico):**
-
-> Fondo para juego de granja en vista isométrica, cámara desde arriba a 30 grados, mismo estilo
-> cartoon semi-realista con volumen y contorno de tinta oscuro y limpio, colores saturados y
-> cálidos de tierra cafetera, luz cálida de mañana desde arriba a la izquierda. Un prado amplio de
-> pasto verde ondulado, con matojos, tréboles y florecitas silvestres. El centro de la imagen, un
-> rombo grande que ocupa la mitad del ancho, queda vacío: solo pasto parejo, porque ahí van las
-> parcelas y la casa. Alrededor, en los bordes: matas de café y de plátano, un guamo grande dando
-> sombra en una esquina de arriba, una cerca de guadua al fondo, una quebradita con piedras en una
-> esquina de abajo y un camino de tierra que entra desde el borde de abajo hacia el centro. Arriba,
-> al fondo, montañas de la zona cafetera con cafetales en surcos y un poco de neblina, cielo claro.
-> Sin casas, sin construcciones, sin personas, sin animales, sin texto. Imagen apaisada 16:9, alta
-> resolución.
-
-Para las dos, súbele a Gemini `b_casa.png` como referencia de ángulo, luz y trazo.
+| Clave | Pieza | Casillas | Sujeto para el prompt |
+|---|---|---|---|
+| `d_guamo.png` | Árbol de sombrío | 2 × 2 | Un guamo grande y frondoso, de tronco grueso y copa ancha y redonda de hojas verdes, como los que dan sombra al café. |
+| `d_platanera.png` | Platanera | 1 × 1 | Una mata de plátano silvestre, alta, de hojas largas y un poco rasgadas, sin racimo. |
+| `d_cafetal.png` | Mata de café del monte | 1 × 1 | Un arbusto de café tupido, de hojas verde oscuro brillantes, con algunas cerezas rojas. |
+| `d_arbusto.png` | Arbusto | 1 × 1 | Un arbusto bajito y redondo de monte, verde, con unas florecitas silvestres. |
+| `d_piedras.png` | Piedras | 1 × 1 | Tres o cuatro piedras de río redondeadas, grises, con musgo. |
+| `d_flores.png` | Flores | 1 × 1 | Un manchón de flores silvestres de colores (amarillas, blancas y moradas) entre hojitas. |
+| `d_cerca_a.png` | Cerca de guadua | 1 × 1 | Un tramo de cerca de guadua de dos travesaños con tres postes, que va de la punta de arriba a la punta de la derecha del rombo. |
+| `d_cerca_b.png` | Cerca de guadua | 1 × 1 | El mismo tramo de cerca, pero de la punta de arriba a la punta de la izquierda del rombo. |
+| `d_letrero.png` | Letrero de «se vende» | 1 × 1 | Un letrero de madera clavado en una estaca, sin letras (el juego le pone el texto), para marcar la tierra que se puede comprar. |
 
 ## 6. Orden sugerido
 
