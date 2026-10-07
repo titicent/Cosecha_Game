@@ -20,7 +20,7 @@
 "use strict";
 
 const CLAVES = ["cosecha.nombre", "cosecha.cara", "cosecha.vereda", "cosecha.cfg.solo", "cosecha.cfg.privada",
-  "cosecha.sinintro", "cosecha2.pref", "cosecha.fondo", "cosecha.efectos"];
+  "cosecha.sinintro", "cosecha2.pref", "cosecha.fondo", "cosecha.efectos", "cosecha.guias"];
 const SINC = "cosecha.cuenta";            /* {uid, remoto, huella}: con quién y cuándo se sincronizó */
 
 /* ── Juntar dos avances (puro, se prueba sin navegador) ─────────── */

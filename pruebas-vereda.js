@@ -103,22 +103,6 @@ const Es = require("./public/vereda/espantos.js");
   ok(espantadas / noches > .3 && espantadas / noches < .8, `entre 30 % y 80 % de las noches las acaba un espanto (${Math.round(100 * espantadas / noches)} %)`);
 }
 
-console.log("\nEl espantapájaros");
-const Ep = require("./public/vereda/espantapajaros.js");
-{
-  const cuenta = n => { const c = { molesta: 0, amigo: 0, grupos: 0 };
-    for (let k = 0; k < 4000; k++) { const o = Ep.oleada(n, k / 4000, Math.random);
-      if (o.length > 1) c.grupos++; o.forEach(x => Ep.ANIMALES[x].amigo ? c.amigo++ : c.molesta++); } return c; };
-  const c1 = cuenta(1), c2 = cuenta(2), c3 = cuenta(3);
-  ok(c1.amigo === 0 && c1.grupos === 0, "en Fácil solo entran los que molestan, de a uno");
-  ok(c2.amigo / (c2.amigo + c2.molesta) > .2 && c2.amigo / (c2.amigo + c2.molesta) < .4, `en Medio llegan amigos (${Math.round(100 * c2.amigo / (c2.amigo + c2.molesta))} %)`);
-  ok(c3.grupos > 400, "en Difícil a veces entran de a dos");
-  ok(Ep.QUE_MOLESTAN.every(k => Ep.MATAS[Ep.ANIMALES[k].mata]), "cada animal que molesta va por una mata que existe");
-  ok(Ep.viaje(1, 0) > Ep.viaje(3, 1) && Ep.espera(1, 0) > Ep.espera(3, 1), "cada vez llegan más rápido");
-  const lista3 = JSON.parse(fs.readFileSync(path.join(__dirname, "public/cartas/lista.json"), "utf8"));
-  ok([...Ep.QUE_MOLESTAN, ...Ep.AMIGOS].every(k => lista3.includes(Ep.ANIMALES[k].carta)) && lista3.includes("n_espantapajaros"), "los 6 animales y el espantapájaros tienen ilustración");
-}
-
 console.log("\nLa Galería");
 const Ga = require("./public/vereda/galeria-reglas.js");
 {

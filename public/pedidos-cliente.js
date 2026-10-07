@@ -45,6 +45,7 @@ function conectar() {
   };
   ws.onmessage = e => {
     const m = JSON.parse(e.data);
+    if (local) return;                  /* en la partida guiada manda el teléfono */
     if (m.t === "sesion") { sesion = { codigo: m.codigo, token: m.token }; guarda("cosecha2.sesion", sesion); }
     else if (m.t === "vista") recibir(m.v);
     else if (m.t === "error") error(m.msg);
@@ -53,6 +54,7 @@ function conectar() {
   ws.onclose = () => setTimeout(conectar, 1500);
 }
 function mandar(m) {
+  if (local) return mandarLocal(m);
   m = Object.assign({ juego: "pedidos" }, m);      /* el servidor de Cosecha lo manda a las salas de Pedidos */
   if (ws && ws.readyState === 1) ws.send(JSON.stringify(m));
   else { pendiente = m; if (!ws || ws.readyState > 1) conectar(); }
@@ -123,6 +125,7 @@ function portada() {
         <div class="rot">Meta</div>
         ${metaBotones(n, pref.meta, false)}
         <button class="jugar" id="solo">¡A sembrar!</button>
+        ${guiaPendiente() ? `<p class="nota" style="text-align:center;margin:8px 0 0">Tu primera partida es guiada: te mostramos qué hacer, paso a paso.</p>` : ""}
       </section>
       <section class="marco">
         <h2>Con amigos</h2>
@@ -132,18 +135,20 @@ function portada() {
         <div class="fila"><input class="campo codigo" id="codigo" maxlength="4" placeholder="ABCD" value="${esc(codigoURL)}"><button class="boton" id="unir">Entrar</button></div>
       </section>
     </div>
-    <p class="nota" style="text-align:center;margin-top:16px"><button class="boton chico" id="reglas">Cómo se juega</button></p>`;
+    <p class="nota" style="text-align:center;margin-top:16px"><button class="boton chico" id="guiada">Partida guiada</button> <button class="boton chico" id="reglas">Cómo se juega</button></p>`;
   const nom = () => { const x = document.getElementById("nombre").value.trim(); if (!x) { error("Escribe tu nombre"); document.getElementById("nombre").focus(); return null; } pref.nombre = x; guarda("cosecha2.pref", pref); try { localStorage.setItem("cosecha.nombre", x); } catch (e) {} return x; };
   $app.querySelectorAll(".seg").forEach(g => g.querySelectorAll("button").forEach(b => b.onclick = () => {
     const k = g.dataset.g; pref[k] = k === "jugadores" ? +b.dataset.v : b.dataset.v; guarda("cosecha2.pref", pref);
     pref.nombre = document.getElementById("nombre").value.trim(); portada(); }));
   document.getElementById("solo").onclick = () => { const x = nom(); if (!x) return;
+    if (guiaPendiente()) return empezarGuiada(x);
     mandar({ t: "crear", nombre: x, opciones: { juego: pref.juego, modo: pref.modo, meta: pref.meta }, bots: Array(pref.jugadores - 1).fill(pref.nivel), empezar: true, cara: miCara() }); };
   document.getElementById("crear").onclick = () => { const x = nom(); if (!x) return; mandar({ t: "crear", nombre: x, opciones: { juego: pref.juego, modo: pref.modo, meta: pref.meta }, cara: miCara() }); };
   document.getElementById("unir").onclick = () => { const x = nom(); if (!x) return;
     const c = document.getElementById("codigo").value.trim().toUpperCase(); if (c.length !== 4) return error("El código tiene 4 letras");
     mandar({ t: "unir", codigo: c, nombre: x, cara: miCara() }); };
   document.getElementById("reglas").onclick = () => verReglas(pref.juego);
+  document.getElementById("guiada").onclick = () => { const x = nom(); if (x) empezarGuiada(x); };
 }
 
 function sala() {
@@ -185,7 +190,7 @@ function sala() {
   document.getElementById("quitar").onclick = () => mandar({ t: "quitarbot" });
   document.getElementById("empezar").onclick = () => mandar({ t: "empezar" });
 }
-function salir() { mandar({ t: "salir" }); sesion = null; guarda("cosecha2.sesion", null); V = null; history.replaceState(null, "", location.pathname); pintar(); }
+function salir() { if (local) { salirLocal(); return; } mandar({ t: "salir" }); sesion = null; guarda("cosecha2.sesion", null); V = null; history.replaceState(null, "", location.pathname); pintar(); }
 
 /* ── Mesa ───────────────────────────────────────────────────── */
 function jugadasDe(idx) { return V.jugadas.filter(j => j.idx === idx); }
@@ -570,6 +575,7 @@ function sucesos(v, primera) {
     if (e.tipo === "clima") { const c = R.CLIMAS[e.clima]; cola.push({ img: c.clave, c: c.hex, cinta: c.nombre, linea: c.texto }); }
     if (e.tipo === "entregar") cola.push({ img: R.claveArte(e.carta), c: "#A0612B", cinta: "¡" + quien + " entregó!", linea: e.carta.nombre + " · " + e.carta.pts + (e.carta.pts === 1 ? " punto" : " puntos") });
     if (e.tipo === "plagar" && e.j === v.yo && e.ji !== v.yo) cola.push({ img: R.claveArte(e.carta), c: R.colorCarta(e.carta), cinta: "¡Plaga!", linea: quien + " te dañó una mata." });
+    if (e.tipo === "atajo" && e.j === v.yo && e.ji !== v.yo) cola.push({ img: R.claveArte(e.carta), c: R.colorCarta(e.carta), cinta: "¡Atajada!", linea: "Tu remedio frenó la plaga de " + quien + "." });
     if (e.tipo === "plagarBodega" && e.j === v.yo) cola.push({ img: R.claveArte(e.carta), c: R.colorCarta(e.carta), cinta: "¡Plaga en la bodega!", linea: quien + " te dañó un producto." });
     if (e.tipo === "coyote" && e.j === v.yo) cola.push({ img: "f_coyote", c: R.COLOR_FAENA, cinta: "¡El Coyote!", linea: quien + " se llevó un producto de tu bodega." });
     if (e.tipo === "meta") cola.push({ img: "e_canasta_completa", c: "#B8891B", cinta: "¡Última vuelta!", linea: "Alguien llegó a la meta. Cada uno juega hasta cerrar la vuelta." });
@@ -594,6 +600,126 @@ setInterval(() => {
   const s = Math.max(0, Math.round((limiteLocal - Date.now()) / 1000));
   r.textContent = s ? "⏱ " + s + " s" : ""; r.classList.toggle("poco", s <= 10);
 }, 500);
+
+/* ══ Partida en el teléfono: la guiada ═══════════════════════════
+   La primera partida no pasa por el servidor: corre aquí mismo con el motor
+   de verdad (pedidos-reglas.js), contra Rosa. El mazo viene arreglado para
+   que en tres turnos pase todo lo que hay que aprender, y Rosa juega a
+   propósito: siembra, y luego le echa una broca al café protegido para que
+   se vea cómo ataja el remedio. Después la partida sigue normal. */
+let local = null;
+const ROSA = 7;                             /* a_panolon */
+const guiaPendiente = () => !(window.GUIA && GUIA.hecha("pedidos"));
+function partidaGuiada(nombre) {
+  const E = R.nuevaPartida([nombre, "Rosa"], { modo: "completo", meta: "normal", semilla: 20261007 });
+  const pool = E.mazo.concat(...E.jugadores.map(j => j.mano.splice(0)));
+  const toma = (k, c) => { const i = pool.findIndex(x => x.k === k && (c === undefined || x.c === c)); return pool.splice(i, 1)[0]; };
+  E.jugadores[0].mano = [toma("cultivo", "cafe"), toma("cultivo", "platano"), toma("remedio", "cafe"), toma("cultivo", "cana")];
+  E.jugadores[1].mano = [toma("cultivo", "cacao"), toma("cultivo", "cana"), toma("plaga", "cafe"), toma("remedio", "cacao")];
+  /* Lo que se roba, en orden: tú 2, Rosa 2, tú 1, Rosa 2. Sin nubes: un clima
+     en plena guía (una helada, por ejemplo) dañaría los pasos. */
+  const arriba = [toma("cultivo", "cacao"), toma("remedio", "platano"), toma("cultivo", "platano"), toma("remedio", "cana"), toma("cultivo", "huerta"), toma("cultivo", "cafe"), toma("cultivo", "cana")];
+  E.mazo = pool.concat(arriba.reverse());
+  const ped = c => { const i = E.pedidos.findIndex(p => p.clave === c); return i >= 0 ? E.pedidos.splice(i, 1)[0] : E.fila.splice(E.fila.findIndex(p => p && p.clave === c), 1)[0]; };
+  const fila = [ped("e_maduro"), ped("e_tinto_campesino"), ped("e_chocolatina")];
+  E.pedidos.unshift(...E.fila.filter(Boolean)); E.fila = fila;
+  E.turno = 0; E.primero = 0; E.jornales = R.JORNALES; E.registro = ["Empieza " + nombre + ". Meta: " + E.meta + " puntos."]; E.eventos = [];
+  return E;
+}
+/* Lo que hace Rosa mientras dura la guía; luego juega sola, como novata. */
+const GUION_ROSA = [
+  E => ({ tipo: "sembrar", idx: E.jugadores[1].mano.findIndex(x => x.k === "cultivo" && x.c === "cacao") }),
+  E => ({ tipo: "sembrar", idx: E.jugadores[1].mano.findIndex(x => x.k === "cultivo" && x.c === "cana") }),
+  E => ({ tipo: "plagar", idx: E.jugadores[1].mano.findIndex(x => x.k === "plaga" && x.c === "cafe"), j: 0, o: E.jugadores[0].finca.findIndex(m => m.carta.c === "cafe") }),
+  E => ({ tipo: "proteger", idx: E.jugadores[1].mano.findIndex(x => x.k === "remedio" && x.c === "cacao"), o: E.jugadores[1].finca.findIndex(m => m.carta.c === "cacao") })
+];
+function vistaLocal() {
+  return Object.assign(R.vista(local.E, 0), { juego: "pedidos", codigo: "GUIA", iniciada: true, yo: 0, anfitrion: 0,
+    opciones: { juego: "pedidos", modo: "completo", meta: "normal" }, restante: null,
+    sillas: [{ nombre: local.E.jugadores[0].nombre, bot: null, conectado: true, cara: miCara() }, { nombre: "Rosa", bot: "novato", conectado: true, cara: ROSA }] });
+}
+function emitirLocal() { recibir(vistaLocal()); programarLocal(); }
+function programarLocal() {
+  clearTimeout(local.timer);
+  const E = local.E; if (E.terminada || E.turno !== 1) return;
+  local.timer = setTimeout(() => {
+    if (!local || local.E !== E) return;
+    const g = GUION_ROSA[local.paso];
+    let j = g ? R.validar(E, 1, g(E)) : null;
+    if (g) local.paso++;
+    if (!j) j = R.validar(E, 1, R.elegir(E, 1, "novato")) || { tipo: "terminar", costo: 0 };
+    R.aplicar(E, 1, j);
+    emitirLocal();
+  }, local.paso < GUION_ROSA.length ? 1700 : 1100);
+}
+function mandarLocal(m) {
+  if (m.t === "jugar") {
+    const j = R.validar(local.E, 0, m.jugada);
+    if (!j) return error("Esa jugada no se puede hacer ahora");
+    R.aplicar(local.E, 0, j); emitirLocal(); return;
+  }
+  if (m.t === "revancha") {            /* otra partida en el teléfono, ya sin guía */
+    const nombre = local.E.jugadores[0].nombre;
+    local = { E: R.nuevaPartida([nombre, "Rosa"], { modo: "completo", meta: "normal", semilla: Date.now() }), paso: GUION_ROSA.length };
+    ultimoEvento = null; V = null; emitirLocal(); return;
+  }
+  if (m.t === "salir") salirLocal();
+}
+function salirLocal() {
+  if (local) clearTimeout(local.timer);
+  local = null; V = null; ultimoEvento = null;
+  if (window.GUIA) GUIA.detener();
+  document.querySelectorAll(".guia-fin").forEach(x => x.remove());
+  history.replaceState(null, "", location.pathname); pintar();
+}
+function empezarGuiada(nombre) {
+  local = { E: partidaGuiada(nombre), paso: 0, timer: null };
+  ultimoEvento = null; V = null; sel = null; botando = false;
+  emitirLocal();
+  if (window.GUIA) GUIA.iniciar(pasosGuia(), {
+    alTerminar: () => { GUIA.marcar("pedidos"); GUIA.final({ titulo: "¡Ya sabes jugar!",
+      texto: "Gana quien junte más puntos entregando pedidos. Sigue esta partida contra Rosa o vuelve al inicio para jugar con más vecinos o con tus amigos.",
+      botones: [{ texto: "Seguir jugando", primario: true }, { texto: "Volver al inicio", fn: salirLocal }] }); },
+    alSaltar: () => { GUIA.marcar("pedidos"); }
+  });
+}
+/* Los pasos de la guía. Cada uno señala algo de la mesa y espera a que el
+   juego cambie: así funciona igual en el teléfono, acostado o en el computador. */
+function pasosGuia() {
+  const mi = () => (V && V.jugadores ? V.jugadores[0] : { mano: [], finca: [], bodega: [], puntos: 0 });
+  const $ = s => document.querySelector(s);
+  const idx = (k, c) => (mi().mano || []).findIndex(x => x.k === k && x.c === c);
+  const carta = (k, c) => () => $(`[data-carta="${idx(k, c)}"]`);
+  const mata = c => () => { const o = mi().finca.findIndex(m => m.carta.c === c); return o >= 0 ? $(`.mio [data-mata="0.${o}"]`) : null; };
+  const opcion = () => $("#hoja [data-op]");
+  const miTurno = () => V && V.turno === 0 && !V.terminada;
+  const tiene = (c, f) => mi().finca.some(m => m.carta.c === c && (!f || f(m)));
+  const fila = c => () => $(`[data-pedido="${V.fila.findIndex(p => p && p.clave === c)}"]`);
+  return [
+    { objetivo: () => $(".pedidos"), texto: "Esto pide el pueblo. Cada pedido da puntos", ms: 3200 },
+    { objetivo: fila("e_maduro"), texto: "El maduro pide un plátano", ms: 2600 },
+    { objetivo: carta("cultivo", "cafe"), texto: "Toca tu café", hecho: () => sel === idx("cultivo", "cafe") || tiene("cafe") },
+    { objetivo: opcion, texto: "Siémbralo", hecho: () => tiene("cafe") },
+    { objetivo: mata("cafe"), texto: "Es un brote: madura en tu próximo turno", ms: 3000 },
+    { objetivo: () => $(".jornales"), texto: "Cada turno tienes 2 jornales. Te queda 1", ms: 2800 },
+    { objetivo: carta("cultivo", "platano"), texto: "Ahora siembra el plátano", hecho: () => sel === idx("cultivo", "platano") || tiene("platano") },
+    { objetivo: opcion, texto: "Siémbralo", hecho: () => tiene("platano") },
+    { objetivo: () => $(".rival"), texto: "Ahora juega Rosa", esperar: true, hecho: () => miTurno() && tiene("cafe", m => m.madura) },
+    { objetivo: mata("cafe"), texto: "¡Amaneció! Tus matas ya están maduras", ms: 2800 },
+    { objetivo: carta("remedio", "cafe"), texto: "Toca el remedio del café", hecho: () => sel === idx("remedio", "cafe") || tiene("cafe", m => m.remedio) },
+    { objetivo: mata("cafe"), texto: "Pónselo a tu café", hecho: () => tiene("cafe", m => m.remedio) },
+    { objetivo: mata("platano"), texto: "Toca tu plátano para cosecharlo", hecho: () => !!opcion() || mi().bodega.length > 0 },
+    { objetivo: opcion, texto: "Cosecha", hecho: () => mi().bodega.length > 0 },
+    { objetivo: () => $(".rival"), texto: "Juega Rosa…", esperar: true, hecho: () => miTurno() && !tiene("cafe", m => m.remedio) && !document.querySelector(".suceso") },
+    { objetivo: mata("cafe"), texto: "¡Tu remedio atajó la broca de Rosa!", ms: 3000 },
+    { objetivo: mata("cafe"), texto: "Cosecha tu café", hecho: () => !!opcion() || mi().bodega.some(p => p.c === "cafe") },
+    { objetivo: opcion, texto: "Cosecha", hecho: () => mi().bodega.some(p => p.c === "cafe") },
+    { objetivo: () => $(".mio .zonas > div:last-child .zona"), texto: "Lo cosechado va a tu bodega", ms: 2600 },
+    { objetivo: fila("e_maduro"), texto: "Tienes plátano: entrega el maduro", hecho: () => !!opcion() || mi().puntos > 0 },
+    { objetivo: opcion, texto: "Entrégalo", hecho: () => mi().puntos > 0 },
+    { objetivo: () => $(".mio .quien .pts"), texto: "¡Tu primer punto!", ms: 2400 }
+  ];
+}
 
 pintar();
 conectar();
