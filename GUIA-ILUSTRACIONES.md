@@ -158,6 +158,32 @@ encargos, al lado de las cartas.
 
 ---
 
+### El terreno y el fondo (2) · nuevos
+
+El terreno y el fondo los dibuja el código, y al lado de las ilustraciones se ven planos. Con estas
+dos imágenes el juego los cambia solo.
+
+| Clave | Imagen | Sujeto para el prompt |
+|---|---|---|
+| `t_surco.png` | La parcela | Con el bloque 3b. Una sola parcela de tierra arada, levantada como un bancal bajito. La cara de arriba es un rombo exacto, dos veces más ancho que alto. Tierra café oscura y húmeda con cuatro surcos rectos paralelos a uno de los lados del rombo, con brillo en el lomo de cada surco. Se ven los dos costados del frente, bajitos, de tierra más oscura con alguna piedrita y raicitas. Sin plantas, sin pasto alrededor, sin cerca. |
+| `f_finca.png` | El fondo de la finca | Con el bloque 3c (abajo). Es la única imagen **con fondo**: no le quites el fondo en Photoroom. |
+
+**3c. Bloque para el fondo (cópialo idéntico):**
+
+> Fondo para juego de granja en vista isométrica, cámara desde arriba a 30 grados, mismo estilo
+> cartoon semi-realista con volumen y contorno de tinta oscuro y limpio, colores saturados y
+> cálidos de tierra cafetera, luz cálida de mañana desde arriba a la izquierda. Un prado amplio de
+> pasto verde ondulado, con matojos, tréboles y florecitas silvestres. El centro de la imagen, un
+> rombo grande que ocupa la mitad del ancho, queda vacío: solo pasto parejo, porque ahí van las
+> parcelas y la casa. Alrededor, en los bordes: matas de café y de plátano, un guamo grande dando
+> sombra en una esquina de arriba, una cerca de guadua al fondo, una quebradita con piedras en una
+> esquina de abajo y un camino de tierra que entra desde el borde de abajo hacia el centro. Arriba,
+> al fondo, montañas de la zona cafetera con cafetales en surcos y un poco de neblina, cielo claro.
+> Sin casas, sin construcciones, sin personas, sin animales, sin texto. Imagen apaisada 16:9, alta
+> resolución.
+
+Para las dos, súbele a Gemini `b_casa.png` como referencia de ángulo, luz y trazo.
+
 ## 6. Orden sugerido
 
 1. **`b_casa.png`**, hasta que el ángulo y el estilo te gusten. Es la referencia de todo lo demás.

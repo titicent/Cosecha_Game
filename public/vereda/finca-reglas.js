@@ -44,7 +44,8 @@ const ENCARGOS = [
 /* Ilustraciones propias de la finca (GUIA-ILUSTRACIONES.md). Mientras no
    existan, la pantalla usa los dibujos de las cartas. */
 const ARTE = ["m_semilla", "m_brote", ...ORDEN.flatMap(c => ["m_" + c + "_crece", "m_" + c + "_lista"]),
-  "b_casa", "b_puesto", "b_tablero", "b_secadero", "b_gallinero", "pr_huevos", "pr_pergamino"];
+  "b_casa", "b_puesto", "b_tablero", "b_secadero", "b_gallinero", "pr_huevos", "pr_pergamino",
+  "t_surco", "f_finca"];      /* el surco y el fondo, si llegan, reemplazan al terreno dibujado */
 const VECINOS = ["Doña Rosa", "Don Aurelio", "La señora Inés", "Don Chepe", "Doña Marina", "El profe Julián"];
 const CAMBIO_ENCARGO = 5 * MIN;
 

@@ -15,9 +15,10 @@ colores, que pesa una décima parte y en carta no se nota.
 
 Los avatares (a_*) no se recortan: son bustos y el encuadre ya es el retrato.
 
-Las piezas de Mi finca (m_* matas, b_* construcciones) se recortan justo al
+Las piezas de Mi finca (m_* matas, b_* construcciones, t_* terreno) se recortan justo al
 dibujo, sin cuadrado ni margen: van paradas sobre el terreno y la base del
 dibujo tiene que quedar en el borde de abajo. Se guardan a 512 px.
+Los fondos (f_*) son escenas completas: no se recortan ni se les quita nada.
 """
 import os, sys
 import numpy as np
@@ -103,7 +104,15 @@ os.makedirs(DESTINO, exist_ok=True)
 for f in sorted(os.listdir(ORIGEN)):
     if not f.lower().endswith(".png"): continue
     im = Image.open(os.path.join(ORIGEN, f))
-    if f.startswith(("m_", "b_")):
+    if f.startswith("f_"):
+        # Fondos: son escenas completas, no se les quita nada. Solo se achican.
+        im = im.convert("RGB"); k = 1600 / max(im.size)
+        if k < 1: im = im.resize((round(im.size[0] * k), round(im.size[1] * k)), Image.LANCZOS)
+        ruta = os.path.join(DESTINO, f)
+        im.quantize(colors=256, method=Image.Quantize.MEDIANCUT).save(ruta, optimize=True)
+        print(f"  {f:28s} fondo {im.size[0]}×{im.size[1]}   {os.path.getsize(ruta)//1024:4d} KB")
+        continue
+    if f.startswith(("m_", "b_", "t_")):
         im, quitado = quitar_fondo(im)
         a = np.asarray(im).copy(); a[..., 3] = np.where(a[..., 3] < 24, 0, a[..., 3])   # el halo tenue del recorte
         im = Image.fromarray(a, "RGBA")

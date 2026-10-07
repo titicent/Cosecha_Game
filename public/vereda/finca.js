@@ -86,21 +86,58 @@ const W = 640, H = 420, OX = 320, OY = 150, AW = 80, AH = 40;
 const centro = i => { const a = i % 3, b = Math.floor(i / 3); return [OX + (a - b) * AW, OY + (a + b) * AH]; };
 const rombo = (x, y) => `${x},${y - AH} ${x + AW},${y} ${x},${y + AH} ${x - AW},${y}`;
 const LUGARES = { casa: [124, 184], puesto: [520, 186], tablero: [606, 282], secadero: [88, 384], gallinero: [536, 414] };
+/* El terreno. Si ya llegaron las ilustraciones del surco (t_surco) y del
+   fondo (f_finca), se usan; si no, se dibuja aquí con el mismo trazo de tinta
+   de las ilustraciones: parcelas levantadas, surcos con luz y sombra, pasto
+   con matojos y un camino de piedritas. */
+const surcos = (x, y, aw, ah) => {
+  /* Un punto de la parcela: u va de la punta de arriba a la derecha, v de la de arriba a la izquierda. */
+  const P = (u, v) => [x + u * aw - v * aw, y - ah + u * ah + v * ah];
+  let p = "";
+  for (let k = 1; k <= 4; k++) {
+    const v = k / 5, [x1, y1] = P(.1, v), [x2, y2] = P(.9, v);
+    p += `<path d="M${x1} ${y1} L${x2} ${y2}" stroke="#5A3418" stroke-width="5" stroke-linecap="round" opacity=".5"/>
+      <path d="M${x1} ${y1 - 2.6} L${x2} ${y2 - 2.6}" stroke="#B9824A" stroke-width="2" stroke-linecap="round" opacity=".75"/>`;
+  }
+  return p;
+};
 function tierra() {
-  let s = `<svg class="tierra" viewBox="0 0 ${W} ${H}" aria-hidden="true">
-    <path d="M304 300 C 290 350, 340 380, 300 ${H} L 360 ${H} C 380 380, 340 350, 340 300 Z" fill="#CDB27A" opacity=".9"/>`;
-  for (let k = 0; k < 26; k++) { const x = (k * 97) % 620 + 10, y = (k * 53) % 400 + 10; s += `<circle cx="${x}" cy="${y}" r="3" fill="${["#FFE38A", "#F2A08A", "#FFFFFF"][k % 3]}" opacity=".8"/>`; }
-  /* borde de tierra delante de los surcos */
-  for (let k = 0; k < 3; k++) {
-    let [x, y] = centro(2 + k * 3); s += `<polygon points="${x},${y + AH} ${x + AW},${y} ${x + AW},${y + 12} ${x},${y + AH + 12}" fill="#6B4424"/>`;
-    [x, y] = centro(6 + k); s += `<polygon points="${x - AW},${y} ${x},${y + AH} ${x},${y + AH + 12} ${x - AW},${y + 12}" fill="#83552E"/>`;
+  const conFondo = !!arte("f_finca"), surcoIlu = arte("t_surco");
+  const campo = document.getElementById("campo");
+  if (campo) campo.classList.toggle("con-fondo", conFondo);
+  let s = `<svg class="tierra" viewBox="0 0 ${W} ${H}" aria-hidden="true"><defs>
+    <linearGradient id="fTierra" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#A06B3A"/><stop offset="1" stop-color="#7A4A26"/></linearGradient>
+    <linearGradient id="fCamino" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#D9BE86"/><stop offset="1" stop-color="#C4A26A"/></linearGradient></defs>`;
+  if (!conFondo) {
+    /* pasto con manchas de trébol y matojos, siempre en el mismo sitio */
+    for (let k = 0; k < 14; k++) { const x = (k * 151) % 600 + 20, y = (k * 89) % 380 + 20;
+      s += `<ellipse cx="${x}" cy="${y}" rx="${26 + (k % 3) * 10}" ry="${12 + (k % 3) * 5}" fill="#8CC35C" opacity=".18"/>`; }
+    for (let k = 0; k < 70; k++) { const x = (k * 113) % 630 + 5, y = (k * 71) % 410 + 5;
+      s += `<path d="M${x} ${y} q-1 -5 -3 -7 M${x} ${y} q0 -6 1 -9 M${x} ${y} q1 -4 4 -6" fill="none" stroke="${k % 4 ? "#4A8A2C" : "#A6D46C"}" stroke-width="1.5" stroke-linecap="round"/>`; }
+    for (let k = 0; k < 18; k++) { const x = (k * 97) % 620 + 10, y = (k * 53) % 400 + 10;
+      s += `<g transform="translate(${x} ${y})"><circle r="3.2" fill="${["#FFE38A", "#F7B2A0", "#FFFFFF"][k % 3]}" stroke="#7A5A2E" stroke-width=".8"/><circle r="1.1" fill="#E0A21A"/></g>`; }
+    /* el camino, que llega hasta las parcelas */
+    s += `<path d="M300 318 C 284 352, 330 382, 292 ${H + 4} L 362 ${H + 4} C 388 382, 346 352, 348 318 Z" fill="url(#fCamino)" stroke="#8A6A3A" stroke-width="2.4"/>`;
+    for (let k = 0; k < 9; k++) s += `<ellipse cx="${308 + (k * 17) % 40}" cy="${336 + k * 9}" rx="4" ry="2.4" fill="#A8885A" opacity=".8"/>`;
   }
-  for (let i = 0; i < 9; i++) {
-    const [x, y] = centro(i);
-    s += `<polygon points="${rombo(x, y)}" fill="#8B5A2E" stroke="#6E4424" stroke-width="1.5"/>
-      <path d="M${x - 46} ${y} L${x} ${y + 23} M${x - 23} ${y - 11.5} L${x + 23} ${y + 11.5} M${x} ${y - 23} L${x + 46} ${y}" stroke="#6A4120" stroke-width="2.4" stroke-linecap="round"/>`;
+  /* sombra de las parcelas sobre el pasto */
+  s += `<polygon points="${OX},${OY - AH + 10} ${OX + 3 * AW + 14},${OY + 2 * AH + 6} ${OX},${OY + 5 * AH + 26} ${OX - 3 * AW - 14},${OY + 2 * AH + 6}" fill="#1E3A12" opacity=".14"/>`;
+  if (!surcoIlu) {
+    const g = 5, aw = AW - g, ah = AH - g / 2, alto = 14;
+    const orden = [0, 1, 3, 2, 4, 6, 5, 7, 8];          /* de atrás hacia adelante */
+    for (const i of orden) {
+      const [x, y] = centro(i);
+      s += `<polygon points="${x},${y + ah} ${x + aw},${y} ${x + aw},${y + alto} ${x},${y + ah + alto}" fill="#5A3519" stroke="#33200E" stroke-width="2.2" stroke-linejoin="round"/>
+        <polygon points="${x - aw},${y} ${x},${y + ah} ${x},${y + ah + alto} ${x - aw},${y + alto}" fill="#704322" stroke="#33200E" stroke-width="2.2" stroke-linejoin="round"/>
+        <polygon points="${x},${y - ah} ${x + aw},${y} ${x},${y + ah} ${x - aw},${y}" fill="url(#fTierra)" stroke="#33200E" stroke-width="2.4" stroke-linejoin="round"/>
+        ${surcos(x, y, aw, ah)}
+        <path d="M${x - aw + 8} ${y - 2} L${x - 6} ${y - ah + 5}" stroke="#C8925A" stroke-width="2" stroke-linecap="round" opacity=".6"/>`;
+    }
   }
-  return s + `</svg>`;
+  s += `</svg>`;
+  if (surcoIlu) s += [0, 1, 3, 2, 4, 6, 5, 7, 8].map(i => { const [x, y] = centro(i);
+    return `<span class="f-obj" style="left:${x}px;top:${y + AH + 16}px;z-index:2">${ancho(surcoIlu, 2 * AW + 8)}</span>`; }).join("");
+  return s;
 }
 function mataHTML(i) {
   const m = F.lotes[i], e = FI.estado(m, ahora());
