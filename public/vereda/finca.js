@@ -135,8 +135,13 @@ function tierra() {
     }
   }
   s += `</svg>`;
-  if (surcoIlu) s += [0, 1, 3, 2, 4, 6, 5, 7, 8].map(i => { const [x, y] = centro(i);
-    return `<span class="f-obj" style="left:${x}px;top:${y + AH + 16}px;z-index:2">${ancho(surcoIlu, 2 * AW + 8)}</span>`; }).join("");
+  /* La parcela pintada viene un poco más alta que el rombo del terreno (2:1):
+     se aplana lo justo para que encaje, y su cara de arriba queda centrada en el surco. */
+  if (surcoIlu) {
+    const aw = 2 * AW + 6, ah = Math.round(aw * (387 / 512) * 0.78), arriba = Math.round(ah * 164 / 302);
+    s += [0, 1, 3, 2, 4, 6, 5, 7, 8].map(i => { const [x, y] = centro(i);
+      return surcoIlu.replace(/^<img\b/, `<img class="f-surco" style="position:absolute;left:${x - aw / 2}px;top:${y - arriba}px;width:${aw}px;height:${ah}px;z-index:2;pointer-events:none"`); }).join("");
+  }
   return s;
 }
 function mataHTML(i) {

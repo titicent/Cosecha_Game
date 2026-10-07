@@ -15,6 +15,9 @@ diagonal**, como en los juegos de granja, para ponerlos sobre el terreno.
 
 - **Mi finca: 19 de 19, listas y en el juego** (7 de octubre). Quedaron en `public/cartas/`,
   recortadas al dibujo para que se paren sobre el terreno.
+- **El terreno y el fondo** (`t_surco.png` y `f_finca.png`) llegaron el 7 de octubre y ya están en
+  la finca. Si algún día repites el fondo, pídelo más grande (1920 de ancho): el de ahora tiene 1024
+  y en pantallas grandes se ve un poco suave.
 - **Llegaron también** `c_huerta.png` y `e_mercado_campesino.png` nuevas, y ya reemplazaron a las
   anteriores.
 - **Para repetir si quieres** (no bloquean):
