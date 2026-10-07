@@ -126,7 +126,7 @@ function ponerOpciones(s, o) {
     minutosJugador: min.includes(+o.minutosJugador) ? +o.minutosJugador : 0 });
 }
 function crearSala(nombre, ws, cara) {
-  const s = { codigo: codigo(), jugadores: [], opciones: {bonanza:true, duelo:false, aprendiz:false, espantos:false, metaCertificada:false, clima:true, dosJornales:false, segundosTurno:60, minutosJugador:0},
+  const s = { codigo: codigo(), jugadores: [], opciones: {bonanza:true, duelo:false, aprendiz:false, espantos:false, metaCertificada:false, clima:true, dosJornales:false, segundosTurno:60, minutosJugador:0, guia:false},
     iniciada:false, E:null, pendiente:null, reloj:null, relojAusente:null, creada:Date.now() };
   salas.set(s.codigo, s);
   sentar(s, nombre, ws, cara);
