@@ -14,6 +14,10 @@ todas —así se ven del mismo tamaño en la mesa— y lo guarda en paleta de 25
 colores, que pesa una décima parte y en carta no se nota.
 
 Los avatares (a_*) no se recortan: son bustos y el encuadre ya es el retrato.
+
+Las piezas de Mi finca (m_* matas, b_* construcciones) se recortan justo al
+dibujo, sin cuadrado ni margen: van paradas sobre el terreno y la base del
+dibujo tiene que quedar en el borde de abajo. Se guardan a 512 px.
 """
 import os, sys
 import numpy as np
@@ -99,6 +103,18 @@ os.makedirs(DESTINO, exist_ok=True)
 for f in sorted(os.listdir(ORIGEN)):
     if not f.lower().endswith(".png"): continue
     im = Image.open(os.path.join(ORIGEN, f))
+    if f.startswith(("m_", "b_")):
+        im, quitado = quitar_fondo(im)
+        a = np.asarray(im).copy(); a[..., 3] = np.where(a[..., 3] < 24, 0, a[..., 3])   # el halo tenue del recorte
+        im = Image.fromarray(a, "RGBA")
+        caja = im.getchannel("A").getbbox()
+        if caja: im = im.crop(caja)
+        k = 512 / max(im.size)
+        im = im.resize((max(1, round(im.size[0] * k)), max(1, round(im.size[1] * k))), Image.LANCZOS)
+        ruta = os.path.join(DESTINO, f)
+        im.quantize(colors=256, method=Image.Quantize.FASTOCTREE).save(ruta, optimize=True)
+        print(f"  {f:28s} pieza de la finca {im.size[0]}×{im.size[1]}   {os.path.getsize(ruta)//1024:4d} KB")
+        continue
     if f.startswith("a_"):
         # Avatares: se respeta el encuadre del retrato (el juego lo recorta en
         # círculo). Solo se quita el fondo si viene en blanco liso, como pasa

@@ -70,8 +70,13 @@ const arte = k => A.arteDe(k);
 const dibCultivo = c => arte("c_" + c) || A.dibujoCultivo(c);
 const dibPlaga = c => arte("p_comun_" + c) || A.ilustracion({ k: "plaga", c, t: "comun" }, R.CULTIVO[c].hex);
 const dibRemedio = c => arte("r_casero_" + c) || A.ilustracion({ k: "remedio", c, t: "casero" }, R.CULTIVO[c].hex);
-const dibProducto = p => p === "huevos" ? (arte("pr_huevos") || `<span style="font-size:40px;line-height:1">🥚</span>`) : dibCultivo(p);
-const ancho = (html, w) => html.replace(/^<(img|svg)\b/, `<$1 style="width:${w}px;height:auto;max-height:${Math.round(w * 1.25)}px"`);
+const dibProducto = p => p === "huevos" ? (arte("pr_huevos") || `<span style="font-size:40px;line-height:1">🥚</span>`)
+  : p === "cafe" && F.edificios.secadero ? (arte("pr_pergamino") || dibCultivo(p)) : dibCultivo(p);
+/* Las ilustraciones conservan su forma (las matas son más altas que anchas);
+   los dibujos de respaldo, cuadrados, se limitan para que no crezcan de más. */
+const ancho = (html, w) => html.startsWith("<img")
+  ? html.replace(/^<img\b/, `<img style="width:${w}px;height:auto"`)
+  : html.replace(/^<(svg|span)\b/, `<$1 style="width:${w}px;height:auto;max-height:${Math.round(w * 1.25)}px"`);
 const conMoneda = n => `<span class="precio">${MONEDA}${n}</span>`;
 const plural = (n, [uno, varios]) => n + " " + (n === 1 ? uno : varios);
 const mmss = ms => { const s = Math.ceil(ms / 1000); return s >= 60 ? Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0") : s + " s"; };
@@ -80,7 +85,7 @@ const mmss = ms => { const s = Math.ceil(ms / 1000); return s >= 60 ? Math.floor
 const W = 640, H = 420, OX = 320, OY = 150, AW = 80, AH = 40;
 const centro = i => { const a = i % 3, b = Math.floor(i / 3); return [OX + (a - b) * AW, OY + (a + b) * AH]; };
 const rombo = (x, y) => `${x},${y - AH} ${x + AW},${y} ${x},${y + AH} ${x - AW},${y}`;
-const LUGARES = { casa: [128, 176], puesto: [516, 178], tablero: [596, 300], secadero: [92, 352], gallinero: [548, 392] };
+const LUGARES = { casa: [124, 184], puesto: [520, 186], tablero: [606, 282], secadero: [88, 384], gallinero: [536, 414] };
 function tierra() {
   let s = `<svg class="tierra" viewBox="0 0 ${W} ${H}" aria-hidden="true">
     <path d="M304 300 C 290 350, 340 380, 300 ${H} L 360 ${H} C 380 380, 340 350, 340 300 Z" fill="#CDB27A" opacity=".9"/>`;
@@ -102,17 +107,20 @@ function mataHTML(i) {
   if (!e) return "";
   const [x, y] = centro(i);
   let dib, w;
-  if (e.muerta) { dib = SECA; w = 60; }
-  else if (e.etapa === 1) { dib = arte("m_semilla") || MONTICULO; w = 56; }
-  else if (e.etapa === 2) { dib = arte("m_brote") || BROTE; w = 58; }
-  else if (e.etapa === 3) { dib = arte("m_" + m.c + "_crece") || dibCultivo(m.c); w = 62; }
-  else { dib = arte("m_" + m.c + "_lista") || dibCultivo(m.c); w = 96; }
+  /* Tamaños en el terreno (cada surco mide 160 de ancho). La huerta es un
+     cajón ancho y bajito; las demás, matas paradas. */
+  const ancha = m.c === "huerta";
+  if (e.muerta) { const d = arte("m_" + m.c + "_crece"); dib = d || SECA; w = d ? (ancha ? 124 : 74) : 60; }
+  else if (e.etapa === 1) { dib = arte("m_semilla") || MONTICULO; w = arte("m_semilla") ? 72 : 56; }
+  else if (e.etapa === 2) { dib = arte("m_brote") || BROTE; w = arte("m_brote") ? 76 : 58; }
+  else if (e.etapa === 3) { const d = arte("m_" + m.c + "_crece"); dib = d || dibCultivo(m.c); w = d ? (ancha ? 124 : 80) : 62; }
+  else { const d = arte("m_" + m.c + "_lista"); dib = d || dibCultivo(m.c); w = d ? (ancha ? 132 : 106) : 96; }
   const insignia = e.muerta ? "" : e.plagada ? `<span class="f-insignia plaga">${dibPlaga(m.c)}</span>`
     : e.etapa === 4 ? `<span class="f-insignia lista">✓</span>` : "";
   const reloj = e.muerta ? `<span class="f-reloj peligro">${e.muerta === "seca" ? "se secó" : "se marchitó"}</span>`
     : e.plagada ? `<span class="f-reloj peligro" data-muere="${e.muere}">${mmss(e.muere - ahora())}</span>`
     : e.etapa < 4 ? `<span class="f-reloj" data-lista="${m.t0 + m.dur}">${mmss(e.resta)}</span>` : "";
-  return `<div class="f-mata ${e.muerta ? "seca" : e.plagada ? "plagada" : ""}" style="left:${x}px;top:${y + 16}px;z-index:${Math.round(y)}">
+  return `<div class="f-mata ${e.muerta ? "seca" : e.plagada ? "plagada" : ""}" style="left:${x}px;top:${y + (arte("m_brote") ? 26 : 16)}px;z-index:${Math.round(y)}">
     ${reloj}<span class="dib" style="position:relative">${ancho(dib, w)}${insignia}</span></div>`;
 }
 /* La firma de lo que se ve: si no cambia, no se vuelve a pintar el terreno. */
@@ -132,9 +140,9 @@ function pintarTerreno(forzar) {
   const mundo = document.getElementById("mundo"); if (!mundo) return;
   const h = FI.huevos(F, ahora());
   mundo.innerHTML = tierra() +
-    edificio("casa", CASA, 150) + edificio("puesto", PUESTO, 118) + edificio("tablero", TABLERO, 84) +
-    (F.edificios.secadero ? edificio("secadero", SECADERO, 118) : "") +
-    (F.edificios.gallinero ? edificio("gallinero", GALLINERO, 104, h ? `<span class="f-insignia huevo">🥚</span>` : "") : "") +
+    edificio("casa", CASA, arte("b_casa") ? 176 : 150) + edificio("puesto", PUESTO, arte("b_puesto") ? 128 : 118) + edificio("tablero", TABLERO, arte("b_tablero") ? 78 : 84) +
+    (F.edificios.secadero ? edificio("secadero", SECADERO, arte("b_secadero") ? 140 : 118) : "") +
+    (F.edificios.gallinero ? edificio("gallinero", GALLINERO, arte("b_gallinero") ? 118 : 104, h ? `<span class="f-insignia huevo">${arte("pr_huevos") ? ancho(arte("pr_huevos"), 30) : "🥚"}</span>` : "") : "") +
     F.lotes.map((_, i) => mataHTML(i)).join("") +
     F.lotes.map((_, i) => { const [x, y] = centro(i); return `<button class="f-lote" data-lote="${i}" style="left:${x}px;top:${y}px;z-index:1000" aria-label="Surco ${i + 1}"></button>`; }).join("");
   mundo.querySelectorAll("[data-lote]").forEach(b => b.onclick = () => tocarLote(+b.dataset.lote));

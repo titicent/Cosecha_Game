@@ -13,7 +13,17 @@ diagonal**, como en los juegos de granja, para ponerlos sobre el terreno.
 
 ## Estado (7 de octubre)
 
-- **Mi finca:** 0 de 19.
+- **Mi finca: 19 de 19, listas y en el juego** (7 de octubre). Quedaron en `public/cartas/`,
+  recortadas al dibujo para que se paren sobre el terreno.
+- **Llegaron también** `c_huerta.png` y `e_mercado_campesino.png` nuevas, y ya reemplazaron a las
+  anteriores.
+- **Para repetir si quieres** (no bloquean):
+  - `m_huerta_lista.png` se ve casi igual a `m_huerta_crece.png`. La lista debería verse frondosa,
+    con tomates rojos grandes, cebollas largas y lechugas abiertas, para que se note que ya se puede
+    cosechar.
+  - `c_huerta.png` quedó casi igual a `e_mercado_campesino.png` (los dos son un canasto con café,
+    plátano y caña). En Pedidos del pueblo salen juntos y se confunden. La huerta debería mostrar
+    lo de la huerta: cebolla larga, tomate, cilantro, lechuga.
 - **Hechas antes:** los 18 avatares y los 7 dibujos del espantapájaros. Ese minijuego salió del
   mapa, pero la gallina, el ternero, la abeja y los demás animales se usarán en Mi finca.
 
