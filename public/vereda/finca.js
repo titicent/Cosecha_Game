@@ -82,10 +82,13 @@ const plural = (n, [uno, varios]) => n + " " + (n === 1 ? uno : varios);
 const mmss = ms => { const s = Math.ceil(ms / 1000); return s >= 60 ? Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0") : s + " s"; };
 
 /* ── El terreno ────────────────────────────────────────────── */
-const W = 640, H = 420, OX = 320, OY = 150, AW = 80, AH = 40;
+/* El mundo tiene la forma del fondo pintado (1024 × 572): así cada cosa queda
+   siempre en el mismo sitio del paisaje, se vea en la pantalla que se vea. */
+const W = 1024, H = 572, OX = 520, OY = 300, AW = 62, AH = 31;
 const centro = i => { const a = i % 3, b = Math.floor(i / 3); return [OX + (a - b) * AW, OY + (a + b) * AH]; };
 const rombo = (x, y) => `${x},${y - AH} ${x + AW},${y} ${x},${y + AH} ${x - AW},${y}`;
-const LUGARES = { casa: [124, 184], puesto: [520, 186], tablero: [606, 282], secadero: [88, 384], gallinero: [536, 414] };
+/* Dónde va cada construcción sobre el prado del fondo (punto de apoyo, abajo al centro). */
+const LUGARES = { casa: [258, 322], puesto: [792, 338], tablero: [748, 468], secadero: [232, 470], gallinero: [632, 526] };
 /* El terreno. Si ya llegaron las ilustraciones del surco (t_surco) y del
    fondo (f_finca), se usan; si no, se dibuja aquí con el mismo trazo de tinta
    de las ilustraciones: parcelas levantadas, surcos con luz y sombra, pasto
@@ -105,7 +108,8 @@ function tierra() {
   const conFondo = !!arte("f_finca"), surcoIlu = arte("t_surco");
   const campo = document.getElementById("campo");
   if (campo) campo.classList.toggle("con-fondo", conFondo);
-  let s = `<svg class="tierra" viewBox="0 0 ${W} ${H}" aria-hidden="true"><defs>
+  let s = (conFondo ? arte("f_finca").replace(/^<img\b/, `<img class="f-fondo" style="position:absolute;inset:0;width:${W}px;height:${H}px;pointer-events:none"`) : "") +
+    `<svg class="tierra" viewBox="0 0 ${W} ${H}" aria-hidden="true"><defs>
     <linearGradient id="fTierra" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#A06B3A"/><stop offset="1" stop-color="#7A4A26"/></linearGradient>
     <linearGradient id="fCamino" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#D9BE86"/><stop offset="1" stop-color="#C4A26A"/></linearGradient></defs>`;
   if (!conFondo) {
@@ -117,7 +121,7 @@ function tierra() {
     for (let k = 0; k < 18; k++) { const x = (k * 97) % 620 + 10, y = (k * 53) % 400 + 10;
       s += `<g transform="translate(${x} ${y})"><circle r="3.2" fill="${["#FFE38A", "#F7B2A0", "#FFFFFF"][k % 3]}" stroke="#7A5A2E" stroke-width=".8"/><circle r="1.1" fill="#E0A21A"/></g>`; }
     /* el camino, que llega hasta las parcelas */
-    s += `<path d="M300 318 C 284 352, 330 382, 292 ${H + 4} L 362 ${H + 4} C 388 382, 346 352, 348 318 Z" fill="url(#fCamino)" stroke="#8A6A3A" stroke-width="2.4"/>`;
+    s += `<path d="M500 462 C 486 496, 532 526, 494 ${H + 4} L 564 ${H + 4} C 590 526, 548 496, 550 462 Z" fill="url(#fCamino)" stroke="#8A6A3A" stroke-width="2.4"/>`;
     for (let k = 0; k < 9; k++) s += `<ellipse cx="${308 + (k * 17) % 40}" cy="${336 + k * 9}" rx="4" ry="2.4" fill="#A8885A" opacity=".8"/>`;
   }
   /* sombra de las parcelas sobre el pasto */
@@ -152,17 +156,17 @@ function mataHTML(i) {
   /* Tamaños en el terreno (cada surco mide 160 de ancho). La huerta es un
      cajón ancho y bajito; las demás, matas paradas. */
   const ancha = m.c === "huerta";
-  if (e.muerta) { const d = arte("m_" + m.c + "_crece"); dib = d || SECA; w = d ? (ancha ? 124 : 74) : 60; }
-  else if (e.etapa === 1) { dib = arte("m_semilla") || MONTICULO; w = arte("m_semilla") ? 72 : 56; }
-  else if (e.etapa === 2) { dib = arte("m_brote") || BROTE; w = arte("m_brote") ? 76 : 58; }
-  else if (e.etapa === 3) { const d = arte("m_" + m.c + "_crece"); dib = d || dibCultivo(m.c); w = d ? (ancha ? 124 : 80) : 62; }
-  else { const d = arte("m_" + m.c + "_lista"); dib = d || dibCultivo(m.c); w = d ? (ancha ? 132 : 106) : 96; }
+  if (e.muerta) { const d = arte("m_" + m.c + "_crece"); dib = d || SECA; w = d ? (ancha ? 94 : 56) : 46; }
+  else if (e.etapa === 1) { dib = arte("m_semilla") || MONTICULO; w = arte("m_semilla") ? 54 : 44; }
+  else if (e.etapa === 2) { dib = arte("m_brote") || BROTE; w = arte("m_brote") ? 56 : 46; }
+  else if (e.etapa === 3) { const d = arte("m_" + m.c + "_crece"); dib = d || dibCultivo(m.c); w = d ? (ancha ? 94 : 60) : 48; }
+  else { const d = arte("m_" + m.c + "_lista"); dib = d || dibCultivo(m.c); w = d ? (ancha ? 100 : 78) : 72; }
   const insignia = e.muerta ? "" : e.plagada ? `<span class="f-insignia plaga">${dibPlaga(m.c)}</span>`
     : e.etapa === 4 ? `<span class="f-insignia lista">✓</span>` : "";
   const reloj = e.muerta ? `<span class="f-reloj peligro">${e.muerta === "seca" ? "se secó" : "se marchitó"}</span>`
     : e.plagada ? `<span class="f-reloj peligro" data-muere="${e.muere}">${mmss(e.muere - ahora())}</span>`
     : e.etapa < 4 ? `<span class="f-reloj" data-lista="${m.t0 + m.dur}">${mmss(e.resta)}</span>` : "";
-  return `<div class="f-mata ${e.muerta ? "seca" : e.plagada ? "plagada" : ""}" style="left:${x}px;top:${y + (arte("m_brote") ? 26 : 16)}px;z-index:${Math.round(y)}">
+  return `<div class="f-mata ${e.muerta ? "seca" : e.plagada ? "plagada" : ""}" style="left:${x}px;top:${y + (arte("m_brote") ? 20 : 12)}px;z-index:${Math.round(y)}">
     ${reloj}<span class="dib" style="position:relative">${ancho(dib, w)}${insignia}</span></div>`;
 }
 /* La firma de lo que se ve: si no cambia, no se vuelve a pintar el terreno. */
@@ -182,12 +186,13 @@ function pintarTerreno(forzar) {
   const mundo = document.getElementById("mundo"); if (!mundo) return;
   const h = FI.huevos(F, ahora());
   mundo.innerHTML = tierra() +
-    edificio("casa", CASA, arte("b_casa") ? 176 : 150) + edificio("puesto", PUESTO, arte("b_puesto") ? 128 : 118) + edificio("tablero", TABLERO, arte("b_tablero") ? 78 : 84) +
-    (F.edificios.secadero ? edificio("secadero", SECADERO, arte("b_secadero") ? 140 : 118) : "") +
-    (F.edificios.gallinero ? edificio("gallinero", GALLINERO, arte("b_gallinero") ? 118 : 104, h ? `<span class="f-insignia huevo">${arte("pr_huevos") ? ancho(arte("pr_huevos"), 30) : "🥚"}</span>` : "") : "") +
+    edificio("casa", CASA, arte("b_casa") ? 138 : 120) + edificio("puesto", PUESTO, arte("b_puesto") ? 100 : 92) + edificio("tablero", TABLERO, arte("b_tablero") ? 56 : 62) +
+    (F.edificios.secadero ? edificio("secadero", SECADERO, arte("b_secadero") ? 108 : 92) : "") +
+    (F.edificios.gallinero ? edificio("gallinero", GALLINERO, arte("b_gallinero") ? 90 : 82, h ? `<span class="f-insignia huevo">${arte("pr_huevos") ? ancho(arte("pr_huevos"), 24) : "🥚"}</span>` : "") : "") +
     F.lotes.map((_, i) => mataHTML(i)).join("") +
-    F.lotes.map((_, i) => { const [x, y] = centro(i); return `<button class="f-lote" data-lote="${i}" style="left:${x}px;top:${y}px;z-index:1000" aria-label="Surco ${i + 1}"></button>`; }).join("");
+    F.lotes.map((_, i) => { const [x, y] = centro(i); return `<button class="f-lote" data-lote="${i}" style="left:${x}px;top:${y}px;width:${2 * AW}px;height:${2 * AH}px;z-index:1000" aria-label="Surco ${i + 1}"></button>`; }).join("");
   mundo.querySelectorAll("[data-lote]").forEach(b => b.onclick = () => tocarLote(+b.dataset.lote));
+  escalar();
   mundo.querySelectorAll("[data-edificio]").forEach(b => b.onclick = () => tocarEdificio(b.dataset.edificio));
   pintarLado();
 }
@@ -198,7 +203,10 @@ function actualizarRelojes() {
 }
 function escalar() {
   const c = document.getElementById("campo"), m = document.getElementById("mundo"); if (!c || !m) return;
-  const s = Math.min(c.clientWidth / W, c.clientHeight / H) * 0.98;
+  /* El fondo llena todo el recuadro (se recorta un poco por los bordes); sin
+     fondo pintado, el mundo cabe entero. */
+  const conFondo = !!arte("f_finca");
+  const s = conFondo ? Math.max(c.clientWidth / W, c.clientHeight / H) : Math.min(c.clientWidth / W, c.clientHeight / H) * 0.98;
   m.style.transform = `translate(-50%,-50%) scale(${s})`;
 }
 

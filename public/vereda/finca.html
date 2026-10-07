@@ -29,9 +29,9 @@
 .f-acc .burbuja.ok{background:#4E8A2A;border-color:#CDEB9A}
 .f-campo{position:relative;min-height:240px;border-radius:22px;overflow:hidden;border:1.5px solid var(--oro-suave);
   background:radial-gradient(120% 90% at 50% 20%,#7DB451 0%,#5E9A3A 45%,#447A2C 100%);box-shadow:var(--sombra);touch-action:manipulation}
-.f-campo.con-fondo{background:url(cartas/f_finca.png) center/cover no-repeat,#5E9A3A}
-.f-mundo{position:absolute;left:50%;top:50%;width:640px;height:420px;transform-origin:50% 50%;user-select:none;-webkit-user-select:none}
-.f-mundo>svg.tierra{position:absolute;inset:0;width:640px;height:420px}
+.f-campo.con-fondo{background:#5E9A3A}
+.f-mundo{position:absolute;left:50%;top:50%;width:1024px;height:572px;transform-origin:50% 50%;user-select:none;-webkit-user-select:none}
+.f-mundo>svg.tierra{position:absolute;inset:0;width:1024px;height:572px}
 .f-obj{position:absolute;left:0;top:0;transform:translate(-50%,-100%);pointer-events:none;display:flex;flex-direction:column;align-items:center}
 .f-obj img,.f-obj svg{display:block;filter:drop-shadow(0 4px 3px rgba(0,0,0,.28))}
 .f-obj.toca{pointer-events:auto;background:none;border:0;padding:0;cursor:pointer}
@@ -44,14 +44,14 @@
 .f-mata .dib>*{filter:drop-shadow(0 4px 3px rgba(0,0,0,.3))}
 .f-mata.seca .dib{filter:grayscale(.85) sepia(.5) brightness(.8)}
 .f-mata.plagada .dib{filter:saturate(.45) brightness(.9)}
-.f-mata .f-reloj{margin-bottom:2px;position:relative;z-index:2;box-shadow:0 2px 6px rgba(0,0,0,.35);background:rgba(10,18,8,.75);color:var(--crema);font-size:15px;border-radius:10px;padding:1px 8px;font-variant-numeric:tabular-nums}
+.f-mata .f-reloj{margin-bottom:2px;position:relative;z-index:2;box-shadow:0 2px 6px rgba(0,0,0,.35);background:rgba(10,18,8,.75);color:var(--crema);font-size:12px;border-radius:8px;padding:0 6px;font-variant-numeric:tabular-nums}
 .f-mata .f-reloj.peligro{background:#8E2A20;color:#FFE1DA}
-.f-insignia{position:absolute;top:-6px;right:-14px;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;
+.f-insignia{position:absolute;top:-4px;right:-10px;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;
   animation:flota 1.2s ease-in-out infinite alternate}
-.f-insignia.lista{background:#FFD45A;border:2.5px solid #7A5310;color:#3A2A08;font-size:22px;font-weight:600}
+.f-insignia.lista{background:#FFD45A;border:2px solid #7A5310;color:#3A2A08;font-size:16px;font-weight:600}
 .f-insignia.plaga{background:#FFF1EC;border:3px solid var(--rojo)}
-.f-insignia.plaga img,.f-insignia.plaga svg{width:30px;height:30px;object-fit:contain}
-.f-insignia.huevo{background:#FFF8E6;border:2.5px solid var(--oro);font-size:22px}
+.f-insignia.plaga img,.f-insignia.plaga svg{width:21px;height:21px;object-fit:contain}
+.f-insignia.huevo{background:#FFF8E6;border:2px solid var(--oro);font-size:16px}
 @keyframes flota{to{transform:translateY(-6px)}}
 .f-hoja{position:fixed;left:0;right:0;bottom:0;z-index:50;max-height:82dvh;overflow:auto;background:var(--panel-2);border-top:2px solid var(--oro);
   border-radius:22px 22px 0 0;padding:14px 16px calc(16px + env(safe-area-inset-bottom));box-shadow:0 -14px 34px rgba(0,0,0,.45);animation:subeHoja .25s ease}
